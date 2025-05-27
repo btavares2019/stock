@@ -3,41 +3,74 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gestão de Estoque</title>
+  <title>Gestão de Estoque com Login e Exportação Excel</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
-    #loginForm, #app { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; }
+    #loginForm, #app { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);}
     #app { display: none; }
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    input[type="text"], input[type="number"], input[type="date"], input[type="password"] {
-      width: 100%; padding: 6px; box-sizing: border-box;
+    input[type="text"], input[type="number"], input[type="password"] { 
+      width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;
+      transition: border-color 0.3s ease;
     }
-    .btn { padding: 6px 12px; margin: 5px 2px; cursor: pointer; }
-    #logo { display: block; margin: 0 auto 20px auto; max-width: 200px; }
-    #msgErro { color: red; display: none; margin-top: 10px; }
-    .removeBtn { background-color: #e74c3c; color: white; border: none; border-radius: 4px; }
-    .removeBtn:hover { background-color: #c0392b; }
+    input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:focus {
+      border-color: #007BFF;
+      outline: none;
+    }
+
+    .btn {
+      background-color: #007BFF;
+      border: none;
+      color: white;
+      padding: 10px 18px;
+      margin: 5px 4px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      box-shadow: 0 4px 6px rgba(0,123,255,0.3);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      user-select: none;
+    }
+    .btn:hover {
+      background-color: #0056b3;
+      box-shadow: 0 6px 12px rgba(0,86,179,0.5);
+    }
+    .btn:active {
+      background-color: #004494;
+      box-shadow: 0 2px 4px rgba(0,68,148,0.7);
+      transform: translateY(1px);
+    }
+
+    #msgErro {
+      color: red;
+      margin-top: 8px;
+      font-weight: bold;
+      display: none;
+    }
   </style>
 </head>
 <body>
 
 <div id="loginForm">
-  <img id="logo" src="https://inovar-mais.com/wp-content/uploads/2020/07/inovarmais_logo_branco.png" alt="Logo Inovar Mais" />
   <h2>Login</h2>
-  <label for="username">Usuário:</label><br>
-  <input type="text" id="username" autocomplete="username" /><br><br>
-  <label for="password">Senha:</label><br>
-  <input type="password" id="password" autocomplete="current-password" /><br><br>
-  <button class="btn" id="loginBtn">Entrar</button>
+  <label>Usuário:</label><br />
+  <input type="text" id="username" /><br /><br />
+  <label>Senha:</label><br />
+  <input type="password" id="password" /><br /><br />
+  <button class="btn" onclick="login()">Entrar</button>
   <p id="msgErro">Usuário ou senha incorretos.</p>
 </div>
 
 <div id="app">
   <h2>Controle de Estoque</h2>
+  <button class="btn" onclick="logout()">Logout</button><br /><br />
+
   <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Procurar produto..." />
+
   <button class="btn" onclick="addRow()">Adicionar Produto</button>
-  <button class="btn" onclick="exportToExcel()">Exportar Excel</button>
+  <button class="btn" onclick="exportToExcel()">Exportar Excel</button><br /><br />
 
   <table id="estoqueTable">
     <thead>
@@ -45,128 +78,111 @@
         <th>Produto</th>
         <th>Quantidade</th>
         <th>Referência</th>
-        <th>Data Última Alteração</th>
-        <th>Ação</th>
+        <th>Data da Última Alteração</th>
+        <th>Ações</th>
       </tr>
     </thead>
     <tbody>
-      <!-- Linhas dinâmicas -->
+      <!-- Linhas dinâmicas aqui -->
     </tbody>
   </table>
 </div>
 
+<!-- Biblioteca SheetJS para Excel -->
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
 <script>
-  const USER = 'admin';
-  const PASS = '12345';
+  const userDB = { username: 'admin', password: '1234' };
 
-  const loginBtn = document.getElementById('loginBtn');
-  const msgErro = document.getElementById('msgErro');
-
-  loginBtn.addEventListener('click', () => {
-    const userInput = document.getElementById('username').value.trim();
-    const passInput = document.getElementById('password').value.trim();
-
-    if(userInput === USER && passInput === PASS) {
+  function login() {
+    const user = document.getElementById('username').value;
+    const pass = document.getElementById('password').value;
+    const msgErro = document.getElementById('msgErro');
+    if(user === userDB.username && pass === userDB.password) {
+      msgErro.style.display = 'none';
       document.getElementById('loginForm').style.display = 'none';
       document.getElementById('app').style.display = 'block';
-      msgErro.style.display = 'none';
-      loadTableFromStorage();
+      loadInitialData();
     } else {
       msgErro.style.display = 'block';
     }
-  });
+  }
 
-  function addRow(produto = '', quantidade = '', referencia = '', dataAlteracao = '') {
+  function logout() {
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('loginForm').style.display = 'block';
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
+    document.getElementById('msgErro').style.display = 'none';
+  }
+
+  function addRow() {
     const tbody = document.querySelector('#estoqueTable tbody');
     const tr = document.createElement('tr');
 
-    if (!dataAlteracao) {
-      const hoje = new Date();
-      dataAlteracao = hoje.toISOString().split('T')[0];
-    }
-
     tr.innerHTML = `
-      <td><input type="text" class="produto" value="${produto}" oninput="updateDate(this)"></td>
-      <td><input type="number" class="quantidade" min="0" value="${quantidade}" oninput="updateDate(this)"></td>
-      <td><input type="text" class="referencia" value="${referencia}" oninput="updateDate(this)"></td>
-      <td><input type="date" class="dataAlteracao" value="${dataAlteracao}" readonly></td>
-      <td><button class="removeBtn btn" onclick="removeRow(this)">Remover</button></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td>${new Date().toLocaleDateString()}</td>
+      <td><button class="btn" onclick="removeRow(this)">Remover</button></td>
     `;
-
     tbody.appendChild(tr);
-    saveTableToStorage();
   }
 
-  function removeRow(button) {
-    button.closest('tr').remove();
-    saveTableToStorage();
-  }
-
-  function updateDate(inputElement) {
-    const tr = inputElement.closest('tr');
-    const dataInput = tr.querySelector('.dataAlteracao');
-    const hoje = new Date();
-    dataInput.value = hoje.toISOString().split('T')[0];
-    saveTableToStorage();
+  function removeRow(btn) {
+    const row = btn.parentNode.parentNode;
+    row.remove();
   }
 
   function searchTable() {
-    const input = document.getElementById('searchInput').value.toLowerCase();
+    const filter = document.getElementById('searchInput').value.toLowerCase();
     const rows = document.querySelectorAll('#estoqueTable tbody tr');
 
     rows.forEach(row => {
-      const produto = row.querySelector('.produto').value.toLowerCase();
-      row.style.display = produto.includes(input) ? '' : 'none';
+      const prod = row.cells[0].textContent.toLowerCase();
+      if(prod.indexOf(filter) > -1) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
     });
   }
+
+  document.querySelector('#estoqueTable tbody').addEventListener('input', e => {
+    if(e.target && e.target.tagName === 'TD') {
+      const row = e.target.parentNode;
+      const dataCell = row.cells[3];
+      dataCell.textContent = new Date().toLocaleDateString();
+    }
+  });
 
   function exportToExcel() {
-    const rows = document.querySelectorAll('#estoqueTable tr');
-    let csvContent = '';
-
-    rows.forEach(row => {
-      const cols = row.querySelectorAll('th, td');
-      const rowData = [];
-      cols.forEach(col => {
-        const input = col.querySelector('input');
-        if (input) {
-          rowData.push(input.value.replace(/;/g, ','));
-        } else {
-          rowData.push(col.textContent.trim().replace(/;/g, ','));
-        }
-      });
-      csvContent += rowData.join(';') + '\n';
-    });
-
-    const blob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'estoque.csv';
-    a.click();
-    URL.revokeObjectURL(url);
+    const table = document.getElementById('estoqueTable');
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.table_to_sheet(table);
+    XLSX.utils.book_append_sheet(wb, ws, "Estoque");
+    XLSX.writeFile(wb, "estoque.xlsx");
   }
 
-  function saveTableToStorage() {
-    const rows = document.querySelectorAll('#estoqueTable tbody tr');
-    const data = [];
-
-    rows.forEach(row => {
-      const produto = row.querySelector('.produto').value;
-      const quantidade = row.querySelector('.quantidade').value;
-      const referencia = row.querySelector('.referencia').value;
-      const dataAlteracao = row.querySelector('.dataAlteracao').value;
-      data.push({ produto, quantidade, referencia, dataAlteracao });
-    });
-
-    localStorage.setItem('estoqueData', JSON.stringify(data));
-  }
-
-  function loadTableFromStorage() {
-    const data = JSON.parse(localStorage.getItem('estoqueData') || '[]');
-    data.forEach(item => {
-      addRow(item.produto, item.quantidade, item.referencia, item.dataAlteracao);
-    });
+  function loadInitialData() {
+    const tbody = document.querySelector('#estoqueTable tbody');
+    tbody.innerHTML = `
+      <tr>
+        <td contenteditable="true">Produto A</td>
+        <td contenteditable="true">10</td>
+        <td contenteditable="true">REF001</td>
+        <td>${new Date().toLocaleDateString()}</td>
+        <td><button class="btn" onclick="removeRow(this)">Remover</button></td>
+      </tr>
+      <tr>
+        <td contenteditable="true">Produto B</td>
+        <td contenteditable="true">5</td>
+        <td contenteditable="true">REF002</td>
+        <td>${new Date().toLocaleDateString()}</td>
+        <td><button class="btn" onclick="removeRow(this)">Remover</button></td>
+      </tr>
+    `;
   }
 </script>
 
