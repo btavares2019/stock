@@ -75,7 +75,7 @@
     background: #2563eb;
     color: white;
   }
-  input[type=text], input[type=number], input[type=password] {
+  input[type=text], input[type=number] {
     padding: 0.4rem 0.6rem;
     border: 1px solid #ccc;
     border-radius: 6px;
@@ -83,7 +83,7 @@
     width: 200px;
   }
   input[type=number] {
-    max-width: 120px;
+    max-width: 100px;
   }
   .flex-row {
     display: flex;
@@ -104,12 +104,6 @@
   .btn:hover {
     background: #1e40af;
   }
-  .btn-danger {
-    background: #f87171;
-  }
-  .btn-danger:hover {
-    background: #ef4444;
-  }
   footer {
     text-align: center;
     padding: 1rem;
@@ -119,12 +113,6 @@
   }
   .hidden {
     display: none;
-  }
-  #exportButtons {
-    margin-top: 1rem;
-  }
-  #exportButtons button {
-    margin-right: 0.8rem;
   }
 </style>
 </head>
@@ -136,7 +124,7 @@
   </div>
   <div>
     <span id="lastLoginDisplay"></span>
-    <button id="logoutBtn" class="hidden">Logout</button>
+    <button id="logoutBtn">Logout</button>
   </div>
 </header>
 
@@ -151,19 +139,19 @@
   <section id="loginSection">
     <h2>Iniciar Sessão</h2>
     <div class="flex-row" style="margin-bottom:1rem;">
-      <input type="text" id="loginUsername" placeholder="Nome de utilizador" autocomplete="username"/>
-      <input type="password" id="loginPassword" placeholder="Palavra-passe" autocomplete="current-password"/>
+      <input type="text" id="loginUsername" placeholder="Nome de utilizador" />
+      <input type="password" id="loginPassword" placeholder="Palavra-passe" />
       <button class="btn" id="loginBtn">Entrar</button>
     </div>
     <div id="loginMsg" style="color: red;"></div>
   </section>
 
   <!-- Produtos -->
-  <section id="produtosSection" class="hidden" aria-label="Gestão de produtos">
+  <section id="produtosSection" class="hidden">
     <h2>Produtos</h2>
     <div class="flex-row" style="margin-bottom:1rem;">
-      <input type="text" id="filterName" placeholder="Pesquisar por nome" aria-label="Pesquisar por nome do produto" />
-      <input type="number" id="filterQty" min="0" placeholder="Quantidade inferior a" aria-label="Filtrar produtos por quantidade inferior a" />
+      <input type="text" id="filterName" placeholder="Pesquisar por nome" />
+      <input type="number" id="filterQty" min="0" placeholder="Quantidade inferior a" />
     </div>
 
     <table aria-label="Tabela de produtos">
@@ -178,23 +166,17 @@
       <tbody id="productTable"></tbody>
     </table>
 
-    <div id="exportButtons" class="flex-row">
-      <button class="btn" id="exportExcelBtn" aria-label="Exportar produtos para Excel">Exportar Excel</button>
-      <button class="btn" id="exportPdfBtn" aria-label="Exportar produtos para PDF">Exportar PDF</button>
-      <button class="btn" id="printBtn" aria-label="Imprimir tabela de produtos">Imprimir</button>
-    </div>
-
     <h3>Adicionar / Editar Produto</h3>
     <div class="flex-row" style="margin-bottom:1rem; gap:0.5rem;">
-      <input type="text" id="productName" placeholder="Nome do produto" aria-label="Nome do produto" />
-      <input type="number" id="productQty" min="0" placeholder="Quantidade" aria-label="Quantidade do produto" />
+      <input type="text" id="productName" placeholder="Nome do produto" />
+      <input type="number" id="productQty" min="0" placeholder="Quantidade" />
       <button class="btn" id="addEditProductBtn">Adicionar</button>
-      <button class="btn btn-danger hidden" id="cancelEditBtn">Cancelar</button>
+      <button class="btn hidden" id="cancelEditBtn" style="background:#f87171;">Cancelar</button>
     </div>
   </section>
 
   <!-- Histórico -->
-  <section id="historicoSection" class="hidden" aria-label="Histórico de contagens">
+  <section id="historicoSection" class="hidden">
     <h2>Histórico de Contagens</h2>
     <table aria-label="Histórico de produtos">
       <thead>
@@ -205,7 +187,7 @@
   </section>
 
   <!-- Utilizadores -->
-  <section id="utilizadoresSection" class="hidden" aria-label="Gestão de utilizadores">
+  <section id="utilizadoresSection" class="hidden">
     <h2>Gestão de Utilizadores</h2>
 
     <table aria-label="Tabela de utilizadores" style="margin-bottom:1rem;">
@@ -217,8 +199,8 @@
 
     <h3>Adicionar Utilizador</h3>
     <div class="flex-row" style="margin-bottom:1rem; gap:0.5rem;">
-      <input type="text" id="newUsername" placeholder="Nome de utilizador" aria-label="Nome de utilizador" autocomplete="username"/>
-      <input type="password" id="newPassword" placeholder="Palavra-passe" aria-label="Palavra-passe" autocomplete="new-password"/>
+      <input type="text" id="newUsername" placeholder="Nome de utilizador" />
+      <input type="password" id="newPassword" placeholder="Palavra-passe" />
       <button class="btn" id="addUserBtn">Adicionar</button>
     </div>
     <div id="userMsg" style="color:red;"></div>
@@ -228,11 +210,6 @@
 <footer>
   Criado por Bruno Tavares 2025
 </footer>
-
-<!-- Bibliotecas externas -->
-<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 
 <script>
   // --- Dados e armazenamento ---
@@ -295,50 +272,304 @@
   const loginUsername = document.getElementById('loginUsername');
   const loginPassword = document.getElementById('loginPassword');
   const loginBtn = document.getElementById('loginBtn');
-const loginMsg = document.getElementById('loginMsg');
-const logoutBtn = document.getElementById('logoutBtn');
+  const loginMsg = document.getElementById('loginMsg');
+  const logoutBtn = document.getElementById('logoutBtn');
 
-const filterName = document.getElementById('filterName');
-const filterQty = document.getElementById('filterQty');
-const productTable = document.getElementById('productTable');
-const historicoTable = document.getElementById('historicoTable');
+  const filterName = document.getElementById('filterName');
+  const filterQty = document.getElementById('filterQty');
+  const productTable = document.getElementById('productTable');
+  const historicoTable = document.getElementById('historicoTable');
 
-const exportExcelBtn = document.getElementById('exportExcelBtn');
-const exportPdfBtn = document.getElementById('exportPdfBtn');
-const printBtn = document.getElementById('printBtn');
+  const productNameInput = document.getElementById('productName');
+  const productQtyInput = document.getElementById('productQty');
+  const addEditProductBtn = document.getElementById('addEditProductBtn');
+  const cancelEditBtn = document.getElementById('cancelEditBtn');
 
-// --- Exportação ---
-exportExcelBtn.onclick = () => {
-const rows = Array.from(productTable.querySelectorAll('tr')).map(row => {
-const cols = row.querySelectorAll('td');
-return Array.from(cols).slice(0, 3).map(cell => cell.textContent.trim());
-});
-const wb = XLSX.utils.book_new();
-const ws = XLSX.utils.aoa_to_sheet([["Nome", "Quantidade", "Última alteração"], ...rows]);
-XLSX.utils.book_append_sheet(wb, ws, "Produtos");
-XLSX.writeFile(wb, "produtos.xlsx");
-};
+  const navButtons = document.querySelectorAll('nav button');
 
-exportPdfBtn.onclick = () => {
-const { jsPDF } = window.jspdf;
-const doc = new jsPDF();
-doc.autoTable({
-head: [["Nome", "Quantidade", "Última alteração"]],
-body: Array.from(productTable.querySelectorAll('tr')).map(row => {
-const cols = row.querySelectorAll('td');
-return Array.from(cols).slice(0, 3).map(cell => cell.textContent.trim());
-}),
-});
-doc.save("produtos.pdf");
-};
+  const utilizadoresTable = document.getElementById('utilizadoresTable');
+  const newUsernameInput = document.getElementById('newUsername');
+  const newPasswordInput = document.getElementById('newPassword');
+  const addUserBtn = document.getElementById('addUserBtn');
+  const userMsg = document.getElementById('userMsg');
 
-printBtn.onclick = () => {
-const win = window.open('', '', 'width=800,height=600');
-const html = <html><head><title>Imprimir Produtos</title></head> <body> <h2>Lista de Produtos</h2> ${productTable.parentNode.innerHTML} </body></html> ;
-win.document.write(html);
-win.document.close();
-win.print();
-};
+  // --- Funções ---
+  function showSection(name) {
+    loginSection.classList.add('hidden');
+    produtosSection.classList.add('hidden');
+    historicoSection.classList.add('hidden');
+    utilizadoresSection.classList.add('hidden');
+
+    if (name === 'login') loginSection.classList.remove('hidden');
+    else if (name === 'produtos') produtosSection.classList.remove('hidden');
+    else if (name === 'historico') historicoSection.classList.remove('hidden');
+    else if (name === 'utilizadores') utilizadoresSection.classList.remove('hidden');
+  }
+
+  function updateLastLoginDisplay() {
+    if (!currentUser) {
+      lastLoginDisplay.textContent = "";
+      logoutBtn.style.display = "none";
+      return;
+    }
+    lastLoginDisplay.textContent = `Último login: ${currentUser.lastLogin ? currentUser.lastLogin : "Nunca"}`;
+    logoutBtn.style.display = "inline-block";
+  }
+
+  function renderUsers() {
+    const users = loadUsers();
+    utilizadoresTable.innerHTML = '';
+    users.forEach((u,i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${u.username}</td>
+        <td>${u.lastLogin ? u.lastLogin : "Nunca"}</td>
+        <td>
+          ${u.username === currentUser.username ? '' : `<button data-idx="${i}" class="btn deleteUserBtn" style="background:#f87171;">Eliminar</button>`}
+        </td>
+      `;
+      utilizadoresTable.appendChild(tr);
+    });
+
+    document.querySelectorAll('.deleteUserBtn').forEach(btn => {
+      btn.onclick = e => {
+        const idx = Number(e.target.dataset.idx);
+        const users = loadUsers();
+        if (users[idx].username === currentUser.username) {
+          alert("Não podes eliminar o utilizador atual.");
+          return;
+        }
+        users.splice(idx,1);
+        saveUsers(users);
+        renderUsers();
+      };
+    });
+  }
+
+  function renderProducts() {
+    let products = loadProducts();
+    const nameFilter = filterName.value.trim().toLowerCase();
+    const qtyFilterRaw = filterQty.value.trim();
+    const qtyFilter = qtyFilterRaw === '' ? null : Number(qtyFilterRaw);
+
+    productTable.innerHTML = '';
+
+    products = products.filter(p => {
+      const matchName = p.name.toLowerCase().includes(nameFilter);
+      const matchQty = qtyFilter === null || p.qty < qtyFilter;
+      return matchName && matchQty;
+    });
+
+    if (products.length === 0) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td colspan="4" style="text-align:center; font-style: italic;">Nenhum produto encontrado</td>';
+      productTable.appendChild(tr);
+      return;
+    }
+
+    products.forEach((p,i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${p.name}</td>
+        <td>${p.qty}</td>
+        <td>${p.updated}</td>
+        <td>
+          <button class="btn" data-idx="${i}" data-action="edit">Editar</button>
+          <button class="btn" style="background:#f87171;" data-idx="${i}" data-action="delete">Eliminar</button>
+        </td>
+      `;
+      productTable.appendChild(tr);
+    });
+
+    productTable.querySelectorAll('button').forEach(btn => {
+      btn.onclick = e => {
+        const idx = Number(e.target.dataset.idx);
+        const action = e.target.dataset.action;
+        if (action === 'edit') startEditProduct(idx);
+        else if (action === 'delete') deleteProduct(idx);
+      };
+    });
+  }
+
+  function renderHistorico() {
+    const historico = loadHistorico();
+    historicoTable.innerHTML = '';
+    if (historico.length === 0) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td colspan="3" style="text-align:center; font-style: italic;">Sem histórico</td>';
+      historicoTable.appendChild(tr);
+      return;
+    }
+    historico.forEach(h => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${h.date}</td>
+        <td>${h.product}</td>
+        <td>${h.qty}</td>
+      `;
+      historicoTable.appendChild(tr);
+    });
+  }
+
+  function loginUser() {
+    const username = loginUsername.value.trim();
+    const password = loginPassword.value;
+    if (!username || !password) {
+      loginMsg.textContent = "Preencha todos os campos.";
+      return;
+    }
+    const users = loadUsers();
+    const user = users.find(u => u.username === username && u.password === password);
+    if (!user) {
+      loginMsg.textContent = "Utilizador ou palavra-passe incorretos.";
+      return;
+    }
+    currentUser = user;
+    // Atualizar último login
+    const nowStr = new Date().toLocaleString('pt-PT');
+    const usersUpdated = users.map(u => {
+      if (u.username === user.username) {
+        return {...u, lastLogin: nowStr};
+      }
+      return u;
+    });
+    saveUsers(usersUpdated);
+    currentUser.lastLogin = nowStr;
+
+    loginUsername.value = '';
+    loginPassword.value = '';
+    loginMsg.textContent = '';
+
+    updateLastLoginDisplay();
+    showSection('produtos');
+    renderProducts();
+    renderHistorico();
+    renderUsers();
+  }
+
+  function logoutUser() {
+    currentUser = null;
+    updateLastLoginDisplay();
+    showSection('login');
+  }
+
+  function addEditProduct() {
+    const name = productNameInput.value.trim();
+    const qtyStr = productQtyInput.value.trim();
+    if (!name || qtyStr === '') {
+      alert("Preencha nome e quantidade do produto.");
+      return;
+    }
+    const qty = Number(qtyStr);
+    if (isNaN(qty) || qty < 0) {
+      alert("Quantidade inválida.");
+      return;
+    }
+
+    let products = loadProducts();
+    const nowStr = new Date().toLocaleString('pt-PT');
+
+    if (editingProductIndex !== null) {
+      // editar produto
+      products[editingProductIndex].name = name;
+      products[editingProductIndex].qty = qty;
+      products[editingProductIndex].updated = nowStr;
+      editingProductIndex = null;
+      addEditProductBtn.textContent = "Adicionar";
+      cancelEditBtn.classList.add('hidden');
+    } else {
+      // adicionar novo produto
+      products.push({name, qty, updated: nowStr});
+    }
+
+    saveProducts(products);
+
+    // Registar no histórico
+    const historico = loadHistorico();
+    historico.push({date: nowStr, product: name, qty});
+    saveHistorico(historico);
+
+    productNameInput.value = '';
+    productQtyInput.value = '';
+
+    renderProducts();
+    renderHistorico();
+  }
+
+  function startEditProduct(idx) {
+    const products = loadProducts();
+    const p = products[idx];
+    productNameInput.value = p.name;
+    productQtyInput.value = p.qty;
+    addEditProductBtn.textContent = "Guardar";
+    cancelEditBtn.classList.remove('hidden');
+    editingProductIndex = idx;
+  }
+
+  function cancelEdit() {
+    editingProductIndex = null;
+    productNameInput.value = '';
+    productQtyInput.value = '';
+    addEditProductBtn.textContent = "Adicionar";
+    cancelEditBtn.classList.add('hidden');
+  }
+
+  function deleteProduct(idx) {
+    if (!confirm("Tem a certeza que pretende eliminar este produto?")) return;
+    let products = loadProducts();
+    products.splice(idx,1);
+    saveProducts(products);
+    renderProducts();
+  }
+
+  function addUser() {
+    userMsg.textContent = '';
+    const username = newUsernameInput.value.trim();
+    const password = newPasswordInput.value;
+    if (!username || !password) {
+      userMsg.textContent = "Preencha nome de utilizador e palavra-passe.";
+      return;
+    }
+    const users = loadUsers();
+    if (users.find(u => u.username === username)) {
+      userMsg.textContent = "Já existe um utilizador com esse nome.";
+      return;
+    }
+    users.push({username, password, lastLogin: null});
+    saveUsers(users);
+    newUsernameInput.value = '';
+    newPasswordInput.value = '';
+    renderUsers();
+  }
+
+  // --- Eventos ---
+  loginBtn.onclick = loginUser;
+  logoutBtn.onclick = logoutUser;
+
+  addEditProductBtn.onclick = addEditProduct;
+  cancelEditBtn.onclick = cancelEdit;
+
+  filterName.oninput = renderProducts;
+  filterQty.oninput = renderProducts;
+
+  addUserBtn.onclick = addUser;
+
+  navButtons.forEach(btn => {
+    btn.onclick = () => {
+      navButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      showSection(btn.dataset.tab);
+      if (btn.dataset.tab === 'produtos') renderProducts();
+      else if (btn.dataset.tab === 'historico') renderHistorico();
+      else if (btn.dataset.tab === 'utilizadores') renderUsers();
+    };
+  });
+
+  // --- Inicialização ---
+  showSection('login');
+  updateLastLoginDisplay();
+
 </script>
 
-</body> </html>
+</body>
+</html>
