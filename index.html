@@ -1,799 +1,797 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>Gestão de Stock e Utilizadores</title>
-  
-  <!-- Font Awesome for Icons -->
-  <link
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    rel="stylesheet"
-  />
-  <!-- Chart.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- SheetJS CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-  
-  <style>
-    /* RESET */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    body {
-      min-height: 100vh;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: #222;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-    }
-    h1, h2, h3 {
-      margin-bottom: 1rem;
-    }
-    /* CONTAINER */
-    #loginForm, #app {
-      background: #fff;
-      border-radius: 12px;
-      padding: 30px 40px;
-      box-shadow: 0 8px 20px rgb(0 0 0 / 0.15);
-      max-width: 960px;
-      width: 100%;
-      display: none;
-    }
-    #loginForm.active, #app.active {
-      display: block;
-    }
-
-    /* LOGIN FORM */
-    #loginForm {
-      max-width: 400px;
-      margin-top: 5rem;
-    }
-    #loginForm label {
-      display: block;
-      margin-bottom: 0.3rem;
-      font-weight: 600;
-      color: #444;
-    }
-    #loginForm input {
-      width: 100%;
-      padding: 0.7rem 1rem;
-      margin-bottom: 1rem;
-      border-radius: 8px;
-      border: 1.5px solid #ccc;
-      font-size: 1rem;
-      transition: border-color 0.3s ease;
-    }
-    #loginForm input:focus {
-      outline: none;
-      border-color: #764ba2;
-      box-shadow: 0 0 8px #764ba2aa;
-    }
-    #loginForm button {
-      width: 100%;
-      background: #764ba2;
-      color: white;
-      font-weight: 700;
-      padding: 0.8rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1.1rem;
-      transition: background-color 0.3s ease;
-    }
-    #loginForm button:hover {
-      background: #5a3577;
-    }
-    #msgErro {
-      color: #d64545;
-      margin-top: 0.5rem;
-      font-weight: 700;
-      display: none;
-      text-align: center;
-    }
-
-    /* NAVIGATION */
-    nav {
-      display: flex;
-      gap: 20px;
-      margin-bottom: 20px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    nav button {
-      background: #764ba2;
-      color: white;
-      border: none;
-      padding: 10px 18px;
-      font-size: 1rem;
-      border-radius: 8px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: background-color 0.3s ease;
-    }
-    nav button:hover {
-      background: #5a3577;
-    }
-    nav button.active {
-      background: #5a3577;
-      font-weight: 700;
-    }
-
-    /* SECTIONS */
-    section {
-      display: none;
-      animation: fadeIn 0.6s ease forwards;
-    }
-    section.active {
-      display: block;
-    }
-
-    /* TABLES */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-      box-shadow: 0 3px 12px rgb(0 0 0 / 0.1);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    th, td {
-      text-align: center;
-      padding: 12px 10px;
-      background: #fafafa;
-      border-bottom: 1px solid #ddd;
-    }
-    th {
-      background: #764ba2;
-      color: white;
-      font-weight: 600;
-      user-select: none;
-      cursor: pointer;
-    }
-    tr:hover td {
-      background: #f0e9f9;
-    }
-    td input[type="text"], td input[type="number"], td select {
-      width: 100%;
-      padding: 6px 8px;
-      font-size: 1rem;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-    }
-
-    /* BUTTONS */
-    .btn {
-      background: #764ba2;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .btn:hover {
-      background: #5a3577;
-    }
-    .btn-danger {
-      background: #d64545;
-    }
-    .btn-danger:hover {
-      background: #a83333;
-    }
-    .btn-secondary {
-      background: #444;
-    }
-    .btn-secondary:hover {
-      background: #222;
-    }
-
-    /* FORM INLINE */
-    .form-inline {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-      margin-top: 12px;
-    }
-    .form-inline > * {
-      flex: 1 1 120px;
-    }
-    .form-inline label {
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-
-    /* FOOTER */
-    footer {
-      margin-top: 40px;
-      font-size: 0.85rem;
-      color: #eee;
-      user-select: none;
-      text-align: center;
-    }
-
-    /* SEARCH BOX */
-    #searchStock {
-      width: 300px;
-      padding: 8px 12px;
-      border-radius: 8px;
-      border: 1.5px solid #764ba2;
-      font-size: 1rem;
-      margin-bottom: 10px;
-      transition: box-shadow 0.3s ease;
-    }
-    #searchStock:focus {
-      outline: none;
-      box-shadow: 0 0 8px #764ba2aa;
-    }
-
-    /* TOGGLE SWITCH */
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 52px;
-      height: 28px;
-    }
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #ccc;
-      transition: 0.4s;
-      border-radius: 28px;
-    }
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 22px;
-      width: 22px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: 0.4s;
-      border-radius: 50%;
-    }
-    input:checked + .slider {
-      background-color: #764ba2;
-    }
-    input:checked + .slider:before {
-      transform: translateX(24px);
-    }
-
-    /* RESPONSIVE */
-    @media (max-width: 720px) {
-      #loginForm, #app {
-        padding: 20px;
-      }
-      nav button {
-        font-size: 0.9rem;
-        padding: 8px 12px;
-      }
-      #searchStock {
-        width: 100%;
-      }
-      table, th, td {
-        font-size: 0.85rem;
-      }
-    }
-
-    /* ANIMATION */
-    @keyframes fadeIn {
-      from {opacity: 0;}
-      to {opacity: 1;}
-    }
-
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Gestão de Stock & Utilizadores</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+  body {
+    margin:0; padding:0; font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  header {
+    width: 100%; max-width: 1100px; padding: 1rem 2rem;
+    color: white; font-weight: 600; font-size: 1.8rem;
+    background: #4a3f6f;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+  }
+  main {
+    background: white;
+    max-width: 1100px;
+    width: 95%;
+    margin: 1.5rem auto 2rem;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 8px 15px rgb(0 0 0 / 0.1);
+    flex-grow: 1;
+  }
+  footer {
+    font-size: 0.85rem; color: #eee;
+    margin-bottom: 1rem;
+  }
+  button {
+    cursor: pointer;
+    background: #667eea;
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background: #5561d3;
+  }
+  button:disabled {
+    background: #aaa;
+    cursor: not-allowed;
+  }
+  input, select {
+    font-size: 1rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    border: 1px solid #bbb;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  input:focus, select:focus {
+    border-color: #667eea;
+    outline: none;
+    box-shadow: 0 0 5px #667eea;
+  }
+  label {
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    display: block;
+  }
+  .hidden {
+    display: none !important;
+  }
+  .flex {
+    display: flex;
+  }
+  .flex-center {
+    justify-content: center;
+    align-items: center;
+  }
+  .gap-1 {
+    gap: 1rem;
+  }
+  .gap-0-5 {
+    gap: 0.5rem;
+  }
+  .mb-1 {
+    margin-bottom: 1rem;
+  }
+  .mb-2 {
+    margin-bottom: 2rem;
+  }
+  .mb-0-5 {
+    margin-bottom: 0.5rem;
+  }
+  .mt-1 {
+    margin-top: 1rem;
+  }
+  .mt-0-5 {
+    margin-top: 0.5rem;
+  }
+  .btn-icon {
+    font-size: 1.2rem;
+  }
+  nav {
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #eee;
+    display: flex;
+    gap: 1rem;
+  }
+  nav button {
+    background: transparent;
+    color: #555;
+    border-bottom: 3px solid transparent;
+    border-radius: 0;
+    font-weight: 700;
+    font-size: 1rem;
+    padding-bottom: 0.3rem;
+  }
+  nav button.active {
+    border-color: #667eea;
+    color: #667eea;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.9rem;
+  }
+  th, td {
+    border: 1px solid #ddd;
+    padding: 0.5rem 0.7rem;
+    text-align: center;
+  }
+  th {
+    background: #f0f0f0;
+  }
+  tr:nth-child(even) {
+    background: #fafafa;
+  }
+  .checkbox-center {
+    display: flex; justify-content: center; align-items: center;
+  }
+  .input-sm {
+    width: 70px;
+  }
+  .error {
+    color: #d8000c;
+    background-color: #ffbaba;
+    padding: 0.4rem;
+    margin-top: 0.3rem;
+    border-radius: 6px;
+  }
+  .success {
+    color: #4f8a10;
+    background-color: #dff2bf;
+    padding: 0.4rem;
+    margin-top: 0.3rem;
+    border-radius: 6px;
+  }
+  /* Scroll dentro da tabela */
+  .table-wrapper {
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  /* Login */
+  #loginPage {
+    max-width: 400px;
+    width: 90%;
+    margin: 5rem auto;
+    background: white;
+    padding: 2rem 3rem;
+    border-radius: 10px;
+    box-shadow: 0 12px 25px rgb(0 0 0 / 0.15);
+  }
+  #loginPage h2 {
+    text-align: center;
+    margin-bottom: 1.8rem;
+    color: #4a3f6f;
+  }
+  #loginPage input {
+    margin-bottom: 1rem;
+  }
+  #loginPage button {
+    width: 100%;
+  }
+  #loginError {
+    color: #d8000c;
+    font-weight: 700;
+    margin-top: 0.5rem;
+    display: none;
+  }
+  /* Dashboard */
+  #dashboard {
+    margin-bottom: 2rem;
+  }
+  #dashboard h3 {
+    margin-bottom: 1rem;
+    color: #4a3f6f;
+  }
+  /* Icons */
+  .icon {
+    pointer-events: none;
+    user-select: none;
+  }
+</style>
+<!-- Ícones do FontAwesome Free CDN -->
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="loginForm" class="active" role="main" aria-label="Formulário de Login">
-  <h1>Gestão de Stock - Login</h1>
-  <label for="inputUsername">Utilizador:</label>
-  <input type="text" id="inputUsername" autocomplete="username" aria-required="true" />
-  
-  <label for="inputPassword">Senha:</label>
-  <input type="password" id="inputPassword" autocomplete="current-password" aria-required="true" />
-  
-  <button id="btnLogin"><i class="fas fa-sign-in-alt"></i> Entrar</button>
-  <p id="msgErro" role="alert" aria-live="assertive"></p>
+<header>
+  Gestão de Stock & Utilizadores
+  <button id="logoutBtn" style="float:right; background:#a94442; padding:0.4rem 1rem; border-radius:6px; border:none; color:white; font-weight:600; cursor:pointer; display:none;">
+    <i class="fas fa-sign-out-alt"></i> Logout
+  </button>
+</header>
+
+<div id="loginPage">
+  <h2>Iniciar Sessão</h2>
+  <label for="loginUsername">Utilizador</label>
+  <input type="text" id="loginUsername" autocomplete="username" />
+  <label for="loginPassword">Senha</label>
+  <input type="password" id="loginPassword" autocomplete="current-password" />
+  <button id="btnLogin"><i class="fas fa-right-to-bracket"></i> Entrar</button>
+  <p id="loginError">Utilizador ou senha incorretos ou inativos.</p>
 </div>
 
-<!-- APP -->
-<div id="app" aria-live="polite" aria-atomic="true" aria-label="Aplicação de Gestão de Stock e Utilizadores">
-
-  <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-    <h1>Gestão de Stock</h1>
-    <div style="display:flex; align-items:center; gap:15px;">
-      <button id="btnLogout" class="btn" title="Terminar Sessão">
-        <i class="fas fa-sign-out-alt"></i> Logout
-      </button>
-      <label class="switch" title="Alternar tema claro/escuro">
-        <input type="checkbox" id="toggleTheme" aria-label="Alternar tema claro e escuro">
-        <span class="slider"></span>
-      </label>
-    </div>
-  </header>
-
-  <nav aria-label="Navegação principal">
-    <button id="tabStock" class="active" aria-controls="sectionStock" aria-selected="true" role="tab">
-      <i class="fas fa-boxes"></i> Stock
-    </button>
-    <button id="tabUtilizadores" aria-controls="sectionUtilizadores" role="tab">
-      <i class="fas fa-users"></i> Utilizadores
-    </button>
-    <button id="tabDashboard" aria-controls="sectionDashboard" role="tab">
-      <i class="fas fa-chart-pie"></i> Dashboard
-    </button>
+<main class="hidden" id="app">
+  <nav>
+    <button class="tabButton active" data-tab="stockTab"><i class="fas fa-boxes"></i> Stock</button>
+    <button class="tabButton" data-tab="utilizadoresTab"><i class="fas fa-users"></i> Utilizadores</button>
+    <button class="tabButton" data-tab="dashboardTab"><i class="fas fa-chart-pie"></i> Dashboard</button>
   </nav>
 
-  <!-- STOCK -->
-  <section id="sectionStock" class="active" role="tabpanel" tabindex="0" aria-labelledby="tabStock">
-    <div class="form-inline" style="justify-content: space-between; flex-wrap: wrap;">
-      <input type="text" id="searchStock" placeholder="Procurar produto..." aria-label="Pesquisar produto no stock" />
-      <div style="display:flex; gap:10px; flex-wrap: wrap;">
-        <button class="btn" id="btnAddProduct" title="Adicionar novo produto">
-          <i class="fas fa-plus"></i> Adicionar Produto
-        </button>
-        <button class="btn" id="btnSaveStock" title="Guardar alterações do stock">
-          <i class="fas fa-save"></i> Guardar
-        </button>
-        <button class="btn" id="btnExportStock" title="Exportar stock para XLSX">
-          <i class="fas fa-file-export"></i> Exportar XLSX
-        </button>
-        <button class="btn btn-danger" id="btnResetQuantities" title="Resetar todas as quantidades para zero">
-          <i class="fas fa-undo-alt"></i> Reset Quantidades
-        </button>
-      </div>
+  <!-- Stock -->
+  <section id="stockTab">
+    <div class="flex gap-1 mb-1">
+      <input type="text" id="searchStock" placeholder="Procurar produto..." />
+      <button id="btnAddProduct" title="Adicionar Produto"><i class="fas fa-plus"></i> Adicionar</button>
+      <button id="btnSaveStock" title="Guardar alterações"><i class="fas fa-save"></i> Guardar</button>
+      <button id="btnExportXLSX" title="Exportar Stock para Excel"><i class="fas fa-file-excel"></i> Exportar XLSX</button>
+      <button id="btnResetQtd" title="Resetar quantidades para 0"><i class="fas fa-redo-alt"></i> Reset Qtd</button>
     </div>
-    <table aria-describedby="stockTableDesc" id="tableStock" role="grid" aria-live="polite">
-      <caption id="stockTableDesc">Tabela com lista dos produtos em stock.</caption>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Produto</th>
-          <th>Quantidade</th>
-          <th>Referência</th>
-          <th>Última Alteração</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody id="tbodyStock"></tbody>
-    </table>
-  </section>
-
-  <!-- UTILIZADORES -->
-  <section id="sectionUtilizadores" role="tabpanel" tabindex="0" aria-labelledby="tabUtilizadores">
-    <div class="form-inline" style="justify-content: space-between; flex-wrap: wrap;">
-      <input type="text" id="searchUtilizador" placeholder="Procurar utilizador..." aria-label="Pesquisar utilizador" />
-      <div style="display:flex; gap:10px; flex-wrap: wrap;">
-        <button class="btn" id="btnAddUser" title="Adicionar novo utilizador">
-          <i class="fas fa-user-plus"></i> Adicionar Utilizador
-        </button>
-        <button class="btn" id="btnSaveUsers" title="Guardar alterações dos utilizadores">
-          <i class="fas fa-save"></i> Guardar
-        </button>
-      </div>
+    <div class="table-wrapper">
+      <table id="stockTable" aria-label="Tabela de Stock">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Produto</th>
+            <th>Quantidade</th>
+            <th>Referência</th>
+            <th>Data Última Alteração</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
-    <table aria-describedby="usersTableDesc" id="tableUtilizadores" role="grid" aria-live="polite">
-      <caption id="usersTableDesc">Tabela com lista de utilizadores.</caption>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Utilizador</th>
-          <th>Permissão</th>
-          <th>Ativo</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody id="tbodyUtilizadores"></tbody>
-    </table>
+    <p id="stockMsg" class="success hidden">Alterações guardadas com sucesso!</p>
   </section>
 
-  <!-- DASHBOARD -->
-  <section id="sectionDashboard" role="tabpanel" tabindex="0" aria-labelledby="tabDashboard">
-    <h2>Dashboard de Stock</h2>
-    <canvas id="chartStock" aria-label="Gráfico de barras das quantidades de stock" role="img" style="max-width: 100%; height: 400px;"></canvas>
+  <!-- Utilizadores -->
+  <section id="utilizadoresTab" class="hidden">
+    <div class="flex gap-1 mb-1">
+      <input type="text" id="searchUtilizador" placeholder="Procurar utilizador..." />
+      <button id="btnAddUser" title="Adicionar Utilizador"><i class="fas fa-user-plus"></i> Novo</button>
+      <button id="btnSaveUsers" title="Guardar alterações"><i class="fas fa-save"></i> Guardar</button>
+    </div>
+    <div class="table-wrapper">
+      <table id="usersTable" aria-label="Tabela de Utilizadores">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Utilizador</th>
+            <th>Senha</th>
+            <th>Ativo</th>
+            <th>Permissão</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p id="usersMsg" class="success hidden">Alterações guardadas com sucesso!</p>
   </section>
 
-  <footer>
-    Produzido por Bruno Tavares 2025
-  </footer>
-</div>
+  <!-- Dashboard -->
+  <section id="dashboardTab" class="hidden">
+    <h3>Dashboard - Stock</h3>
+    <canvas id="stockChart" width="900" height="350"></canvas>
+  </section>
+</main>
 
+<footer>
+  Produzido por Bruno Tavares 2025
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-(() => {
-  // Estado
-  let utilizadores = JSON.parse(localStorage.getItem('utilizadores')) || [
-    { id: 1, username: 'admin', password: 'admin123', permission: 'admin', active: true },
-    { id: 2, username: 'vendedor', password: 'venda123', permission: 'vendedor', active: true },
-    { id: 3, username: 'gestor', password: 'gestor123', permission: 'gestor', active: true }
-  ];
-  let stock = JSON.parse(localStorage.getItem('stock')) || [];
-  let loggedInUser = JSON.parse(sessionStorage.getItem('loggedInUser')) || null;
-  let currentTab = 'stock';
-  let chartInstance = null;
-
-  // ELEMENTS
-  const loginForm = document.getElementById('loginForm');
+  // === Variáveis Globais ===
+  const loginPage = document.getElementById('loginPage');
   const app = document.getElementById('app');
-  const inputUsername = document.getElementById('inputUsername');
-  const inputPassword = document.getElementById('inputPassword');
-  const msgErro = document.getElementById('msgErro');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const loginError = document.getElementById('loginError');
+  const loginUsername = document.getElementById('loginUsername');
+  const loginPassword = document.getElementById('loginPassword');
   const btnLogin = document.getElementById('btnLogin');
-  const btnLogout = document.getElementById('btnLogout');
-  const tabStock = document.getElementById('tabStock');
-  const tabUtilizadores = document.getElementById('tabUtilizadores');
-  const tabDashboard = document.getElementById('tabDashboard');
-  const sectionStock = document.getElementById('sectionStock');
-  const sectionUtilizadores = document.getElementById('sectionUtilizadores');
-  const sectionDashboard = document.getElementById('sectionDashboard');
-  const tbodyStock = document.getElementById('tbodyStock');
-  const tbodyUtilizadores = document.getElementById('tbodyUtilizadores');
+
+  // Tab buttons
+  const tabButtons = document.querySelectorAll('.tabButton');
+
+  // Stock
+  const stockTableBody = document.querySelector('#stockTable tbody');
   const btnAddProduct = document.getElementById('btnAddProduct');
   const btnSaveStock = document.getElementById('btnSaveStock');
-  const btnExportStock = document.getElementById('btnExportStock');
-  const btnResetQuantities = document.getElementById('btnResetQuantities');
+  const btnExportXLSX = document.getElementById('btnExportXLSX');
+  const btnResetQtd = document.getElementById('btnResetQtd');
+  const searchStock = document.getElementById('searchStock');
+  const stockMsg = document.getElementById('stockMsg');
+
+  // Utilizadores
+  const utilizadoresTab = document.getElementById('utilizadoresTab');
+  const usersTableBody = document.querySelector('#usersTable tbody');
   const btnAddUser = document.getElementById('btnAddUser');
   const btnSaveUsers = document.getElementById('btnSaveUsers');
-  const searchStock = document.getElementById('searchStock');
   const searchUtilizador = document.getElementById('searchUtilizador');
-  const toggleTheme = document.getElementById('toggleTheme');
-  const chartStock = document.getElementById('chartStock').getContext('2d');
+  const usersMsg = document.getElementById('usersMsg');
 
-  // Funções utilitárias
-  const generateId = (arr) => arr.length ? Math.max(...arr.map(x => x.id)) + 1 : 1;
-  const formatDateTime = (date) => new Date(date).toLocaleString('pt-PT', { dateStyle: 'short', timeStyle: 'short' });
+  // Dashboard
+  const dashboardTab = document.getElementById('dashboardTab');
+  const stockChartCanvas = document.getElementById('stockChart');
+  let stockChart;
 
-  // === LOGIN ===
-  function login() {
-    const username = inputUsername.value.trim();
-    const password = inputPassword.value.trim();
-
-    const user = utilizadores.find(u => u.username === username && u.password === password);
-
-    if (!user) {
-      msgErro.textContent = 'Utilizador ou senha incorretos.';
-      msgErro.style.display = 'block';
-      return;
-    }
-    if (!user.active) {
-      msgErro.textContent = 'Utilizador inativo. Contacte o administrador.';
-      msgErro.style.display = 'block';
-      return;
-    }
-
-    loggedInUser = { id: user.id, username: user.username, permission: user.permission };
-    sessionStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
-    msgErro.style.display = 'none';
-    inputPassword.value = '';
-    inputUsername.value = '';
-
-    showApp();
+  // Dados iniciais (se não existirem no localStorage)
+  if (!localStorage.getItem('utilizadores')) {
+    const initUsers = [
+      {id:1, username:'admin', password:'1234', active:true, permission:'admin'},
+      {id:2, username:'vendedor', password:'abcd', active:true, permission:'vendedor'},
+      {id:3, username:'gestor', password:'gestor', active:true, permission:'gestor'}
+    ];
+    localStorage.setItem('utilizadores', JSON.stringify(initUsers));
+  }
+  if (!localStorage.getItem('stock')) {
+    localStorage.setItem('stock', JSON.stringify([]));
+  }
+  if (!localStorage.getItem('session')) {
+    localStorage.setItem('session', '');
   }
 
-  btnLogin.addEventListener('click', login);
-  inputPassword.addEventListener('keydown', e => { if(e.key === 'Enter') login(); });
-
-  // === SHOW APP ===
-  function showApp() {
-    loginForm.classList.remove('active');
-    app.classList.add('active');
-    renderTabs();
-    renderStock();
-    renderUtilizadores();
-    renderDashboard();
-    renderUserGreeting();
+  // Função para obter utilizadores e stock do localStorage
+  function getUtilizadores() {
+    return JSON.parse(localStorage.getItem('utilizadores') || '[]');
   }
-
-  // === LOGOUT ===
-  btnLogout.addEventListener('click', () => {
-    sessionStorage.removeItem('loggedInUser');
-    loggedInUser = null;
-    app.classList.remove('active');
-    loginForm.classList.add('active');
-  });
-
-  // === NAV TABS ===
-  function renderTabs() {
-    [tabStock, tabUtilizadores, tabDashboard].forEach(btn => {
-      btn.classList.remove('active');
-      btn.setAttribute('aria-selected', 'false');
-    });
-    sectionStock.classList.remove('active');
-    sectionUtilizadores.classList.remove('active');
-    sectionDashboard.classList.remove('active');
-
-    if(currentTab === 'stock') {
-      tabStock.classList.add('active');
-      tabStock.setAttribute('aria-selected', 'true');
-      sectionStock.classList.add('active');
-    } else if(currentTab === 'utilizadores') {
-      tabUtilizadores.classList.add('active');
-      tabUtilizadores.setAttribute('aria-selected', 'true');
-      sectionUtilizadores.classList.add('active');
-    } else if(currentTab === 'dashboard') {
-      tabDashboard.classList.add('active');
-      tabDashboard.setAttribute('aria-selected', 'true');
-      sectionDashboard.classList.add('active');
-    }
+  function setUtilizadores(users) {
+    localStorage.setItem('utilizadores', JSON.stringify(users));
   }
-
-  tabStock.addEventListener('click', () => { currentTab = 'stock'; renderTabs(); });
-  tabUtilizadores.addEventListener('click', () => { currentTab = 'utilizadores'; renderTabs(); });
-  tabDashboard.addEventListener('click', () => { currentTab = 'dashboard'; renderTabs(); renderDashboard(); });
-
-  // === RENDER STOCK ===
-  function renderStock(filter = '') {
-    tbodyStock.innerHTML = '';
-    let filteredStock = stock.filter(p => p.nome.toLowerCase().includes(filter.toLowerCase()) || p.referencia.toLowerCase().includes(filter.toLowerCase()));
-
-    filteredStock.forEach(produto => {
-      const tr = document.createElement('tr');
-
-      tr.innerHTML = `
-        <td>${produto.id}</td>
-        <td><input type="text" value="${produto.nome}" aria-label="Nome do produto ${produto.id}" /></td>
-        <td><input type="number" min="0" value="${produto.quantidade}" aria-label="Quantidade do produto ${produto.id}" /></td>
-        <td><input type="text" value="${produto.referencia}" aria-label="Referência do produto ${produto.id}" /></td>
-        <td>${formatDateTime(produto.ultimaAlteracao)}</td>
-        <td>
-          <button class="btn btn-danger btnDeleteProduct" title="Apagar produto" aria-label="Apagar produto ${produto.nome}">
-            <i class="fas fa-trash-alt"></i>
-          </button>
-        </td>
-      `;
-
-      // EDITAR PRODUTO
-      const inputs = tr.querySelectorAll('input');
-      inputs[0].addEventListener('change', e => {
-        const novoNome = e.target.value.trim();
-        if (!novoNome) {
-          alert('O nome do produto não pode estar vazio.');
-          e.target.value = produto.nome;
-          return;
-        }
-        if(stock.some(p => p.nome.toLowerCase() === novoNome.toLowerCase() && p.id !== produto.id)) {
-          alert('Já existe um produto com esse nome.');
-          e.target.value = produto.nome;
-          return;
-        }
-        produto.nome = novoNome;
-        produto.ultimaAlteracao = new Date().toISOString();
-        renderStock(searchStock.value);
-      });
-      inputs[1].addEventListener('change', e => {
-        let novaQuant = parseInt(e.target.value);
-        if (isNaN(novaQuant) || novaQuant < 0) {
-          alert('Quantidade inválida.');
-          e.target.value = produto.quantidade;
-          return;
-        }
-        produto.quantidade = novaQuant;
-        produto.ultimaAlteracao = new Date().toISOString();
-        renderStock(searchStock.value);
-      });
-      inputs[2].addEventListener('change', e => {
-        produto.referencia = e.target.value.trim();
-        produto.ultimaAlteracao = new Date().toISOString();
-        renderStock(searchStock.value);
-      });
-
-      // DELETE PRODUCT
-      tr.querySelector('.btnDeleteProduct').addEventListener('click', () => {
-        if(confirm(`Deseja realmente apagar o produto "${produto.nome}"?`)) {
-          stock = stock.filter(p => p.id !== produto.id);
-          saveStock();
-          renderStock(searchStock.value);
-          renderDashboard();
-        }
-      });
-
-      tbodyStock.appendChild(tr);
-    });
+  function getStock() {
+    return JSON.parse(localStorage.getItem('stock') || '[]');
   }
-
-  searchStock.addEventListener('input', () => renderStock(searchStock.value));
-
-  // === ADD PRODUCT ===
-  btnAddProduct.addEventListener('click', () => {
-    const novoId = generateId(stock);
-    const novoProduto = {
-      id: novoId,
-      nome: 'Novo Produto',
-      quantidade: 0,
-      referencia: '',
-      ultimaAlteracao: new Date().toISOString()
-    };
-    stock.push(novoProduto);
-    saveStock();
-    renderStock();
-    renderDashboard();
-  });
-
-  // === SAVE STOCK ===
-  btnSaveStock.addEventListener('click', () => {
-    saveStock();
-    alert('Stock guardado com sucesso!');
-  });
-
-  function saveStock() {
+  function setStock(stock) {
     localStorage.setItem('stock', JSON.stringify(stock));
   }
+  function setSession(username) {
+    localStorage.setItem('session', username);
+  }
+  function getSession() {
+    return localStorage.getItem('session') || '';
+  }
+  function clearSession() {
+    localStorage.setItem('session', '');
+  }
 
-  // === RESET QUANTITIES ===
-  btnResetQuantities.addEventListener('click', () => {
-    if(confirm('Tem certeza que quer resetar todas as quantidades para zero?')) {
-      stock.forEach(p => {
-        p.quantidade = 0;
-        p.ultimaAlteracao = new Date().toISOString();
-      });
-      saveStock();
-      renderStock();
-      renderDashboard();
+  // Mostrar erro/sucesso temporário
+  function showMessage(element, msg, type = 'success', timeout=3000) {
+    element.textContent = msg;
+    element.classList.remove('hidden');
+    element.classList.remove('error','success');
+    element.classList.add(type);
+    setTimeout(() => {
+      element.classList.add('hidden');
+    }, timeout);
+  }
+
+  // Login
+  function login() {
+    const username = loginUsername.value.trim();
+    const password = loginPassword.value;
+
+    const utilizadores = getUtilizadores();
+    const user = utilizadores.find(u => u.username === username && u.password === password && u.active);
+
+    if (user) {
+      clearLoginForm();
+      loginError.style.display = 'none';
+      setSession(user.username);
+      showApp();
+      loadData();
+    } else {
+      loginError.style.display = 'block';
     }
+  }
+  btnLogin.onclick = login;
+
+  // Logout
+  logoutBtn.onclick = () => {
+    clearSession();
+    showLogin();
+  };
+
+  // Mostrar app e esconder login
+  function showApp() {
+    loginPage.classList.add('hidden');
+    app.classList.remove('hidden');
+    logoutBtn.style.display = 'inline-block';
+    document.title = 'Gestão de Stock - ' + getSession();
+  }
+  // Mostrar login e esconder app
+  function showLogin() {
+    loginPage.classList.remove('hidden');
+    app.classList.add('hidden');
+    logoutBtn.style.display = 'none';
+    document.title = 'Login - Gestão de Stock';
+  }
+
+  // Limpar campos login
+  function clearLoginForm() {
+    loginUsername.value = '';
+    loginPassword.value = '';
+  }
+
+  // Tabs
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const tabId = btn.dataset.tab;
+      // esconder todas
+      [stockTab, utilizadoresTab, dashboardTab].forEach(sec => {
+        sec.classList.add('hidden');
+      });
+      // mostrar selecionada
+      document.getElementById(tabId).classList.remove('hidden');
+
+      if(tabId === 'dashboardTab') {
+        renderDashboard();
+      }
+    });
   });
 
-  // === EXPORTAR PARA XLSX ===
-  btnExportStock.addEventListener('click', () => {
-    if(!stock.length){
-      alert('Não há produtos para exportar.');
-      return;
-    }
-    // Criar worksheet
-    const wsData = [
-      ['ID', 'Produto', 'Quantidade', 'Referência', 'Última Alteração'],
-      ...stock.map(p => [p.id, p.nome, p.quantidade, p.referencia, formatDateTime(p.ultimaAlteracao)])
-    ];
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Stock');
-    XLSX.writeFile(wb, 'stock.xlsx');
-  });
+  // Variáveis para as tabelas
+  const stockTab = document.getElementById('stockTab');
 
-  // === RENDER UTILIZADORES ===
-  function renderUtilizadores(filter = '') {
-    tbodyUtilizadores.innerHTML = '';
-    let filteredUsers = utilizadores.filter(u => u.username.toLowerCase().includes(filter.toLowerCase()));
+  // Criar linha de produto na tabela (modo edição)
+  function createStockRow(produto) {
+    const tr = document.createElement('tr');
 
-    filteredUsers.forEach(user => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${user.id}</td>
-        <td><input type="text" value="${user.username}" aria-label="Nome do utilizador ${user.id}" /></td>
-        <td>
-          <select aria-label="Permissão do utilizador ${user.id}">
-            <option value="admin" ${user.permission === 'admin' ? 'selected' : ''}>Admin</option>
-            <option value="vendedor" ${user.permission === 'vendedor' ? 'selected' : ''}>Vendedor</option>
-            <option value="gestor" ${user.permission === 'gestor' ? 'selected' : ''}>Gestor</option>
-          </select>
-        </td>
-        <td>
-          <input type="checkbox" ${user.active ? 'checked' : ''} aria-label="Utilizador ativo ${user.id}" />
-        </td>
-        <td>
-          <button class="btn btn-danger btnDeleteUser" title="Apagar utilizador" aria-label="Apagar utilizador ${user.username}">
-            <i class="fas fa-trash-alt"></i>
-          </button>
-        </td>
-      `;
+    // ID - só leitura
+    const tdId = document.createElement('td');
+    tdId.textContent = produto.id;
+    tr.appendChild(tdId);
 
-      // EDITAR UTILIZADOR
-      const inputs = tr.querySelectorAll('input, select');
-      inputs[0].addEventListener('change', e => {
-        const novoNome = e.target.value.trim();
-        if (!novoNome) {
-          alert('O nome do utilizador não pode estar vazio.');
-          e.target.value = user.username;
-          return;
-        }
-        if(utilizadores.some(u => u.username.toLowerCase() === novoNome.toLowerCase() && u.id !== user.id)) {
-          alert('Já existe um utilizador com esse nome.');
-          e.target.value = user.username;
-          return;
-        }
-        user.username = novoNome;
-        saveUtilizadores();
-        renderUtilizadores(searchUtilizador.value);
-      });
-      inputs[1].addEventListener('change', e => {
-        user.permission = e.target.value;
-        saveUtilizadores();
-      });
-      inputs[2].addEventListener('change', e => {
-        user.active = e.target.checked;
-        saveUtilizadores();
-      });
+    // Produto - input texto
+    const tdProduto = document.createElement('td');
+    const inputProduto = document.createElement('input');
+    inputProduto.type = 'text';
+    inputProduto.value = produto.produto;
+    inputProduto.required = true;
+    tdProduto.appendChild(inputProduto);
+    tr.appendChild(tdProduto);
 
-      // DELETE USER
-      tr.querySelector('.btnDeleteUser').addEventListener('click', () => {
-        if(confirm(`Deseja realmente apagar o utilizador "${user.username}"?`)) {
-          utilizadores = utilizadores.filter(u => u.id !== user.id);
-          saveUtilizadores();
-          renderUtilizadores(searchUtilizador.value);
-        }
-      });
+    // Quantidade - input number
+    const tdQtd = document.createElement('td');
+    const inputQtd = document.createElement('input');
+    inputQtd.type = 'number';
+    inputQtd.min = 0;
+    inputQtd.value = produto.quantidade;
+    inputQtd.classList.add('input-sm');
+    tdQtd.appendChild(inputQtd);
+    tr.appendChild(tdQtd);
 
-      tbodyUtilizadores.appendChild(tr);
+    // Referência - input texto
+    const tdRef = document.createElement('td');
+    const inputRef = document.createElement('input');
+    inputRef.type = 'text';
+    inputRef.value = produto.referencia || '';
+    tdRef.appendChild(inputRef);
+    tr.appendChild(tdRef);
+
+    // Data última alteração - só leitura
+    const tdData = document.createElement('td');
+    tdData.textContent = produto.dataAlteracao || '-';
+    tr.appendChild(tdData);
+
+    // Ações
+    const tdAcoes = document.createElement('td');
+    tdAcoes.classList.add('flex-center','gap-0-5');
+
+    const btnDel = document.createElement('button');
+    btnDel.innerHTML = '<i class="fas fa-trash-alt"></i>';
+    btnDel.title = 'Eliminar produto';
+    btnDel.style.backgroundColor = '#a94442';
+    btnDel.onclick = () => {
+      if(confirm(`Eliminar produto "${produto.produto}"?`)) {
+        // remover do stock e atualizar tabela
+        let stock = getStock();
+        stock = stock.filter(p => p.id !== produto.id);
+        setStock(stock);
+        renderStockTable(stock);
+        showMessage(stockMsg, 'Produto eliminado.', 'success', 2000);
+      }
+    };
+    tdAcoes.appendChild(btnDel);
+    tr.appendChild(tdAcoes);
+
+    // Guardar referências para salvar depois
+    tr.inputs = {inputProduto, inputQtd, inputRef, tdData};
+
+    return tr;
+  }
+
+  // Renderizar tabela de stock
+  function renderStockTable(stock) {
+    stockTableBody.innerHTML = '';
+    stock.forEach(produto => {
+      stockTableBody.appendChild(createStockRow(produto));
     });
   }
 
-  searchUtilizador.addEventListener('input', () => renderUtilizadores(searchUtilizador.value));
+  // Renderizar tabela utilizadores
+  function renderUsersTable(users) {
+    usersTableBody.innerHTML = '';
+    users.forEach(user => {
+      usersTableBody.appendChild(createUserRow(user));
+    });
+  }
 
-  // === ADD USER ===
-  btnAddUser.addEventListener('click', () => {
-    const novoId = generateId(utilizadores);
+  // Criar linha de utilizador
+  function createUserRow(user) {
+    const tr = document.createElement('tr');
+
+    // ID
+    const tdId = document.createElement('td');
+    tdId.textContent = user.id;
+    tr.appendChild(tdId);
+
+    // Utilizador - input texto
+    const tdUsername = document.createElement('td');
+    const inputUsername = document.createElement('input');
+    inputUsername.type = 'text';
+    inputUsername.value = user.username;
+    inputUsername.required = true;
+    tdUsername.appendChild(inputUsername);
+    tr.appendChild(tdUsername);
+
+    // Senha - input password
+    const tdPass = document.createElement('td');
+    const inputPass = document.createElement('input');
+    inputPass.type = 'password';
+    inputPass.value = user.password;
+    inputPass.required = true;
+    tdPass.appendChild(inputPass);
+    tr.appendChild(tdPass);
+
+    // Ativo - checkbox
+    const tdActive = document.createElement('td');
+    tdActive.classList.add('checkbox-center');
+    const checkboxActive = document.createElement('input');
+    checkboxActive.type = 'checkbox';
+    checkboxActive.checked = !!user.active;
+    tdActive.appendChild(checkboxActive);
+    tr.appendChild(tdActive);
+
+    // Permissão - select
+    const tdPerm = document.createElement('td');
+    const selectPerm = document.createElement('select');
+    ['admin','vendedor','gestor'].forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p;
+      opt.textContent = p.charAt(0).toUpperCase() + p.slice(1);
+      if (user.permission === p) opt.selected = true;
+      selectPerm.appendChild(opt);
+    });
+    tdPerm.appendChild(selectPerm);
+    tr.appendChild(tdPerm);
+
+    // Ações
+    const tdAcoes = document.createElement('td');
+    tdAcoes.classList.add('flex-center','gap-0-5');
+
+    const btnDel = document.createElement('button');
+    btnDel.innerHTML = '<i class="fas fa-trash-alt"></i>';
+    btnDel.title = 'Eliminar utilizador';
+    btnDel.style.backgroundColor = '#a94442';
+    btnDel.onclick = () => {
+      if(user.username === getSession()){
+        alert('Não pode eliminar o utilizador logado.');
+        return;
+      }
+      if(confirm(`Eliminar utilizador "${user.username}"?`)) {
+        let users = getUtilizadores();
+        users = users.filter(u => u.id !== user.id);
+        setUtilizadores(users);
+        renderUsersTable(users);
+        showMessage(usersMsg, 'Utilizador eliminado.', 'success', 2000);
+      }
+    };
+    tdAcoes.appendChild(btnDel);
+    tr.appendChild(tdAcoes);
+
+    tr.inputs = {inputUsername, inputPass, checkboxActive, selectPerm};
+    return tr;
+  }
+
+  // Adicionar novo produto vazio na tabela
+  btnAddProduct.onclick = () => {
+    const stock = getStock();
+    const novoId = stock.length ? Math.max(...stock.map(p=>p.id)) + 1 : 1;
+    const novoProduto = {
+      id: novoId,
+      produto: '',
+      quantidade: 0,
+      referencia: '',
+      dataAlteracao: '-'
+    };
+    stock.push(novoProduto);
+    setStock(stock);
+    renderStockTable(stock);
+  };
+
+  // Adicionar novo utilizador vazio
+  btnAddUser.onclick = () => {
+    const users = getUtilizadores();
+    const novoId = users.length ? Math.max(...users.map(u=>u.id)) + 1 : 1;
     const novoUser = {
       id: novoId,
-      username: 'Novo Utilizador',
-      permission: 'vendedor',
-      active: true
+      username: '',
+      password: '',
+      active: true,
+      permission: 'vendedor'
     };
-    utilizadores.push(novoUser);
-    saveUtilizadores();
-    renderUtilizadores();
+    users.push(novoUser);
+    setUtilizadores(users);
+    renderUsersTable(users);
+  };
+
+  // Salvar stock (validar e atualizar localStorage)
+  btnSaveStock.onclick = () => {
+    let stock = getStock();
+    let valid = true;
+    const erros = [];
+
+    // Pega as linhas atuais na tabela e atualiza stock
+    const rows = [...stockTableBody.querySelectorAll('tr')];
+    rows.forEach((tr, i) => {
+      const {inputProduto, inputQtd, inputRef, tdData} = tr.inputs;
+      const id = stock[i].id;
+      const produtoNome = inputProduto.value.trim();
+      const qtd = Number(inputQtd.value);
+      const referencia = inputRef.value.trim();
+
+      if (!produtoNome) {
+        valid = false;
+        erros.push(`Linha ${i+1}: Produto não pode estar vazio.`);
+      }
+
+      // Verificar nomes duplicados
+      const nomes = rows.map(r => r.inputs.inputProduto.value.trim().toLowerCase());
+      const nomeCount = nomes.filter(n => n === produtoNome.toLowerCase()).length;
+      if (nomeCount > 1) {
+        valid = false;
+        erros.push(`Linha ${i+1}: Produto "${produtoNome}" está duplicado.`);
+      }
+
+      if (qtd < 0) {
+        valid = false;
+        erros.push(`Linha ${i+1}: Quantidade não pode ser negativa.`);
+      }
+
+      // Atualiza objeto
+      stock[i] = {
+        id,
+        produto: produtoNome,
+        quantidade: qtd,
+        referencia,
+        dataAlteracao: new Date().toLocaleString()
+      };
+      tdData.textContent = stock[i].dataAlteracao;
+    });
+
+    if (!valid) {
+      alert('Erros:\n' + erros.join('\n'));
+      return;
+    }
+    setStock(stock);
+    showMessage(stockMsg, 'Stock guardado com sucesso!');
+  };
+
+  // Salvar utilizadores (validar e atualizar localStorage)
+  btnSaveUsers.onclick = () => {
+    let users = getUtilizadores();
+    let valid = true;
+    const erros = [];
+
+    const rows = [...usersTableBody.querySelectorAll('tr')];
+    rows.forEach((tr,i) => {
+      const {inputUsername, inputPass, checkboxActive, selectPerm} = tr.inputs;
+      const id = users[i].id;
+      const username = inputUsername.value.trim();
+      const password = inputPass.value;
+      const active = checkboxActive.checked;
+      const permission = selectPerm.value;
+
+      if (!username) {
+        valid = false;
+        erros.push(`Linha ${i+1}: Utilizador não pode estar vazio.`);
+      }
+      if (!password) {
+        valid = false;
+        erros.push(`Linha ${i+1}: Senha não pode estar vazia.`);
+      }
+
+      // Verificar usernames duplicados
+      const usernames = rows.map(r => r.inputs.inputUsername.value.trim().toLowerCase());
+      const count = usernames.filter(u => u === username.toLowerCase()).length;
+      if(count > 1) {
+        valid = false;
+        erros.push(`Linha ${i+1}: Utilizador "${username}" está duplicado.`);
+      }
+
+      users[i] = {id, username, password, active, permission};
+    });
+
+    if(!valid) {
+      alert('Erros:\n' + erros.join('\n'));
+      return;
+    }
+
+    setUtilizadores(users);
+    showMessage(usersMsg, 'Utilizadores guardados com sucesso!');
+  };
+
+  // Pesquisar stock
+  searchStock.addEventListener('input', () => {
+    const termo = searchStock.value.trim().toLowerCase();
+    const stock = getStock();
+    const filtrado = stock.filter(p => p.produto.toLowerCase().includes(termo));
+    renderStockTable(filtrado);
   });
 
-  // === SAVE USERS ===
-  function saveUtilizadores() {
-    localStorage.setItem('utilizadores', JSON.stringify(utilizadores));
-  }
+  // Pesquisar utilizadores
+  searchUtilizador.addEventListener('input', () => {
+    const termo = searchUtilizador.value.trim().toLowerCase();
+    const users = getUtilizadores();
+    const filtrado = users.filter(u => u.username.toLowerCase().includes(termo));
+    renderUsersTable(filtrado);
+  });
 
-  // === RENDER DASHBOARD ===
-  function renderDashboard() {
-    // Quantidade total de produtos
-    const totalProdutos = stock.length;
-    // Soma das quantidades
-    const somaQuantidades = stock.reduce((acc, p) => acc + p.quantidade, 0);
-    // Número de utilizadores ativos
-    const totalUtilizadoresAtivos = utilizadores.filter(u => u.active).length;
-
-    totalProdutosElem.textContent = totalProdutos;
-    somaQuantidadesElem.textContent = somaQuantidades;
-    totalUtilizadoresAtivosElem.textContent = totalUtilizadoresAtivos;
-  }
-
-  // === USER GREETING ===
-  function renderUserGreeting() {
-    if(loggedInUser) {
-      userGreeting.textContent = `Olá, ${loggedInUser.username}!`;
-    } else {
-      userGreeting.textContent = '';
+  // Inicialização
+  function init() {
+    // Carregar stock e utilizadores
+    let stock = getStock();
+    if(!stock.length) {
+      stock = [
+        {id: 1, produto: 'Arroz', quantidade: 100, referencia: 'ARZ001', dataAlteracao: '-'},
+        {id: 2, produto: 'Feijão', quantidade: 50, referencia: 'FJA002', dataAlteracao: '-'}
+      ];
+      setStock(stock);
     }
+    renderStockTable(stock);
+
+    let users = getUtilizadores();
+    if(!users.length) {
+      users = [
+        {id: 1, username: 'admin', password: 'admin', active: true, permission: 'admin'}
+      ];
+      setUtilizadores(users);
+    }
+    renderUsersTable(users);
+
+    // Mostrar utilizador logado
+    userLogged.textContent = getSession() || 'Nenhum utilizador logado';
   }
 
-  // === HELPER FUNCTIONS ===
-  function formatDateTime(dateTimeStr) {
-    const date = new Date(dateTimeStr);
-    return date.toLocaleString('pt-PT', {
-      day: '2-digit', month: '2-digit', year: 'numeric',
-      hour: '2-digit', minute: '2-digit', second: '2-digit'
-    });
-  }
-
-  function generateId(arr) {
-    return arr.length ? Math.max(...arr.map(item => item.id)) + 1 : 1;
-  }
-
-  // === INIT ===
-  loadData();
+  init();
 
 })();  
+</script>
+
+</body>
+</html>
