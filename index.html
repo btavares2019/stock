@@ -3,252 +3,392 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Gestão de Stock & Utilizadores</title>
+<title>Gestão Stock & Utilizadores</title>
+
+<!-- Ícones Google Material -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- SheetJS XLSX -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
-  body {
-    margin:0; padding:0; font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    color: #333;
-    display: flex; flex-direction: column; align-items: center;
-  }
-  header {
-    width: 100%; max-width: 1100px; padding: 1rem 2rem;
-    color: white; font-weight: 600; font-size: 1.8rem;
-    background: #4a3f6f;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-  }
-  main {
-    background: white;
-    max-width: 1100px;
-    width: 95%;
-    margin: 1.5rem auto 2rem;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 8px 15px rgb(0 0 0 / 0.1);
-    flex-grow: 1;
-  }
-  footer {
-    font-size: 0.85rem; color: #eee;
-    margin-bottom: 1rem;
-  }
-  button {
-    cursor: pointer;
-    background: #667eea;
-    border: none;
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    transition: background-color 0.3s ease;
-  }
-  button:hover {
-    background: #5561d3;
-  }
-  button:disabled {
-    background: #aaa;
-    cursor: not-allowed;
-  }
-  input, select {
-    font-size: 1rem;
-    padding: 0.4rem 0.6rem;
-    border-radius: 6px;
-    border: 1px solid #bbb;
-    width: 100%;
+  /* Reset e base */
+  * {
     box-sizing: border-box;
   }
-  input:focus, select:focus {
-    border-color: #667eea;
-    outline: none;
-    box-shadow: 0 0 5px #667eea;
-  }
-  label {
-    font-weight: 600;
-    margin-bottom: 0.3rem;
-    display: block;
-  }
-  .hidden {
-    display: none !important;
-  }
-  .flex {
+  body {
+    margin:0; padding:0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #4b79a1, #283e51);
+    color: #222;
+    min-height: 100vh;
     display: flex;
+    flex-direction: column;
   }
-  .flex-center {
-    justify-content: center;
+
+  /* Container geral */
+  #container {
+    max-width: 1200px;
+    margin: 20px auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    min-height: 80vh;
+    padding: 0;
+  }
+
+  header {
+    background: #3f51b5;
+    color: white;
+    padding: 16px 32px;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
   }
-  .gap-1 {
-    gap: 1rem;
+  header h1 {
+    margin:0; font-weight: 700;
+    font-size: 1.8rem;
+    letter-spacing: 1px;
   }
-  .gap-0-5 {
-    gap: 0.5rem;
-  }
-  .mb-1 {
-    margin-bottom: 1rem;
-  }
-  .mb-2 {
-    margin-bottom: 2rem;
-  }
-  .mb-0-5 {
-    margin-bottom: 0.5rem;
-  }
-  .mt-1 {
-    margin-top: 1rem;
-  }
-  .mt-0-5 {
-    margin-top: 0.5rem;
-  }
-  .btn-icon {
-    font-size: 1.2rem;
-  }
-  nav {
-    margin-bottom: 1.5rem;
-    border-bottom: 2px solid #eee;
+  header button {
+    background: #ff5252;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    font-weight: 600;
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
     display: flex;
-    gap: 1rem;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.3s ease;
   }
-  nav button {
+  header button:hover {
+    background: #e04848;
+  }
+
+  /* Login */
+  #loginPage {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  }
+  #loginPage form {
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+  }
+  #loginPage h2 {
+    text-align: center;
+    margin-bottom: 24px;
+    color: #3f51b5;
+  }
+  #loginPage label {
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #444;
+  }
+  #loginPage input[type="text"],
+  #loginPage input[type="password"] {
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    border: 1.8px solid #ccc;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+  #loginPage input[type="text"]:focus,
+  #loginPage input[type="password"]:focus {
+    border-color: #3f51b5;
+    outline: none;
+  }
+  #loginPage button {
+    background: #3f51b5;
+    border: none;
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.3s ease;
+  }
+  #loginPage button:hover {
+    background: #2c3e9f;
+  }
+  #loginError {
+    color: #d32f2f;
+    margin-top: 12px;
+    text-align: center;
+    font-weight: 600;
+    display: none;
+  }
+
+  /* Tabs */
+  #app {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  nav.tabs {
+    display: flex;
+    background: #f5f7fa;
+    border-bottom: 2px solid #ddd;
+    user-select: none;
+  }
+  nav.tabs button {
+    flex: 1;
+    padding: 14px 0;
+    border: none;
     background: transparent;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
     color: #555;
     border-bottom: 3px solid transparent;
-    border-radius: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+  }
+  nav.tabs button:hover {
+    background: #e0e6f7;
+  }
+  nav.tabs button.active {
+    border-bottom-color: #3f51b5;
+    color: #3f51b5;
     font-weight: 700;
-    font-size: 1rem;
-    padding-bottom: 0.3rem;
+    background: #d7defa;
   }
-  nav button.active {
-    border-color: #667eea;
-    color: #667eea;
+
+  /* Content Sections */
+  section.tabContent {
+    flex: 1;
+    padding: 24px 32px;
+    overflow-y: auto;
   }
+
+  /* Tables */
   table {
-    border-collapse: collapse;
     width: 100%;
+    border-collapse: collapse;
     font-size: 0.9rem;
   }
   th, td {
     border: 1px solid #ddd;
-    padding: 0.5rem 0.7rem;
+    padding: 10px 12px;
     text-align: center;
   }
   th {
-    background: #f0f0f0;
-  }
-  tr:nth-child(even) {
-    background: #fafafa;
-  }
-  .checkbox-center {
-    display: flex; justify-content: center; align-items: center;
-  }
-  .input-sm {
-    width: 70px;
-  }
-  .error {
-    color: #d8000c;
-    background-color: #ffbaba;
-    padding: 0.4rem;
-    margin-top: 0.3rem;
-    border-radius: 6px;
-  }
-  .success {
-    color: #4f8a10;
-    background-color: #dff2bf;
-    padding: 0.4rem;
-    margin-top: 0.3rem;
-    border-radius: 6px;
-  }
-  /* Scroll dentro da tabela */
-  .table-wrapper {
-    max-height: 320px;
-    overflow-y: auto;
-  }
-  /* Login */
-  #loginPage {
-    max-width: 400px;
-    width: 90%;
-    margin: 5rem auto;
-    background: white;
-    padding: 2rem 3rem;
-    border-radius: 10px;
-    box-shadow: 0 12px 25px rgb(0 0 0 / 0.15);
-  }
-  #loginPage h2 {
-    text-align: center;
-    margin-bottom: 1.8rem;
-    color: #4a3f6f;
-  }
-  #loginPage input {
-    margin-bottom: 1rem;
-  }
-  #loginPage button {
-    width: 100%;
-  }
-  #loginError {
-    color: #d8000c;
+    background: #f0f3ff;
     font-weight: 700;
-    margin-top: 0.5rem;
-    display: none;
   }
-  /* Dashboard */
-  #dashboard {
-    margin-bottom: 2rem;
+  tbody tr:nth-child(even) {
+    background: #f9faff;
   }
-  #dashboard h3 {
-    margin-bottom: 1rem;
-    color: #4a3f6f;
+
+  /* Inputs inside table */
+  table input[type="text"], table input[type="number"], table select {
+    width: 100%;
+    padding: 6px 8px;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    border: 1.2px solid #ccc;
+    box-sizing: border-box;
   }
-  /* Icons */
-  .icon {
+  table input[type="number"]::-webkit-inner-spin-button,
+  table input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  table input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  /* Buttons */
+  .btn {
+    cursor: pointer;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.3s ease;
+    font-size: 0.9rem;
+  }
+  .btn-primary {
+    background: #3f51b5;
+    color: white;
+  }
+  .btn-primary:hover {
+    background: #2c3e9f;
+  }
+  .btn-danger {
+    background: #d32f2f;
+    color: white;
+  }
+  .btn-danger:hover {
+    background: #a12727;
+  }
+  .btn-secondary {
+    background: #757575;
+    color: white;
+  }
+  .btn-secondary:hover {
+    background: #555;
+  }
+
+  /* Icon styling */
+  .material-icons {
+    font-size: 20px;
+    vertical-align: middle;
+  }
+
+  /* Form controls for checkbox */
+  .checkbox-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Alerts */
+  #alertMsg {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #323232;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 24px;
+    opacity: 0;
     pointer-events: none;
-    user-select: none;
+    transition: opacity 0.5s ease;
+    font-weight: 600;
+    z-index: 999;
+  }
+  #alertMsg.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Dashboard Chart */
+  #dashboard canvas {
+    max-width: 100%;
+    height: 300px;
+  }
+
+  /* Scroll tables */
+  section.tabContent {
+    overflow-x: auto;
+  }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    font-size: 0.8rem;
+    color: #666;
+    padding: 12px;
+    background: #f0f0f0;
+    border-radius: 0 0 12px 12px;
+    margin-top: auto;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    #container {
+      margin: 8px;
+    }
+    nav.tabs button {
+      font-size: 0.9rem;
+      padding: 12px 0;
+    }
+    section.tabContent {
+      padding: 16px 12px;
+    }
   }
 </style>
-<!-- Ícones do FontAwesome Free CDN -->
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-/>
 </head>
 <body>
 
-<header>
-  Gestão de Stock & Utilizadores
-  <button id="logoutBtn" style="float:right; background:#a94442; padding:0.4rem 1rem; border-radius:6px; border:none; color:white; font-weight:600; cursor:pointer; display:none;">
-    <i class="fas fa-sign-out-alt"></i> Logout
-  </button>
-</header>
+<div id="container">
 
-<div id="loginPage">
-  <h2>Iniciar Sessão</h2>
-  <label for="loginUsername">Utilizador</label>
-  <input type="text" id="loginUsername" autocomplete="username" />
-  <label for="loginPassword">Senha</label>
-  <input type="password" id="loginPassword" autocomplete="current-password" />
-  <button id="btnLogin"><i class="fas fa-right-to-bracket"></i> Entrar</button>
-  <p id="loginError">Utilizador ou senha incorretos ou inativos.</p>
-</div>
+  <!-- LOGIN PAGE -->
+  <div id="loginPage">
+    <form id="loginForm" autocomplete="off">
+      <h2>Login</h2>
+      <label for="loginUser">Utilizador</label>
+      <input type="text" id="loginUser" required autofocus />
+      <label for="loginPass">Senha</label>
+      <input type="password" id="loginPass" required />
+      <button type="submit" class="btn btn-primary">
+        <span class="material-icons">login</span> Entrar
+      </button>
+      <p id="loginError">Utilizador ou senha incorretos / inativo.</p>
+    </form>
+  </div>
 
-<main class="hidden" id="app">
-  <nav>
-    <button class="tabButton active" data-tab="stockTab"><i class="fas fa-boxes"></i> Stock</button>
-    <button class="tabButton" data-tab="utilizadoresTab"><i class="fas fa-users"></i> Utilizadores</button>
-    <button class="tabButton" data-tab="dashboardTab"><i class="fas fa-chart-pie"></i> Dashboard</button>
-  </nav>
+  <!-- APP -->
+  <div id="app" style="display:none; flex-direction: column; height: 100%;">
+    <header>
+      <h1><span class="material-icons">inventory_2</span> Gestão Stock</h1>
+      <div>
+        <span id="loggedUser" style="font-weight:600; margin-right:16px;"></span>
+        <button id="logoutBtn" title="Logout" aria-label="Logout" class="btn btn-danger">
+          <span class="material-icons">logout</span> Sair
+        </button>
+      </div>
+    </header>
 
-  <!-- Stock -->
-  <section id="stockTab">
-    <div class="flex gap-1 mb-1">
-      <input type="text" id="searchStock" placeholder="Procurar produto..." />
-      <button id="btnAddProduct" title="Adicionar Produto"><i class="fas fa-plus"></i> Adicionar</button>
-      <button id="btnSaveStock" title="Guardar alterações"><i class="fas fa-save"></i> Guardar</button>
-      <button id="btnExportXLSX" title="Exportar Stock para Excel"><i class="fas fa-file-excel"></i> Exportar XLSX</button>
-      <button id="btnResetQtd" title="Resetar quantidades para 0"><i class="fas fa-redo-alt"></i> Reset Qtd</button>
-    </div>
-    <div class="table-wrapper">
-      <table id="stockTable" aria-label="Tabela de Stock">
+    <nav class="tabs" role="tablist" aria-label="Menu principal">
+      <button class="active" role="tab" aria-selected="true" aria-controls="tabStock" id="tabBtnStock">
+        <span class="material-icons">store</span> Stock
+      </button>
+      <button role="tab" aria-selected="false" aria-controls="tabUsers" id="tabBtnUsers">
+        <span class="material-icons">people</span> Utilizadores
+      </button>
+      <button role="tab" aria-selected="false" aria-controls="tabDashboard" id="tabBtnDashboard">
+        <span class="material-icons">dashboard</span> Dashboard
+      </button>
+    </nav>
+
+    <section id="tabStock" class="tabContent" role="tabpanel" aria-labelledby="tabBtnStock">
+      <div style="margin-bottom:16px; display:flex; gap:10px; flex-wrap: wrap;">
+        <input type="text" id="searchProduct" placeholder="Procurar produto..." style="flex-grow:1; padding: 10px; font-size:1rem; border-radius:8px; border:1.5px solid #ccc;" />
+        <button class="btn btn-primary" id="btnAddProduct" title="Adicionar Produto">
+          <span class="material-icons">add_circle</span> Adicionar Produto
+        </button>
+        <button class="btn btn-secondary" id="btnResetQuantities" title="Reset Quantidades">
+          <span class="material-icons">restart_alt</span> Reset Quantidades
+        </button>
+        <button class="btn btn-primary" id="btnExportXLSX" title="Exportar para Excel">
+          <span class="material-icons">file_download</span> Exportar XLSX
+        </button>
+        <button class="btn btn-primary" id="btnSaveStock" title="Guardar alterações">
+          <span class="material-icons">save</span> Guardar Stock
+        </button>
+      </div>
+
+      <table aria-label="Tabela de Stock" id="tableStock" role="grid">
         <thead>
           <tr>
             <th>ID</th>
@@ -256,542 +396,572 @@
             <th>Quantidade</th>
             <th>Referência</th>
             <th>Data Última Alteração</th>
-            <th>Ações</th>
+            <th>Histórico</th>
+            <th>Remover</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
-    </div>
-    <p id="stockMsg" class="success hidden">Alterações guardadas com sucesso!</p>
-  </section>
+    </section>
 
-  <!-- Utilizadores -->
-  <section id="utilizadoresTab" class="hidden">
-    <div class="flex gap-1 mb-1">
-      <input type="text" id="searchUtilizador" placeholder="Procurar utilizador..." />
-      <button id="btnAddUser" title="Adicionar Utilizador"><i class="fas fa-user-plus"></i> Novo</button>
-      <button id="btnSaveUsers" title="Guardar alterações"><i class="fas fa-save"></i> Guardar</button>
-    </div>
-    <div class="table-wrapper">
-      <table id="usersTable" aria-label="Tabela de Utilizadores">
+    <section id="tabUsers" class="tabContent" role="tabpanel" aria-labelledby="tabBtnUsers" hidden>
+      <div style="margin-bottom:16px; display:flex; gap:10px; flex-wrap: wrap;">
+        <button class="btn btn-primary" id="btnAddUser" title="Adicionar Utilizador">
+          <span class="material-icons">person_add</span> Adicionar Utilizador
+        </button>
+        <button class="btn btn-primary" id="btnSaveUsers" title="Guardar alterações">
+          <span class="material-icons">save</span> Guardar Utilizadores
+        </button>
+      </div>
+
+      <table aria-label="Tabela de Utilizadores" id="tableUsers" role="grid">
         <thead>
           <tr>
             <th>ID</th>
-            <th>Utilizador</th>
+            <th>Nome</th>
             <th>Senha</th>
-            <th>Ativo</th>
             <th>Permissão</th>
-            <th>Ações</th>
+            <th>Ativo</th>
+            <th>Remover</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
-    </div>
-    <p id="usersMsg" class="success hidden">Alterações guardadas com sucesso!</p>
-  </section>
+    </section>
 
-  <!-- Dashboard -->
-  <section id="dashboardTab" class="hidden">
-    <h3>Dashboard - Stock</h3>
-    <canvas id="stockChart" width="900" height="350"></canvas>
-  </section>
-</main>
+    <section id="tabDashboard" class="tabContent" role="tabpanel" aria-labelledby="tabBtnDashboard" hidden>
+      <h2>Dashboard</h2>
+      <canvas id="chartStock"></canvas>
+    </section>
+  </div>
+</div>
 
 <footer>
   Produzido por Bruno Tavares 2025
 </footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<div id="alertMsg"></div>
+
 <script>
-  // === Variáveis Globais ===
-  const loginPage = document.getElementById('loginPage');
-  const app = document.getElementById('app');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const loginError = document.getElementById('loginError');
-  const loginUsername = document.getElementById('loginUsername');
-  const loginPassword = document.getElementById('loginPassword');
-  const btnLogin = document.getElementById('btnLogin');
+  // Estado e dados
+  let utilizadores = [];
+  let stock = [];
+  let currentUser = null;
 
-  // Tab buttons
-  const tabButtons = document.querySelectorAll('.tabButton');
+  // Histórico simples por produto id
+  // Cada entrada: { data: ISOString, user: string, acao: string }
+  let historicoAlteracoes = {};
 
-  // Stock
-  const stockTableBody = document.querySelector('#stockTable tbody');
-  const btnAddProduct = document.getElementById('btnAddProduct');
-  const btnSaveStock = document.getElementById('btnSaveStock');
-  const btnExportXLSX = document.getElementById('btnExportXLSX');
-  const btnResetQtd = document.getElementById('btnResetQtd');
-  const searchStock = document.getElementById('searchStock');
-  const stockMsg = document.getElementById('stockMsg');
+  // Inicialização: carregar do localStorage
+  function carregarDados() {
+    const u = localStorage.getItem('utilizadores');
+    const s = localStorage.getItem('stock');
+    const h = localStorage.getItem('historicoAlteracoes');
 
-  // Utilizadores
-  const utilizadoresTab = document.getElementById('utilizadoresTab');
-  const usersTableBody = document.querySelector('#usersTable tbody');
-  const btnAddUser = document.getElementById('btnAddUser');
-  const btnSaveUsers = document.getElementById('btnSaveUsers');
-  const searchUtilizador = document.getElementById('searchUtilizador');
-  const usersMsg = document.getElementById('usersMsg');
+    if(u) utilizadores = JSON.parse(u);
+    if(s) stock = JSON.parse(s);
+    if(h) historicoAlteracoes = JSON.parse(h);
 
-  // Dashboard
-  const dashboardTab = document.getElementById('dashboardTab');
-  const stockChartCanvas = document.getElementById('stockChart');
-  let stockChart;
+    // Se não existir utilizadores, criar admin padrão
+    if(utilizadores.length === 0) {
+      utilizadores = [
+        {id: 1, nome: 'admin', senha: 'admin123', permissao: 'admin', ativo: true},
+        {id: 2, nome: 'vendedor', senha: 'vend123', permissao: 'vendedor', ativo: true}
+      ];
+      salvarUtilizadores();
+    }
 
-  // Dados iniciais (se não existirem no localStorage)
-  if (!localStorage.getItem('utilizadores')) {
-    const initUsers = [
-      {id:1, username:'admin', password:'1234', active:true, permission:'admin'},
-      {id:2, username:'vendedor', password:'abcd', active:true, permission:'vendedor'},
-      {id:3, username:'gestor', password:'gestor', active:true, permission:'gestor'}
-    ];
-    localStorage.setItem('utilizadores', JSON.stringify(initUsers));
-  }
-  if (!localStorage.getItem('stock')) {
-    localStorage.setItem('stock', JSON.stringify([]));
-  }
-  if (!localStorage.getItem('session')) {
-    localStorage.setItem('session', '');
+    // Se não existir stock, criar vazio
+    if(!stock) stock = [];
+    if(!historicoAlteracoes) historicoAlteracoes = {};
   }
 
-  // Função para obter utilizadores e stock do localStorage
-  function getUtilizadores() {
-    return JSON.parse(localStorage.getItem('utilizadores') || '[]');
+  // Salvar dados
+  function salvarUtilizadores() {
+    localStorage.setItem('utilizadores', JSON.stringify(utilizadores));
   }
-  function setUtilizadores(users) {
-    localStorage.setItem('utilizadores', JSON.stringify(users));
-  }
-  function getStock() {
-    return JSON.parse(localStorage.getItem('stock') || '[]');
-  }
-  function setStock(stock) {
+  function salvarStock() {
     localStorage.setItem('stock', JSON.stringify(stock));
   }
-  function setSession(username) {
-    localStorage.setItem('session', username);
-  }
-  function getSession() {
-    return localStorage.getItem('session') || '';
-  }
-  function clearSession() {
-    localStorage.setItem('session', '');
+  function salvarHistorico() {
+    localStorage.setItem('historicoAlteracoes', JSON.stringify(historicoAlteracoes));
   }
 
-  // Mostrar erro/sucesso temporário
-  function showMessage(element, msg, type = 'success', timeout=3000) {
-    element.textContent = msg;
-    element.classList.remove('hidden');
-    element.classList.remove('error','success');
-    element.classList.add(type);
+  // Util - gerar novo ID incremental
+  function novoId(array) {
+    if(array.length === 0) return 1;
+    return Math.max(...array.map(e => e.id)) + 1;
+  }
+
+  // Mostra alerta temporário
+  function showAlert(msg, duracao=3000) {
+    const alertDiv = document.getElementById('alertMsg');
+    alertDiv.textContent = msg;
+    alertDiv.classList.add('show');
     setTimeout(() => {
-      element.classList.add('hidden');
-    }, timeout);
+      alertDiv.classList.remove('show');
+    }, duracao);
   }
 
-  // Login
-  function login() {
-    const username = loginUsername.value.trim();
-    const password = loginPassword.value;
+  // LOGIN
+  const loginForm = document.getElementById('loginForm');
+  const loginUser = document.getElementById('loginUser');
+  const loginPass = document.getElementById('loginPass');
+  const loginError = document.getElementById('loginError');
+  const loginPage = document.getElementById('loginPage');
+  const app = document.getElementById('app');
+  const loggedUserSpan = document.getElementById('loggedUser');
 
-    const utilizadores = getUtilizadores();
-    const user = utilizadores.find(u => u.username === username && u.password === password && u.active);
+  loginForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const nome = loginUser.value.trim();
+    const senha = loginPass.value;
 
-    if (user) {
-      clearLoginForm();
-      loginError.style.display = 'none';
-      setSession(user.username);
-      showApp();
-      loadData();
-    } else {
+    const u = utilizadores.find(u => u.nome === nome && u.senha === senha);
+    if(!u || !u.ativo) {
       loginError.style.display = 'block';
+      return;
     }
-  }
-  btnLogin.onclick = login;
+    currentUser = u;
+    loginError.style.display = 'none';
+    loginPage.style.display = 'none';
+    app.style.display = 'flex';
+    loggedUserSpan.textContent = `Olá, ${currentUser.nome} (${currentUser.permissao})`;
+    carregarTodasTabelas();
+    montarGrafico();
+  });
 
-  // Logout
-  logoutBtn.onclick = () => {
-    clearSession();
-    showLogin();
-  };
+  // LOGOUT
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    currentUser = null;
+    loginUser.value = '';
+    loginPass.value = '';
+    loginPage.style.display = 'flex';
+    app.style.display = 'none';
+  });
 
-  // Mostrar app e esconder login
-  function showApp() {
-    loginPage.classList.add('hidden');
-    app.classList.remove('hidden');
-    logoutBtn.style.display = 'inline-block';
-    document.title = 'Gestão de Stock - ' + getSession();
-  }
-  // Mostrar login e esconder app
-  function showLogin() {
-    loginPage.classList.remove('hidden');
-    app.classList.add('hidden');
-    logoutBtn.style.display = 'none';
-    document.title = 'Login - Gestão de Stock';
-  }
-
-  // Limpar campos login
-  function clearLoginForm() {
-    loginUsername.value = '';
-    loginPassword.value = '';
-  }
-
-  // Tabs
-  tabButtons.forEach(btn => {
+  // TABS
+  const tabsBtns = document.querySelectorAll('nav.tabs button');
+  const tabsContent = document.querySelectorAll('section.tabContent');
+  tabsBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      tabButtons.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const tabId = btn.dataset.tab;
-      // esconder todas
-      [stockTab, utilizadoresTab, dashboardTab].forEach(sec => {
-        sec.classList.add('hidden');
+      tabsBtns.forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
       });
-      // mostrar selecionada
-      document.getElementById(tabId).classList.remove('hidden');
-
-      if(tabId === 'dashboardTab') {
-        renderDashboard();
-      }
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      const id = btn.id.replace('Btn', '');
+      tabsContent.forEach(tc => {
+        if(tc.id === id) {
+          tc.hidden = false;
+        } else {
+          tc.hidden = true;
+        }
+      });
     });
   });
 
-  // Variáveis para as tabelas
-  const stockTab = document.getElementById('stockTab');
+  // --- GESTÃO STOCK ---
+  const tableStockBody = document.querySelector('#tableStock tbody');
+  const searchProductInput = document.getElementById('searchProduct');
+  const btnAddProduct = document.getElementById('btnAddProduct');
+  const btnResetQuantities = document.getElementById('btnResetQuantities');
+  const btnSaveStock = document.getElementById('btnSaveStock');
+  const btnExportXLSX = document.getElementById('btnExportXLSX');
 
-  // Criar linha de produto na tabela (modo edição)
-  function createStockRow(produto) {
-    const tr = document.createElement('tr');
+  function carregarStockTabela(filter = '') {
+    tableStockBody.innerHTML = '';
+    const f = filter.trim().toLowerCase();
+    let filtered = stock;
+    if(f) {
+      filtered = stock.filter(p => p.nome.toLowerCase().includes(f) || p.referencia.toLowerCase().includes(f));
+    }
+    if(filtered.length === 0) {
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 7;
+      td.style.textAlign = 'center';
+      td.textContent = 'Nenhum produto encontrado.';
+      tr.appendChild(td);
+      tableStockBody.appendChild(tr);
+      return;
+    }
+    filtered.forEach(p => {
+      const tr = document.createElement('tr');
 
-    // ID - só leitura
-    const tdId = document.createElement('td');
-    tdId.textContent = produto.id;
-    tr.appendChild(tdId);
+      // ID
+      const tdId = document.createElement('td');
+      tdId.textContent = p.id;
+      tr.appendChild(tdId);
 
-    // Produto - input texto
-    const tdProduto = document.createElement('td');
-    const inputProduto = document.createElement('input');
-    inputProduto.type = 'text';
-    inputProduto.value = produto.produto;
-    inputProduto.required = true;
-    tdProduto.appendChild(inputProduto);
-    tr.appendChild(tdProduto);
+      // Nome produto
+      const tdNome = document.createElement('td');
+      const inputNome = document.createElement('input');
+      inputNome.type = 'text';
+      inputNome.value = p.nome;
+      inputNome.title = "Editar nome do produto";
+      inputNome.addEventListener('change', () => {
+        p.nome = inputNome.value.trim();
+        atualizarDataAlteracao(p.id);
+      });
+      tdNome.appendChild(inputNome);
+      tr.appendChild(tdNome);
 
-    // Quantidade - input number
-    const tdQtd = document.createElement('td');
-    const inputQtd = document.createElement('input');
-    inputQtd.type = 'number';
-    inputQtd.min = 0;
-    inputQtd.value = produto.quantidade;
-    inputQtd.classList.add('input-sm');
-    tdQtd.appendChild(inputQtd);
-    tr.appendChild(tdQtd);
+      // Quantidade
+      const tdQtd = document.createElement('td');
+      const inputQtd = document.createElement('input');
+      inputQtd.type = 'number';
+      inputQtd.min = 0;
+      inputQtd.value = p.quantidade;
+      inputQtd.title = "Editar quantidade";
+      inputQtd.addEventListener('change', () => {
+        if(inputQtd.value < 0) inputQtd.value = 0;
+        p.quantidade = Number(inputQtd.value);
+        atualizarDataAlteracao(p.id);
+      });
+      tdQtd.appendChild(inputQtd);
+      tr.appendChild(tdQtd);
 
-    // Referência - input texto
-    const tdRef = document.createElement('td');
-    const inputRef = document.createElement('input');
-    inputRef.type = 'text';
-    inputRef.value = produto.referencia || '';
-    tdRef.appendChild(inputRef);
-    tr.appendChild(tdRef);
+      // Referência
+      const tdRef = document.createElement('td');
+      const inputRef = document.createElement('input');
+      inputRef.type = 'text';
+      inputRef.value = p.referencia;
+      inputRef.title = "Editar referência";
+      inputRef.addEventListener('change', () => {
+        p.referencia = inputRef.value.trim();
+        atualizarDataAlteracao(p.id);
+      });
+      tdRef.appendChild(inputRef);
+      tr.appendChild(tdRef);
 
-    // Data última alteração - só leitura
-    const tdData = document.createElement('td');
-    tdData.textContent = produto.dataAlteracao || '-';
-    tr.appendChild(tdData);
+      // Data Última Alteração
+      const tdData = document.createElement('td');
+      tdData.textContent = p.dataUltimaAlteracao ? new Date(p.dataUltimaAlteracao).toLocaleString() : '-';
+      tr.appendChild(tdData);
 
-    // Ações
-    const tdAcoes = document.createElement('td');
-    tdAcoes.classList.add('flex-center','gap-0-5');
+      // Histórico
+      const tdHist = document.createElement('td');
+      const btnHist = document.createElement('button');
+      btnHist.className = 'btn btn-secondary';
+      btnHist.title = 'Ver histórico';
+      btnHist.innerHTML = '<span class="material-icons">history</span>';
+      btnHist.addEventListener('click', () => {
+        mostrarHistorico(p.id);
+      });
+      tdHist.appendChild(btnHist);
+      tr.appendChild(tdHist);
 
-    const btnDel = document.createElement('button');
-    btnDel.innerHTML = '<i class="fas fa-trash-alt"></i>';
-    btnDel.title = 'Eliminar produto';
-    btnDel.style.backgroundColor = '#a94442';
-    btnDel.onclick = () => {
-      if(confirm(`Eliminar produto "${produto.produto}"?`)) {
-        // remover do stock e atualizar tabela
-        let stock = getStock();
-        stock = stock.filter(p => p.id !== produto.id);
-        setStock(stock);
-        renderStockTable(stock);
-        showMessage(stockMsg, 'Produto eliminado.', 'success', 2000);
-      }
-    };
-    tdAcoes.appendChild(btnDel);
-    tr.appendChild(tdAcoes);
+      // Remover
+      const tdRem = document.createElement('td');
+      const btnRem = document.createElement('button');
+      btnRem.className = 'btn btn-danger';
+      btnRem.title = 'Remover produto';
+      btnRem.innerHTML = '<span class="material-icons">delete</span>';
+      btnRem.addEventListener('click', () => {
+        if(confirm(`Deseja remover o produto "${p.nome}"?`)) {
+          stock = stock.filter(prod => prod.id !== p.id);
+          delete historicoAlteracoes[p.id];
+          salvarStock();
+          salvarHistorico();
+          carregarStockTabela(searchProductInput.value);
+          montarGrafico();
+          showAlert('Produto removido');
+        }
+      });
+      tdRem.appendChild(btnRem);
+      tr.appendChild(tdRem);
 
-    // Guardar referências para salvar depois
-    tr.inputs = {inputProduto, inputQtd, inputRef, tdData};
-
-    return tr;
-  }
-
-  // Renderizar tabela de stock
-  function renderStockTable(stock) {
-    stockTableBody.innerHTML = '';
-    stock.forEach(produto => {
-      stockTableBody.appendChild(createStockRow(produto));
+      tableStockBody.appendChild(tr);
     });
   }
 
-  // Renderizar tabela utilizadores
-  function renderUsersTable(users) {
-    usersTableBody.innerHTML = '';
-    users.forEach(user => {
-      usersTableBody.appendChild(createUserRow(user));
+  function atualizarDataAlteracao(prodId) {
+    const prod = stock.find(p => p.id === prodId);
+    if(!prod) return;
+    prod.dataUltimaAlteracao = new Date().toISOString();
+
+    // Atualizar histórico
+    if(!historicoAlteracoes[prodId]) historicoAlteracoes[prodId] = [];
+    historicoAlteracoes[prodId].push({
+      data: new Date().toISOString(),
+      user: currentUser.nome,
+      acao: 'Alteração no produto'
     });
+
+    salvarStock();
+    salvarHistorico();
+    montarGrafico();
   }
 
-  // Criar linha de utilizador
-  function createUserRow(user) {
-    const tr = document.createElement('tr');
-
-    // ID
-    const tdId = document.createElement('td');
-    tdId.textContent = user.id;
-    tr.appendChild(tdId);
-
-    // Utilizador - input texto
-    const tdUsername = document.createElement('td');
-    const inputUsername = document.createElement('input');
-    inputUsername.type = 'text';
-    inputUsername.value = user.username;
-    inputUsername.required = true;
-    tdUsername.appendChild(inputUsername);
-    tr.appendChild(tdUsername);
-
-    // Senha - input password
-    const tdPass = document.createElement('td');
-    const inputPass = document.createElement('input');
-    inputPass.type = 'password';
-    inputPass.value = user.password;
-    inputPass.required = true;
-    tdPass.appendChild(inputPass);
-    tr.appendChild(tdPass);
-
-    // Ativo - checkbox
-    const tdActive = document.createElement('td');
-    tdActive.classList.add('checkbox-center');
-    const checkboxActive = document.createElement('input');
-    checkboxActive.type = 'checkbox';
-    checkboxActive.checked = !!user.active;
-    tdActive.appendChild(checkboxActive);
-    tr.appendChild(tdActive);
-
-    // Permissão - select
-    const tdPerm = document.createElement('td');
-    const selectPerm = document.createElement('select');
-    ['admin','vendedor','gestor'].forEach(p => {
-      const opt = document.createElement('option');
-      opt.value = p;
-      opt.textContent = p.charAt(0).toUpperCase() + p.slice(1);
-      if (user.permission === p) opt.selected = true;
-      selectPerm.appendChild(opt);
-    });
-    tdPerm.appendChild(selectPerm);
-    tr.appendChild(tdPerm);
-
-    // Ações
-    const tdAcoes = document.createElement('td');
-    tdAcoes.classList.add('flex-center','gap-0-5');
-
-    const btnDel = document.createElement('button');
-    btnDel.innerHTML = '<i class="fas fa-trash-alt"></i>';
-    btnDel.title = 'Eliminar utilizador';
-    btnDel.style.backgroundColor = '#a94442';
-    btnDel.onclick = () => {
-      if(user.username === getSession()){
-        alert('Não pode eliminar o utilizador logado.');
-        return;
-      }
-      if(confirm(`Eliminar utilizador "${user.username}"?`)) {
-        let users = getUtilizadores();
-        users = users.filter(u => u.id !== user.id);
-        setUtilizadores(users);
-        renderUsersTable(users);
-        showMessage(usersMsg, 'Utilizador eliminado.', 'success', 2000);
-      }
-    };
-    tdAcoes.appendChild(btnDel);
-    tr.appendChild(tdAcoes);
-
-    tr.inputs = {inputUsername, inputPass, checkboxActive, selectPerm};
-    return tr;
-  }
-
-  // Adicionar novo produto vazio na tabela
-  btnAddProduct.onclick = () => {
-    const stock = getStock();
-    const novoId = stock.length ? Math.max(...stock.map(p=>p.id)) + 1 : 1;
+  btnAddProduct.addEventListener('click', () => {
     const novoProduto = {
-      id: novoId,
-      produto: '',
+      id: novoId(stock),
+      nome: 'Novo Produto',
       quantidade: 0,
       referencia: '',
-      dataAlteracao: '-'
+      dataUltimaAlteracao: new Date().toISOString()
     };
     stock.push(novoProduto);
-    setStock(stock);
-    renderStockTable(stock);
-  };
+    carregarStockTabela(searchProductInput.value);
+    montarGrafico();
+  });
 
-  // Adicionar novo utilizador vazio
-  btnAddUser.onclick = () => {
-    const users = getUtilizadores();
-    const novoId = users.length ? Math.max(...users.map(u=>u.id)) + 1 : 1;
-    const novoUser = {
-      id: novoId,
-      username: '',
-      password: '',
-      active: true,
-      permission: 'vendedor'
-    };
-    users.push(novoUser);
-    setUtilizadores(users);
-    renderUsersTable(users);
-  };
+  btnResetQuantities.addEventListener('click', () => {
+    if(confirm('Deseja resetar todas as quantidades para zero?')) {
+      stock.forEach(p => {
+        p.quantidade = 0;
+        p.dataUltimaAlteracao = new Date().toISOString();
+        if(!historicoAlteracoes[p.id]) historicoAlteracoes[p.id] = [];
+        historicoAlteracoes[p.id].push({
+          data: new Date().toISOString(),
+          user: currentUser.nome,
+          acao: 'Reset da quantidade'
+        });
+      });
+      salvarStock();
+      salvarHistorico();
+      carregarStockTabela(searchProductInput.value);
+      montarGrafico();
+      showAlert('Quantidades resetadas');
+    }
+  });
 
-  // Salvar stock (validar e atualizar localStorage)
-  btnSaveStock.onclick = () => {
-    let stock = getStock();
-    let valid = true;
-    const erros = [];
+  btnSaveStock.addEventListener('click', () => {
+    salvarStock();
+    salvarHistorico();
+    showAlert('Stock guardado com sucesso');
+  });
 
-    // Pega as linhas atuais na tabela e atualiza stock
-    const rows = [...stockTableBody.querySelectorAll('tr')];
-    rows.forEach((tr, i) => {
-      const {inputProduto, inputQtd, inputRef, tdData} = tr.inputs;
-      const id = stock[i].id;
-      const produtoNome = inputProduto.value.trim();
-      const qtd = Number(inputQtd.value);
-      const referencia = inputRef.value.trim();
-
-      if (!produtoNome) {
-        valid = false;
-        erros.push(`Linha ${i+1}: Produto não pode estar vazio.`);
-      }
-
-      // Verificar nomes duplicados
-      const nomes = rows.map(r => r.inputs.inputProduto.value.trim().toLowerCase());
-      const nomeCount = nomes.filter(n => n === produtoNome.toLowerCase()).length;
-      if (nomeCount > 1) {
-        valid = false;
-        erros.push(`Linha ${i+1}: Produto "${produtoNome}" está duplicado.`);
-      }
-
-      if (qtd < 0) {
-        valid = false;
-        erros.push(`Linha ${i+1}: Quantidade não pode ser negativa.`);
-      }
-
-      // Atualiza objeto
-      stock[i] = {
-        id,
-        produto: produtoNome,
-        quantidade: qtd,
-        referencia,
-        dataAlteracao: new Date().toLocaleString()
-      };
-      tdData.textContent = stock[i].dataAlteracao;
-    });
-
-    if (!valid) {
-      alert('Erros:\n' + erros.join('\n'));
+  btnExportXLSX.addEventListener('click', () => {
+    if(stock.length === 0) {
+      showAlert('Stock vazio, nada para exportar');
       return;
     }
-    setStock(stock);
-    showMessage(stockMsg, 'Stock guardado com sucesso!');
-  };
+    // Formatar dados para exportar
+    const exportData = stock.map(p => ({
+      ID: p.id,
+      Produto: p.nome,
+      Quantidade: p.quantidade,
+      Referencia: p.referencia,
+      'Data Última Alteração': p.dataUltimaAlteracao ? new Date(p.dataUltimaAlteracao).toLocaleString() : ''
+    }));
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Stock');
+    XLSX.writeFile(wb, 'stock.xlsx');
+  });
 
-  // Salvar utilizadores (validar e atualizar localStorage)
-  btnSaveUsers.onclick = () => {
-    let users = getUtilizadores();
-    let valid = true;
-    const erros = [];
+  searchProductInput.addEventListener('input', () => {
+    carregarStockTabela(searchProductInput.value);
+  });
 
-    const rows = [...usersTableBody.querySelectorAll('tr')];
-    rows.forEach((tr,i) => {
-      const {inputUsername, inputPass, checkboxActive, selectPerm} = tr.inputs;
-      const id = users[i].id;
-      const username = inputUsername.value.trim();
-      const password = inputPass.value;
-      const active = checkboxActive.checked;
-      const permission = selectPerm.value;
+  // --- GESTÃO UTILIZADORES ---
+  const tableUsersBody = document.querySelector('#tableUsers tbody');
+  const btnAddUser = document.getElementById('btnAddUser');
+  const btnSaveUsers = document.getElementById('btnSaveUsers');
 
-      if (!username) {
-        valid = false;
-        erros.push(`Linha ${i+1}: Utilizador não pode estar vazio.`);
-      }
-      if (!password) {
-        valid = false;
-        erros.push(`Linha ${i+1}: Senha não pode estar vazia.`);
-      }
-
-      // Verificar usernames duplicados
-      const usernames = rows.map(r => r.inputs.inputUsername.value.trim().toLowerCase());
-      const count = usernames.filter(u => u === username.toLowerCase()).length;
-      if(count > 1) {
-        valid = false;
-        erros.push(`Linha ${i+1}: Utilizador "${username}" está duplicado.`);
-      }
-
-      users[i] = {id, username, password, active, permission};
-    });
-
-    if(!valid) {
-      alert('Erros:\n' + erros.join('\n'));
+  function carregarUsersTabela() {
+    tableUsersBody.innerHTML = '';
+    if(utilizadores.length === 0) {
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 6;
+      td.style.textAlign = 'center';
+      td.textContent = 'Nenhum utilizador encontrado.';
+      tr.appendChild(td);
+      tableUsersBody.appendChild(tr);
       return;
     }
 
-    setUtilizadores(users);
-    showMessage(usersMsg, 'Utilizadores guardados com sucesso!');
-  };
+    utilizadores.forEach(u => {
+      const tr = document.createElement('tr');
 
-  // Pesquisar stock
-  searchStock.addEventListener('input', () => {
-    const termo = searchStock.value.trim().toLowerCase();
-    const stock = getStock();
-    const filtrado = stock.filter(p => p.produto.toLowerCase().includes(termo));
-    renderStockTable(filtrado);
-  });
+      // ID
+      const tdId = document.createElement('td');
+      tdId.textContent = u.id;
+      tr.appendChild(tdId);
 
-  // Pesquisar utilizadores
-  searchUtilizador.addEventListener('input', () => {
-    const termo = searchUtilizador.value.trim().toLowerCase();
-    const users = getUtilizadores();
-    const filtrado = users.filter(u => u.username.toLowerCase().includes(termo));
-    renderUsersTable(filtrado);
-  });
+      // Nome
+      const tdNome = document.createElement('td');
+      const inputNome = document.createElement('input');
+      inputNome.type = 'text';
+      inputNome.value = u.nome;
+      inputNome.title = 'Editar nome';
+      inputNome.addEventListener('change', () => {
+        u.nome = inputNome.value.trim();
+      });
+      tdNome.appendChild(inputNome);
+      tr.appendChild(tdNome);
 
-  // Inicialização
-  function init() {
-    // Carregar stock e utilizadores
-    let stock = getStock();
-    if(!stock.length) {
-      stock = [
-        {id: 1, produto: 'Arroz', quantidade: 100, referencia: 'ARZ001', dataAlteracao: '-'},
-        {id: 2, produto: 'Feijão', quantidade: 50, referencia: 'FJA002', dataAlteracao: '-'}
-      ];
-      setStock(stock);
-    }
-    renderStockTable(stock);
+      // Email
+      const tdEmail = document.createElement('td');
+      const inputEmail = document.createElement('input');
+      inputEmail.type = 'email';
+      inputEmail.value = u.email;
+      inputEmail.title = 'Editar email';
+      inputEmail.addEventListener('change', () => {
+        u.email = inputEmail.value.trim();
+      });
+      tdEmail.appendChild(inputEmail);
+      tr.appendChild(tdEmail);
 
-    let users = getUtilizadores();
-    if(!users.length) {
-      users = [
-        {id: 1, username: 'admin', password: 'admin', active: true, permission: 'admin'}
-      ];
-      setUtilizadores(users);
-    }
-    renderUsersTable(users);
+      // Permissão
+      const tdPerm = document.createElement('td');
+      const selectPerm = document.createElement('select');
+      ['admin', 'user'].forEach(role => {
+        const option = document.createElement('option');
+        option.value = role;
+        option.textContent = role.charAt(0).toUpperCase() + role.slice(1);
+        if(u.permissao === role) option.selected = true;
+        selectPerm.appendChild(option);
+      });
+      selectPerm.title = 'Editar permissão';
+      selectPerm.addEventListener('change', () => {
+        u.permissao = selectPerm.value;
+      });
+      tdPerm.appendChild(selectPerm);
+      tr.appendChild(tdPerm);
 
-    // Mostrar utilizador logado
-    userLogged.textContent = getSession() || 'Nenhum utilizador logado';
+      // Password
+      const tdPass = document.createElement('td');
+      const inputPass = document.createElement('input');
+      inputPass.type = 'password';
+      inputPass.placeholder = 'Nova senha';
+      inputPass.title = 'Alterar senha';
+      inputPass.addEventListener('change', () => {
+        if(inputPass.value.trim().length > 0) {
+          u.password = inputPass.value;
+        }
+      });
+      tdPass.appendChild(inputPass);
+      tr.appendChild(tdPass);
+
+      // Remover
+      const tdRem = document.createElement('td');
+      const btnRem = document.createElement('button');
+      btnRem.className = 'btn btn-danger';
+      btnRem.title = 'Remover utilizador';
+      btnRem.innerHTML = '<span class="material-icons">delete</span>';
+      btnRem.addEventListener('click', () => {
+        if(confirm(`Deseja remover o utilizador "${u.nome}"?`)) {
+          utilizadores = utilizadores.filter(user => user.id !== u.id);
+          salvarUtilizadores();
+          carregarUsersTabela();
+          showAlert('Utilizador removido');
+        }
+      });
+      tdRem.appendChild(btnRem);
+      tr.appendChild(tdRem);
+
+      tableUsersBody.appendChild(tr);
+    });
   }
 
-  init();
+  btnAddUser.addEventListener('click', () => {
+    const novoUser = {
+      id: novoId(utilizadores),
+      nome: 'Novo Utilizador',
+      email: '',
+      permissao: 'user',
+      password: ''
+    };
+    utilizadores.push(novoUser);
+    carregarUsersTabela();
+  });
+
+  btnSaveUsers.addEventListener('click', () => {
+    salvarUtilizadores();
+    showAlert('Utilizadores guardados com sucesso');
+  });
+
+  // --- Histórico ---
+  const modalHistorico = document.getElementById('modalHistorico');
+  const historicoContent = document.getElementById('historicoContent');
+  const btnCloseHistorico = document.getElementById('btnCloseHistorico');
+
+  function mostrarHistorico(prodId) {
+    historicoContent.innerHTML = '';
+    const hist = historicoAlteracoes[prodId];
+    if(!hist || hist.length === 0) {
+      historicoContent.textContent = 'Sem histórico disponível.';
+    } else {
+      hist.forEach(h => {
+        const p = document.createElement('p');
+        p.textContent = `[${new Date(h.data).toLocaleString()}] ${h.user}: ${h.acao}`;
+        historicoContent.appendChild(p);
+      });
+    }
+    modalHistorico.style.display = 'flex';
+  }
+
+  btnCloseHistorico.addEventListener('click', () => {
+    modalHistorico.style.display = 'none';
+  });
+
+  // --- Gráfico ---
+  let chartInstance = null;
+  const ctx = document.getElementById('chartStock').getContext('2d');
+
+  function montarGrafico() {
+    const labels = stock.map(p => p.nome);
+    const data = stock.map(p => p.quantidade);
+    if(chartInstance) chartInstance.destroy();
+    chartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Quantidade em Stock',
+          data: data,
+          backgroundColor: 'rgba(54, 162, 235, 0.7)'
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            precision: 0
+          }
+        }
+      }
+    });
+  }
+
+  // Funções de armazenamento
+  function salvarStock() {
+    localStorage.setItem('stock', JSON.stringify(stock));
+  }
+
+  function salvarUtilizadores() {
+    localStorage.setItem('utilizadores', JSON.stringify(utilizadores));
+  }
+
+  function salvarHistorico() {
+    localStorage.setItem('historicoAlteracoes', JSON.stringify(historicoAlteracoes));
+  }
+
+  // Função para gerar novo ID
+  function novoId(arr) {
+    if(arr.length === 0) return 1;
+    return Math.max(...arr.map(item => item.id)) + 1;
+  }
+
+  // Mostrar alertas
+  function showAlert(msg) {
+    alert(msg);
+  }
+
+  // Inicialização
+  carregarTodasTabelas();
+  montarGrafico();
 
 })();  
-</script>
+  
 
+  
+  </script>
 </body>
 </html>
