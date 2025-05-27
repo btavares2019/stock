@@ -1,72 +1,39 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Controle de Estoque</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gestão de Estoque</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background: #f9f9f9;
-    }
-    #loginForm {
-      max-width: 300px;
-      margin: 100px auto;
-      background: #fff;
-      padding: 20px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      border-radius: 8px;
-    }
-    #loginForm input, #loginForm button {
-      width: 100%;
-      margin-top: 10px;
-      padding: 10px;
-    }
-    #app {
-      display: none;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-    }
-    th {
-      background: #f0f0f0;
-    }
-    .logo {
-      width: 150px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .controls {
-      margin-top: 15px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
+    #loginForm, #app { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; }
+    #app { display: none; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    input[type="text"], input[type="number"] { width: 100%; padding: 4px; }
+    .btn { padding: 6px 10px; margin: 2px; }
   </style>
 </head>
 <body>
 
 <div id="loginForm">
   <h2>Login</h2>
-  <input type="text" id="username" placeholder="Usuário">
-  <input type="password" id="password" placeholder="Senha">
+  <label>Usuário:</label><br>
+  <input type="text" id="username"><br><br>
+  <label>Senha:</label><br>
+  <input type="password" id="password"><br><br>
   <button onclick="login()">Entrar</button>
-  <p id="msgErro" style="color:red; display:none;">Login inválido</p>
+  <p id="msgErro" style="color: red; display: none;">Usuário ou senha incorretos.</p>
 </div>
 
 <div id="app">
-  <div class="header">
-    <img src="https://inovar-mais.com/wp-content/uploads/2023/12/logo_inovar_mais_horizontal.png" alt="Logo" class="logo">
-    <div>
-      <input type="text" id="searchInput" placeholder="Bus
+  <h2>Controle de Estoque</h2>
+  <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Procurar produto...">
+  <button onclick="addRow()">Adicionar Produto</button>
+  <button onclick="exportToExcel()">Exportar Excel</button>
+  <table id="estoqueTable">
+    <thead>
+      <tr>
+        <th>Produto</th>
+        <th>Quantidade</th>
+        <th>
