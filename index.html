@@ -1,175 +1,515 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-PT">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema de Produtos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gestão de Produtos e Utilizadores</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 font-sans">
-  <!-- Login -->
-  <div id="loginContainer" class="flex flex-col items-center justify-center min-h-screen">
-    <div class="bg-white p-8 rounded-lg shadow-md w-80 text-center">
-      <h2 class="text-2xl font-bold mb-4">Login</h2>
-      <input id="username" type="text" placeholder="Digite seu nome" class="w-full mb-4 p-2 border rounded" />
-      <button onclick="login()" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded transition">Entrar</button>
+<body class="bg-gray-100 font-sans min-h-screen flex flex-col">
+
+  <!-- LOGIN -->
+  <div id="loginScreen" class="flex flex-col justify-center items-center min-h-screen bg-gray-100 px-4">
+    <div class="bg-white p-8 rounded-lg shadow-md max-w-sm w-full text-center">
+      <h2 class="text-3xl font-bold mb-6 text-blue-700">Iniciar Sessão</h2>
+      <input id="loginUser" type="text" placeholder="Nome de utilizador" class="w-full mb-4 p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      <input id="loginPass" type="password" placeholder="Palavra-passe" class="w-full mb-6 p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded transition">Entrar</button>
     </div>
   </div>
 
-  <!-- Sistema principal -->
-  <div id="appContainer" class="hidden p-6 max-w-6xl mx-auto">
-    <div class="flex justify-between items-center mb-4">
-      <h1 class="text-3xl font-bold">Controle de Produtos</h1>
-      <div class="text-sm text-gray-600" id="lastLoginDisplay"></div>
-    </div>
+  <!-- APP -->
+  <div id="appScreen" class="hidden flex flex-col flex-grow max-w-7xl mx-auto w-full px-6 py-8">
 
-    <!-- Formulário -->
-    <div class="bg-white p-4 rounded shadow mb-6">
-      <h2 class="text-xl font-semibold mb-4">Adicionar / Editar Produto</h2>
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <input id="productName" type="text" placeholder="Nome do produto" class="p-2 border rounded" />
-        <input id="productQty" type="number" placeholder="Quantidade" class="p-2 border rounded" />
-        <input id="productDate" type="date" class="p-2 border rounded" />
-        <button onclick="addOrUpdateProduct()" class="bg-green-500 hover:bg-green-600 text-white p-2 rounded transition">Salvar</button>
+    <!-- Cabeçalho com título, info utilizador e logout -->
+    <header class="flex justify-between items-center mb-6">
+      <h1 class="text-4xl font-bold text-blue-700">Gestão de Produtos</h1>
+      <div class="text-right">
+        <p class="text-gray-700">Utilizador: <strong id="userNameDisplay"></strong></p>
+        <p class="text-gray-500 text-sm" id="lastLoginDisplay"></p>
+        <button onclick="logout()" class="mt-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition">Terminar Sessão</button>
       </div>
-    </div>
+    </header>
 
-    <!-- Tabela -->
-    <div class="bg-white p-4 rounded shadow mb-6 overflow-auto">
-      <table class="min-w-full table-auto border-collapse border text-sm text-left">
-        <thead class="bg-gray-200">
-          <tr>
-            <th class="border px-4 py-2">Produto</th>
-            <th class="border px-4 py-2">Quantidade</th>
-            <th class="border px-4 py-2">Data de Contagem</th>
-            <th class="border px-4 py-2">Última Alteração</th>
-            <th class="border px-4 py-2">Ações</th>
-          </tr>
-        </thead>
-        <tbody id="productTable"></tbody>
-      </table>
-    </div>
+    <!-- Navegação por abas -->
+    <nav class="mb-6 border-b border-gray-300">
+      <ul class="flex space-x-4 text-gray-600">
+        <li><button id="tab-produtos" onclick="showTab('produtos')" class="tab-btn border-b-4 border-blue-600 font-semibold pb-2">Produtos</button></li>
+        <li><button id="tab-historico" onclick="showTab('historico')" class="tab-btn pb-2 hover:text-blue-700 transition">Histórico de Contagens</button></li>
+        <li><button id="tab-utilizadores" onclick="showTab('utilizadores')" class="tab-btn pb-2 hover:text-blue-700 transition">Gestão de Utilizadores</button></li>
+      </ul>
+    </nav>
 
-    <!-- Botões -->
-    <div class="flex flex-wrap gap-4 mb-6">
-      <button onclick="exportToExcel()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">Exportar Excel</button>
-      <button onclick="exportToPDF()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Exportar PDF</button>
-      <button onclick="window.print()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">Imprimir</button>
-    </div>
+    <!-- Conteúdos das abas -->
+    <section id="produtos" class="tab-content">
+
+      <!-- Formulário de produtos -->
+      <div class="bg-white p-4 rounded shadow mb-6">
+        <h2 class="text-xl font-semibold mb-4">Adicionar / Editar Produto</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <input id="productName" type="text" placeholder="Nome do produto" class="p-2 border rounded" />
+          <input id="productQty" type="number" placeholder="Quantidade" class="p-2 border rounded" />
+          <button onclick="addOrUpdateProduct()" class="bg-green-500 hover:bg-green-600 text-white p-2 rounded transition">Guardar</button>
+        </div>
+      </div>
+
+      <!-- Tabela de produtos -->
+      <div class="bg-white p-4 rounded shadow mb-6 overflow-auto max-h-[400px]">
+        <table class="min-w-full table-auto border-collapse border text-sm text-left">
+          <thead class="bg-gray-200 sticky top-0">
+            <tr>
+              <th class="border px-4 py-2">Produto</th>
+              <th class="border px-4 py-2">Quantidade</th>
+              <th class="border px-4 py-2">Última Alteração</th>
+              <th class="border px-4 py-2">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="productTable"></tbody>
+        </table>
+      </div>
+
+      <!-- Botões de exportação e impressão -->
+      <div class="flex flex-wrap gap-4 mb-6">
+        <button onclick="exportToExcel()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">Exportar Excel</button>
+        <button onclick="exportToPDF()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Exportar PDF</button>
+        <button onclick="window.print()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">Imprimir</button>
+      </div>
+    </section>
+
+    <section id="historico" class="tab-content hidden">
+      <h2 class="text-2xl font-semibold mb-4 text-blue-700">Histórico de Contagens</h2>
+      <div class="bg-white p-4 rounded shadow overflow-auto max-h-[450px]">
+        <table class="min-w-full table-auto border-collapse border text-sm text-left">
+          <thead class="bg-gray-200 sticky top-0">
+            <tr>
+              <th class="border px-4 py-2">Produto</th>
+              <th class="border px-4 py-2">Quantidade</th>
+              <th class="border px-4 py-2">Data da Contagem</th>
+              <th class="border px-4 py-2">Utilizador</th>
+            </tr>
+          </thead>
+          <tbody id="historyTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="utilizadores" class="tab-content hidden">
+
+      <h2 class="text-2xl font-semibold mb-4 text-blue-700">Gestão de Utilizadores</h2>
+
+      <div class="bg-white p-4 rounded shadow mb-6 max-w-md">
+        <h3 class="text-lg font-semibold mb-4">Adicionar Utilizador</h3>
+        <input id="newUserName" type="text" placeholder="Nome de utilizador" class="w-full mb-3 p-2 border rounded" />
+        <input id="newUserPass" type="password" placeholder="Palavra-passe" class="w-full mb-3 p-2 border rounded" />
+        <button onclick="addUser()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded transition w-full">Adicionar</button>
+      </div>
+
+      <div class="bg-white p-4 rounded shadow overflow-auto max-h-[400px] max-w-md">
+        <h3 class="text-lg font-semibold mb-4">Lista de Utilizadores</h3>
+        <table class="min-w-full table-auto border-collapse border text-sm text-left">
+          <thead class="bg-gray-200 sticky top-0">
+            <tr>
+              <th class="border px-4 py-2">Nome</th>
+              <th class="border px-4 py-2">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="usersTable"></tbody>
+        </table>
+      </div>
+
+    </section>
+
   </div>
 
-  <!-- Script -->
-  <script>
-    const loginContainer = document.getElementById("loginContainer");
-    const appContainer = document.getElementById("appContainer");
-    const lastLoginDisplay = document.getElementById("lastLoginDisplay");
-    const productTable = document.getElementById("productTable");
+  <!-- Rodapé -->
+  <footer class="mt-auto bg-gray-200 text-center text-gray-600 text-sm py-4 select-none">
+    Criado por Bruno Tavares 2025
+  </footer>
 
-    let editingIndex = -1;
+<script>
+  // Estado atual da aba
+  let currentTab = 'produtos';
+  let editingIndex = -1;
 
-    function login() {
-      const username = document.getElementById("username").value.trim();
-      if (!username) return alert("Digite seu nome!");
-      const lastLogin = localStorage.getItem("lastLogin");
-      const now = new Date().toLocaleString();
-      localStorage.setItem("lastLogin", now);
-      localStorage.setItem("loggedUser", username);
-      if (lastLogin) {
-        lastLoginDisplay.textContent = `Último acesso: ${lastLogin}`;
+  // -----------------------
+  // Gestão Login e Sessão
+  // -----------------------
+
+  function init() {
+    // Verifica se utilizador está logado
+    const user = localStorage.getItem('loggedUser');
+    const lastLogin = localStorage.getItem('lastLogin');
+
+    if (user) {
+      showApp(user, lastLogin);
+    } else {
+      showLogin();
+    }
+  }
+
+  function showLogin() {
+    document.getElementById('loginScreen').classList.remove('hidden');
+    document.getElementById('appScreen').classList.add('hidden');
+  }
+
+  function showApp(user, lastLogin) {
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('appScreen').classList.remove('hidden');
+    document.getElementById('userNameDisplay').textContent = user;
+    document.getElementById('lastLoginDisplay').textContent = 'Último login: ' + lastLogin;
+
+    showTab(currentTab);
+    renderUsers();
+    renderProducts();
+    renderHistory();
+  }
+
+  function login() {
+    const userInput = document.getElementById('loginUser').value.trim();
+    const passInput = document.getElementById('loginPass').value;
+
+    if (!userInput || !passInput) {
+      alert('Por favor, preencha o nome de utilizador e palavra-passe.');
+      return;
+    }
+
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const userFound = users.find(u => u.name === userInput && u.password === passInput);
+
+    if (!userFound) {
+      alert('Nome de utilizador ou palavra-passe incorretos.');
+      return;
+    }
+
+    const now = new Date().toLocaleString();
+    localStorage.setItem('loggedUser', userInput);
+    localStorage.setItem('lastLogin', now);
+
+    showApp(userInput, now);
+
+    // Limpa campos login
+    document.getElementById('loginUser').value = '';
+    document.getElementById('loginPass').value = '';
+  }
+
+  function logout() {
+    if (confirm('Deseja terminar a sessão?')) {
+      localStorage.removeItem('loggedUser');
+      localStorage.removeItem('lastLogin');
+      showLogin();
+    }
+  }
+
+  // -----------------------
+  // Abas
+  // -----------------------
+
+  function showTab(tab) {
+    currentTab = tab;
+
+    document.querySelectorAll('.tab-content').forEach(s => s.classList.add('hidden'));
+    document.getElementById(tab).classList.remove('hidden');
+
+    // Atualizar estilos dos botões
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.classList.remove('border-blue-600', 'font-semibold');
+      btn.classList.add('hover:text-blue-700');
+    });
+    document.getElementById('tab-' + tab).classList.add('border-blue-600', 'font-semibold');
+    document.getElementById('tab-' + tab).classList.remove('hover:text-blue-700');
+  }
+
+  // -----------------------
+  // Produtos
+  // -----------------------
+
+  function getProducts() {
+    return JSON.parse(localStorage.getItem('products') || '[]');
+  }
+
+  function setProducts(products) {
+    localStorage.setItem('products', JSON.stringify(products));
+  }
+
+  function renderProducts() {
+    const products = getProducts();
+    const tbody = document.getElementById('productTable');
+    tbody.innerHTML = '';
+
+    products.forEach((p, i) => {
+      const tr = document.createElement('tr');
+      tr.className = 'hover:bg-gray-100';
+
+      tr.innerHTML = `
+        <td class="border px-4 py-2">${p.name}</td>
+        <td class="border px-4 py-2">${p.qty}</td>
+        <td class="border px-4 py-2">${p.updated}</td>
+        <td class="border px-4 py-2 space-x-2">
+          <button onclick="editProduct(${i})" class="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded transition">Editar</button>
+          <button onclick="deleteProduct(${i})" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded transition">Apagar</button>
+        </td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  function addOrUpdateProduct() {
+    const nameInput = document.getElementById('productName');
+    const qtyInput = document.getElementById('productQty');
+
+    const name = nameInput.value.trim();
+    const qty = Number(qtyInput.value);
+
+    if (!name) {
+      alert('Por favor, insira o nome do produto.');
+      return;
+    }
+    if (!qty || qty < 0) {
+      alert('Por favor, insira uma quantidade válida.');
+      return;
+    }
+
+    const products = getProducts();
+    const now = new Date().toLocaleString();
+    const user = localStorage.getItem('loggedUser') || 'Desconhecido';
+
+    if (editingIndex >= 0) {
+      // Editar
+      products[editingIndex].name = name;
+      products[editingIndex].qty = qty;
+      products[editingIndex].updated = now;
+
+      salvarHistorico(name, qty, now, user);
+
+      editingIndex = -1;
+    } else {
+      // Adicionar
+      products.push({ name, qty, updated: now });
+      salvarHistorico(name, qty, now, user);
+    }
+
+    setProducts(products);
+    renderProducts();
+
+    nameInput.value = '';
+    qtyInput.value = '';
+  }
+
+  function editProduct(i) {
+    const products = getProducts();
+    const p = products[i];
+    document.getElementById('productName').value = p.name;
+    document.getElementById('productQty').value = p.qty;
+    editingIndex = i;
+    showTab('produtos');
+  }
+
+  function deleteProduct(i) {
+    if (!confirm('Tem a certeza que deseja apagar este produto?')) return;
+
+    const products = getProducts();
+    products.splice(i, 1);
+    setProducts(products);
+    renderProducts();
+  }
+
+  // -----------------------
+  // Histórico
+  // -----------------------
+
+  function getHistory() {
+    return JSON.parse(localStorage.getItem('history') || '[]');
+  }
+
+  function setHistory(history) {
+    localStorage.setItem('history', JSON.stringify(history));
+  }
+
+  function salvarHistorico(nome, qty, data, utilizador) {
+    const history = getHistory();
+    history.push({ name: nome, qty: qty, date: data, user: utilizador });
+    setHistory(history);
+    renderHistory();
+  }
+
+  function renderHistory() {
+    const history = getHistory();
+    const tbody = document.getElementById('historyTable');
+    tbody.innerHTML = '';
+
+    // Mostrar do mais recente para o mais antigo
+    [...history].reverse().forEach(h => {
+      const tr = document.createElement('tr');
+      tr.className = 'hover:bg-gray-100';
+
+      tr.innerHTML = `
+        <td class="border px-4 py-2">${h.name}</td>
+        <td class="border px-4 py-2">${h.qty}</td>
+        <td class="border px-4 py-2">${h.date}</td>
+        <td class="border px-4 py-2">${h.user}</td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  // -----------------------
+  // Utilizadores
+  // -----------------------
+
+  function getUsers() {
+    return JSON.parse(localStorage.getItem('users') || '[]');
+  }
+
+  function setUsers(users) {
+    localStorage.setItem('users', JSON.stringify(users));
+  }
+
+  function renderUsers() {
+    const users = getUsers();
+    const tbody = document.getElementById('usersTable');
+    tbody.innerHTML = '';
+
+    users.forEach((u, i) => {
+      const tr = document.createElement('tr');
+      tr.className = 'hover:bg-gray-100';
+
+      tr.innerHTML = `
+        <td class="border px-4 py-2">${u.name}</td>
+        <td class="border px-4 py-2">
+          <button onclick="deleteUser(${i})" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded transition">Apagar</button>
+        </td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  function addUser() {
+    const nameInput = document.getElementById('newUserName');
+    const passInput = document.getElementById('newUserPass');
+
+    const name = nameInput.value.trim();
+    const pass = passInput.value;
+
+    if (!name) {
+      alert('Por favor, insira o nome do utilizador.');
+      return;
+    }
+    if (!pass) {
+      alert('Por favor, insira a palavra-passe.');
+      return;
+    }
+
+    const users = getUsers();
+    if (users.find(u => u.name === name)) {
+      alert('Já existe um utilizador com esse nome.');
+      return;
+    }
+
+    users.push({ name, password: pass });
+    setUsers(users);
+    renderUsers();
+
+    nameInput.value = '';
+    passInput.value = '';
+  }
+
+  function deleteUser(i) {
+    if (!confirm('Tem a certeza que deseja apagar este utilizador?')) return;
+
+    const users = getUsers();
+    const userToRemove = users[i].name;
+    users.splice(i, 1);
+    setUsers(users);
+    renderUsers();
+
+    // Se apagou o utilizador logado, faz logout
+    const loggedUser = localStorage.getItem('loggedUser');
+    if (loggedUser === userToRemove) {
+      alert('O utilizador apagado está logado. Vai terminar sessão.');
+      logout();
+    }
+  }
+
+  // -----------------------
+  // Exportação
+  // -----------------------
+
+  function exportToExcel() {
+    const products = getProducts();
+    if (products.length === 0) {
+      alert('Não há produtos para exportar.');
+      return;
+    }
+
+    const wb = XLSX.utils.book_new();
+    const wsData = [
+      ['Produto', 'Quantidade', 'Última Alteração'],
+      ...products.map(p => [p.name, p.qty, p.updated])
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    XLSX.utils.book_append_sheet(wb, ws, 'Produtos');
+
+    XLSX.writeFile(wb, 'produtos.xlsx');
+  }
+
+  async function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    const products = getProducts();
+    if (products.length === 0) {
+      alert('Não há produtos para exportar.');
+      return;
+    }
+
+    doc.setFontSize(18);
+    doc.text('Lista de Produtos', 14, 22);
+    doc.setFontSize(12);
+
+    const colWidths = [70, 40, 60];
+    let startY = 30;
+
+    doc.text('Produto', 14, startY);
+    doc.text('Quantidade', 14 + colWidths[0], startY);
+    doc.text('Última Alteração', 14 + colWidths[0] + colWidths[1], startY);
+
+    startY += 8;
+
+    products.forEach(p => {
+      doc.text(p.name, 14, startY);
+      doc.text(p.qty.toString(), 14 + colWidths[0], startY);
+      doc.text(p.updated, 14 + colWidths[0] + colWidths[1], startY);
+      startY += 8;
+      if (startY > 280) {
+        doc.addPage();
+        startY = 20;
       }
-      loginContainer.classList.add("hidden");
-      appContainer.classList.remove("hidden");
-      renderTable();
+    });
+
+    doc.save('produtos.pdf');
+  }
+
+  // -----------------------
+  // Inicialização padrão
+  // -----------------------
+
+  // Criar um utilizador padrão se não houver nenhum
+  function criarUtilizadorPadrao() {
+    let users = getUsers();
+    if (users.length === 0) {
+      users.push({ name: 'admin', password: '1234' });
+      setUsers(users);
     }
+  }
 
-    function loadProducts() {
-      return JSON.parse(localStorage.getItem("products") || "[]");
-    }
+  criarUtilizadorPadrao();
+  init();
+</script>
 
-    function saveProducts(products) {
-      localStorage.setItem("products", JSON.stringify(products));
-    }
-
-    function addOrUpdateProduct() {
-      const name = document.getElementById("productName").value.trim();
-      const qty = parseInt(document.getElementById("productQty").value);
-      const date = document.getElementById("productDate").value;
-      if (!name || isNaN(qty) || !date) return alert("Preencha todos os campos!");
-
-      const now = new Date().toLocaleString();
-      let products = loadProducts();
-
-      if (editingIndex >= 0) {
-        products[editingIndex] = { ...products[editingIndex], name, qty, date, updated: now };
-        editingIndex = -1;
-      } else {
-        products.push({ name, qty, date, updated: now });
-      }
-
-      saveProducts(products);
-      renderTable();
-      document.getElementById("productName").value = "";
-      document.getElementById("productQty").value = "";
-      document.getElementById("productDate").value = "";
-    }
-
-    function editProduct(index) {
-      const product = loadProducts()[index];
-      document.getElementById("productName").value = product.name;
-      document.getElementById("productQty").value = product.qty;
-      document.getElementById("productDate").value = product.date;
-      editingIndex = index;
-    }
-
-    function deleteProduct(index) {
-      if (!confirm("Deseja excluir este produto?")) return;
-      let products = loadProducts();
-      products.splice(index, 1);
-      saveProducts(products);
-      renderTable();
-    }
-
-    function renderTable() {
-      const products = loadProducts();
-      productTable.innerHTML = "";
-      products.forEach((p, i) => {
-        productTable.innerHTML += `
-          <tr>
-            <td class="border px-4 py-2">${p.name}</td>
-            <td class="border px-4 py-2">${p.qty}</td>
-            <td class="border px-4 py-2">${p.date}</td>
-            <td class="border px-4 py-2">${p.updated}</td>
-            <td class="border px-4 py-2 space-x-2">
-              <button onclick="editProduct(${i})" class="bg-yellow-400 hover:bg-yellow-500 text-white px-2 py-1 rounded">Editar</button>
-              <button onclick="deleteProduct(${i})" class="bg-red-400 hover:bg-red-500 text-white px-2 py-1 rounded">Excluir</button>
-            </td>
-          </tr>
-        `;
-      });
-    }
-
-    function exportToExcel() {
-      const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.json_to_sheet(loadProducts());
-      XLSX.utils.book_append_sheet(wb, ws, "Produtos");
-      XLSX.writeFile(wb, "produtos.xlsx");
-    }
-
-    async function exportToPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      const products = loadProducts();
-      doc.text("Lista de Produtos", 10, 10);
-      let y = 20;
-      products.forEach((p, i) => {
-        doc.text(`${i + 1}. ${p.name} - ${p.qty} - ${p.date} - ${p.updated}`, 10, y);
-        y += 10;
-      });
-      doc.save("produtos.pdf");
-    }
-  </script>
 </body>
 </html>
