@@ -1,842 +1,799 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Gestão de Stock - Dashboard</title>
-
-<!-- Ícones SVG simples para botões -->
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
-  :root {
-    --clr-primary: #2c3e50;
-    --clr-secondary: #2980b9;
-    --clr-success: #27ae60;
-    --clr-danger: #c0392b;
-    --clr-warning: #f39c12;
-    --clr-light: #ecf0f1;
-    --clr-dark: #34495e;
-    --clr-bg-light: #f7f9fc;
-    --clr-bg-dark: #222831;
-    --clr-text-light: #2f3640;
-    --clr-text-dark: #dfe6e9;
-  }
-  body {
-    font-family: 'Inter', sans-serif;
-    margin: 0; background: var(--clr-bg-light);
-    color: var(--clr-text-light);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-  body.dark {
-    background: var(--clr-bg-dark);
-    color: var(--clr-text-dark);
-  }
-  header {
-    background: var(--clr-primary);
-    color: white;
-    padding: 1rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  header.dark {
-    background: var(--clr-dark);
-  }
-  h1 {
-    margin: 0; font-weight: 700;
-  }
-  #themeToggle {
-    cursor: pointer;
-    background: none; border: none; color: white;
-    font-size: 1.5rem;
-  }
-  #app, #loginSection {
-    max-width: 1200px;
-    margin: 2rem auto;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgb(0 0 0 / 0.1);
-    padding: 1.5rem;
-    display: none;
-  }
-  body.dark #app, body.dark #loginSection {
-    background: #393e46;
-    box-shadow: 0 0 15px rgb(255 255 255 / 0.15);
-  }
-  #loginSection.active, #app.active {
-    display: block;
-  }
-  .tabs {
-    display: flex;
-    border-bottom: 2px solid var(--clr-primary);
-    margin-bottom: 1rem;
-  }
-  .tab {
-    padding: 0.75rem 1.5rem;
-    cursor: pointer;
-    font-weight: 600;
-    color: var(--clr-primary);
-    border-bottom: 3px solid transparent;
-    transition: all 0.3s ease;
-    user-select: none;
-  }
-  body.dark .tab {
-    color: var(--clr-text-dark);
-  }
-  .tab.active {
-    border-color: var(--clr-secondary);
-    color: var(--clr-secondary);
-  }
-  .tab:hover:not(.active) {
-    color: var(--clr-secondary);
-  }
-  /* Tables */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
-  }
-  th, td {
-    border: 1px solid var(--clr-primary);
-    padding: 0.5rem 0.75rem;
-    text-align: center;
-    font-size: 0.9rem;
-  }
-  th {
-    background: var(--clr-primary);
-    color: white;
-  }
-  body.dark th {
-    background: var(--clr-secondary);
-  }
-  tr.low-stock {
-    background: var(--clr-danger);
-    color: white;
-    font-weight: 700;
-  }
-  tr:nth-child(even):not(.low-stock) {
-    background: var(--clr-light);
-  }
-  body.dark tr:nth-child(even):not(.low-stock) {
-    background: #303841;
-  }
-  input[type=text], input[type=password], input[type=number], select {
-    width: 100%;
-    padding: 0.4rem 0.6rem;
-    margin: 0.3rem 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 1rem;
-    box-sizing: border-box;
-  }
-  body.dark input[type=text], body.dark input[type=password], body.dark input[type=number], body.dark select {
-    background: #222831;
-    border-color: #555;
-    color: var(--clr-text-dark);
-  }
-  button {
-    background: var(--clr-secondary);
-    border: none;
-    color: white;
-    padding: 0.6rem 1.1rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 1rem;
-    margin: 0.3rem 0.2rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: background 0.3s ease;
-    user-select: none;
-  }
-  button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  button:hover:not(:disabled) {
-    background: var(--clr-primary);
-  }
-  button svg {
-    width: 18px; height: 18px;
-    fill: currentColor;
-  }
-  /* Layout grid for forms */
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem 1.5rem;
-    margin-top: 1rem;
-  }
-  .form-group {
-    display: flex;
-    flex-direction: column;
-  }
-  label {
-    font-weight: 600;
-    margin-bottom: 0.3rem;
-  }
-  /* Notification */
-  #notification {
-    position: fixed;
-    bottom: 1rem;
-    right: 1rem;
-    background: var(--clr-success);
-    color: white;
-    padding: 0.8rem 1.2rem;
-    border-radius: 6px;
-    box-shadow: 0 0 10px rgb(0 0 0 / 0.2);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-    font-weight: 600;
-    user-select: none;
-  }
-  #notification.show {
-    opacity: 1;
-    pointer-events: auto;
-  }
-  /* Scroll responsive tables */
-  .table-container {
-    overflow-x: auto;
-  }
-  /* Dashboard styling */
-  #dashboard {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
-    justify-content: space-around;
-  }
-  .dashboard-card {
-    background: var(--clr-light);
-    border-radius: 10px;
-    box-shadow: 0 0 8px rgb(0 0 0 / 0.1);
-    padding: 1rem 1.5rem;
-    flex: 1 1 300px;
-    min-width: 280px;
-    color: var(--clr-text-light);
-  }
-  body.dark .dashboard-card {
-    background: #2e3338;
-    color: var(--clr-text-dark);
-  }
-  .dashboard-card h3 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-    font-weight: 700;
-  }
-  /* Footer */
-  footer {
-    text-align: center;
-    font-size: 0.85rem;
-    padding: 1rem;
-    color: var(--clr-text-light);
-    background: var(--clr-primary);
-  }
-  body.dark footer {
-    background: var(--clr-dark);
-    color: var(--clr-text-dark);
-  }
-  /* Responsive */
-  @media (max-width: 768px) {
-    .form-grid {
-      grid-template-columns: 1fr;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Gestão de Stock e Utilizadores</title>
+  
+  <!-- Font Awesome for Icons -->
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    rel="stylesheet"
+  />
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- SheetJS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  
+  <style>
+    /* RESET */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-    #dashboard {
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #222;
+      display: flex;
       flex-direction: column;
+      align-items: center;
+      padding: 20px;
     }
-    table, th, td {
-      font-size: 0.8rem;
+    h1, h2, h3 {
+      margin-bottom: 1rem;
     }
-  }
-</style>
+    /* CONTAINER */
+    #loginForm, #app {
+      background: #fff;
+      border-radius: 12px;
+      padding: 30px 40px;
+      box-shadow: 0 8px 20px rgb(0 0 0 / 0.15);
+      max-width: 960px;
+      width: 100%;
+      display: none;
+    }
+    #loginForm.active, #app.active {
+      display: block;
+    }
 
+    /* LOGIN FORM */
+    #loginForm {
+      max-width: 400px;
+      margin-top: 5rem;
+    }
+    #loginForm label {
+      display: block;
+      margin-bottom: 0.3rem;
+      font-weight: 600;
+      color: #444;
+    }
+    #loginForm input {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      border: 1.5px solid #ccc;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+    #loginForm input:focus {
+      outline: none;
+      border-color: #764ba2;
+      box-shadow: 0 0 8px #764ba2aa;
+    }
+    #loginForm button {
+      width: 100%;
+      background: #764ba2;
+      color: white;
+      font-weight: 700;
+      padding: 0.8rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: background-color 0.3s ease;
+    }
+    #loginForm button:hover {
+      background: #5a3577;
+    }
+    #msgErro {
+      color: #d64545;
+      margin-top: 0.5rem;
+      font-weight: 700;
+      display: none;
+      text-align: center;
+    }
+
+    /* NAVIGATION */
+    nav {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    nav button {
+      background: #764ba2;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background-color 0.3s ease;
+    }
+    nav button:hover {
+      background: #5a3577;
+    }
+    nav button.active {
+      background: #5a3577;
+      font-weight: 700;
+    }
+
+    /* SECTIONS */
+    section {
+      display: none;
+      animation: fadeIn 0.6s ease forwards;
+    }
+    section.active {
+      display: block;
+    }
+
+    /* TABLES */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      box-shadow: 0 3px 12px rgb(0 0 0 / 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th, td {
+      text-align: center;
+      padding: 12px 10px;
+      background: #fafafa;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background: #764ba2;
+      color: white;
+      font-weight: 600;
+      user-select: none;
+      cursor: pointer;
+    }
+    tr:hover td {
+      background: #f0e9f9;
+    }
+    td input[type="text"], td input[type="number"], td select {
+      width: 100%;
+      padding: 6px 8px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    /* BUTTONS */
+    .btn {
+      background: #764ba2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn:hover {
+      background: #5a3577;
+    }
+    .btn-danger {
+      background: #d64545;
+    }
+    .btn-danger:hover {
+      background: #a83333;
+    }
+    .btn-secondary {
+      background: #444;
+    }
+    .btn-secondary:hover {
+      background: #222;
+    }
+
+    /* FORM INLINE */
+    .form-inline {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 12px;
+    }
+    .form-inline > * {
+      flex: 1 1 120px;
+    }
+    .form-inline label {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    /* FOOTER */
+    footer {
+      margin-top: 40px;
+      font-size: 0.85rem;
+      color: #eee;
+      user-select: none;
+      text-align: center;
+    }
+
+    /* SEARCH BOX */
+    #searchStock {
+      width: 300px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1.5px solid #764ba2;
+      font-size: 1rem;
+      margin-bottom: 10px;
+      transition: box-shadow 0.3s ease;
+    }
+    #searchStock:focus {
+      outline: none;
+      box-shadow: 0 0 8px #764ba2aa;
+    }
+
+    /* TOGGLE SWITCH */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 52px;
+      height: 28px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 28px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #764ba2;
+    }
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 720px) {
+      #loginForm, #app {
+        padding: 20px;
+      }
+      nav button {
+        font-size: 0.9rem;
+        padding: 8px 12px;
+      }
+      #searchStock {
+        width: 100%;
+      }
+      table, th, td {
+        font-size: 0.85rem;
+      }
+    }
+
+    /* ANIMATION */
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+
+  </style>
 </head>
 <body>
 
-<header id="header">
-  <h1>Gestão de Stock</h1>
-  <button id="themeToggle" title="Alternar Tema" aria-label="Alternar Tema">🌙</button>
-</header>
+<!-- LOGIN -->
+<div id="loginForm" class="active" role="main" aria-label="Formulário de Login">
+  <h1>Gestão de Stock - Login</h1>
+  <label for="inputUsername">Utilizador:</label>
+  <input type="text" id="inputUsername" autocomplete="username" aria-required="true" />
+  
+  <label for="inputPassword">Senha:</label>
+  <input type="password" id="inputPassword" autocomplete="current-password" aria-required="true" />
+  
+  <button id="btnLogin"><i class="fas fa-sign-in-alt"></i> Entrar</button>
+  <p id="msgErro" role="alert" aria-live="assertive"></p>
+</div>
 
-<section id="loginSection" class="active" aria-label="Área de Login">
-  <h2>Login</h2>
-  <form id="loginForm" onsubmit="return false;">
-    <div class="form-group">
-      <label for="loginUsername">Utilizador</label>
-      <input type="text" id="loginUsername" autocomplete="username" required />
-    </div>
-    <div class="form-group">
-      <label for="loginPassword">Senha</label>
-      <input type="password" id="loginPassword" autocomplete="current-password" required />
-    </div>
-    <button type="submit" id="loginBtn">
-      <svg viewBox="0 0 24 24"><path d="M10 17l5-5-5-5v10z"/></svg> Entrar
-    </button>
-  </form>
-  <p id="loginError" style="color:#c0392b; display:none;">Utilizador ou senha incorretos.</p>
-</section>
+<!-- APP -->
+<div id="app" aria-live="polite" aria-atomic="true" aria-label="Aplicação de Gestão de Stock e Utilizadores">
 
-<section id="app" aria-label="Aplicação Principal">
-  <nav class="tabs" role="tablist" aria-label="Separadores da aplicação">
-    <div role="tab" class="tab active" id="tabStockBtn" tabindex="0" aria-selected="true" aria-controls="tabStock">Stock</div>
-    <div role="tab" class="tab" id="tabUsersBtn" tabindex="-1" aria-selected="false" aria-controls="tabUsers">Utilizadores</div>
-    <div role="tab" class="tab" id="tabDashboardBtn" tabindex="-1" aria-selected="false" aria-controls="tabDashboard">Dashboard</div>
-    <div role="tab" class="tab" id="tabHistoryBtn" tabindex="-1" aria-selected="false" aria-controls="tabHistory">Histórico Alterações</div>
-    <div style="margin-left:auto;">
-      <button id="logoutBtn" title="Sair">
-        <svg viewBox="0 0 24 24"><path d="M16 13v-2H7V8l-5 4 5 4v-3zM20 19v-14h-2v14h2z"/></svg> Logout
+  <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+    <h1>Gestão de Stock</h1>
+    <div style="display:flex; align-items:center; gap:15px;">
+      <button id="btnLogout" class="btn" title="Terminar Sessão">
+        <i class="fas fa-sign-out-alt"></i> Logout
       </button>
+      <label class="switch" title="Alternar tema claro/escuro">
+        <input type="checkbox" id="toggleTheme" aria-label="Alternar tema claro e escuro">
+        <span class="slider"></span>
+      </label>
     </div>
+  </header>
+
+  <nav aria-label="Navegação principal">
+    <button id="tabStock" class="active" aria-controls="sectionStock" aria-selected="true" role="tab">
+      <i class="fas fa-boxes"></i> Stock
+    </button>
+    <button id="tabUtilizadores" aria-controls="sectionUtilizadores" role="tab">
+      <i class="fas fa-users"></i> Utilizadores
+    </button>
+    <button id="tabDashboard" aria-controls="sectionDashboard" role="tab">
+      <i class="fas fa-chart-pie"></i> Dashboard
+    </button>
   </nav>
 
-  <div id="tabStock" role="tabpanel" aria-labelledby="tabStockBtn" class="tabContent active">
-    <h2>Stock</h2>
-    <div>
-      <input type="text" id="stockSearch" placeholder="Procurar produto..." aria-label="Procurar produto" />
-      <button id="btnAddProduct" title="Adicionar Produto">
-        <svg viewBox="0 0 24 24"><path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6v-2z"/></svg> Adicionar Produto
-      </button>
-      <button id="btnExportXLSX" title="Exportar para Excel XLSX">
-        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM8 19l-4-4 1.41-1.41L8 16.17l7.59-7.59L17 10l-9 9z"/></svg> Exportar XLSX
-      </button>
-      <button id="btnResetQuantities" title="Resetar Quantidades">
-        <svg viewBox="0 0 24 24"><path d="M12 5v7l5 3"/></svg> Reset Quantidades
-      </button>
-    </div>
-    <div class="table-container" style="margin-top:1rem;">
-      <table id="stockTable" aria-label="Tabela de stock">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Produto</th>
-            <th>Quantidade</th>
-            <th>Referência</th>
-            <th>Data Última Alteração</th>
-            <th>Stock Mínimo</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- produtos vão aqui -->
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div id="tabUsers" role="tabpanel" aria-labelledby="tabUsersBtn" class="tabContent" hidden>
-    <h2>Utilizadores</h2>
-    <button id="btnAddUser" title="Adicionar Utilizador">
-      <svg viewBox="0 0 24 24"><path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6v-2z"/></svg> Adicionar Utilizador
-    </button>
-    <div class="table-container" style="margin-top:1rem;">
-      <table id="usersTable" aria-label="Tabela de utilizadores">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Utilizador</th>
-            <th>Função</th>
-            <th>Ativo</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- utilizadores vão aqui -->
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div id="tabDashboard" role="tabpanel" aria-labelledby="tabDashboardBtn" class="tabContent" hidden>
-    <h2>Dashboard</h2>
-    <div id="dashboard">
-      <div class="dashboard-card" aria-label="Total de produtos">
-        <h3>Total de produtos</h3>
-        <p id="dashboardTotalProducts" style="font-size:2rem; font-weight:700;">0</p>
-      </div>
-      <div class="dashboard-card" aria-label="Produtos com stock baixo">
-        <h3>Produtos com stock baixo</h3>
-        <p id="dashboardLowStock" style="font-size:2rem; font-weight:700;">0</p>
-      </div>
-      <div class="dashboard-card" aria-label="Utilizadores ativos">
-        <h3>Utilizadores ativos</h3>
-        <p id="dashboardActiveUsers" style="font-size:2rem; font-weight:700;">0</p>
-      </div>
-      <div class="dashboard-card" aria-label="Stock total">
-        <h3>Stock total</h3>
-        <p id="dashboardTotalStock" style="font-size:2rem; font-weight:700;">0</p>
+  <!-- STOCK -->
+  <section id="sectionStock" class="active" role="tabpanel" tabindex="0" aria-labelledby="tabStock">
+    <div class="form-inline" style="justify-content: space-between; flex-wrap: wrap;">
+      <input type="text" id="searchStock" placeholder="Procurar produto..." aria-label="Pesquisar produto no stock" />
+      <div style="display:flex; gap:10px; flex-wrap: wrap;">
+        <button class="btn" id="btnAddProduct" title="Adicionar novo produto">
+          <i class="fas fa-plus"></i> Adicionar Produto
+        </button>
+        <button class="btn" id="btnSaveStock" title="Guardar alterações do stock">
+          <i class="fas fa-save"></i> Guardar
+        </button>
+        <button class="btn" id="btnExportStock" title="Exportar stock para XLSX">
+          <i class="fas fa-file-export"></i> Exportar XLSX
+        </button>
+        <button class="btn btn-danger" id="btnResetQuantities" title="Resetar todas as quantidades para zero">
+          <i class="fas fa-undo-alt"></i> Reset Quantidades
+        </button>
       </div>
     </div>
-    <canvas id="chartStockByUser" aria-label="Gráfico de stock por utilizador" role="img" style="margin-top:2rem;"></canvas>
-  </div>
+    <table aria-describedby="stockTableDesc" id="tableStock" role="grid" aria-live="polite">
+      <caption id="stockTableDesc">Tabela com lista dos produtos em stock.</caption>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Produto</th>
+          <th>Quantidade</th>
+          <th>Referência</th>
+          <th>Última Alteração</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tbodyStock"></tbody>
+    </table>
+  </section>
 
-  <div id="tabHistory" role="tabpanel" aria-labelledby="tabHistoryBtn" class="tabContent" hidden>
-    <h2>Histórico de Alterações</h2>
-    <div class="table-container" style="max-height: 400px; overflow-y: auto;">
-      <table id="historyTable" aria-label="Tabela de histórico">
-        <thead>
-          <tr>
-            <th>ID Produto</th>
-            <th>Produto</th>
-            <th>Quantidade Anterior</th>
-            <th>Quantidade Atual</th>
-            <th>Alterado por</th>
-            <th>Data/Hora</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- histórico vai aqui -->
-        </tbody>
-      </table>
+  <!-- UTILIZADORES -->
+  <section id="sectionUtilizadores" role="tabpanel" tabindex="0" aria-labelledby="tabUtilizadores">
+    <div class="form-inline" style="justify-content: space-between; flex-wrap: wrap;">
+      <input type="text" id="searchUtilizador" placeholder="Procurar utilizador..." aria-label="Pesquisar utilizador" />
+      <div style="display:flex; gap:10px; flex-wrap: wrap;">
+        <button class="btn" id="btnAddUser" title="Adicionar novo utilizador">
+          <i class="fas fa-user-plus"></i> Adicionar Utilizador
+        </button>
+        <button class="btn" id="btnSaveUsers" title="Guardar alterações dos utilizadores">
+          <i class="fas fa-save"></i> Guardar
+        </button>
+      </div>
     </div>
-  </div>
-</section>
+    <table aria-describedby="usersTableDesc" id="tableUtilizadores" role="grid" aria-live="polite">
+      <caption id="usersTableDesc">Tabela com lista de utilizadores.</caption>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Utilizador</th>
+          <th>Permissão</th>
+          <th>Ativo</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tbodyUtilizadores"></tbody>
+    </table>
+  </section>
 
-<div id="notification" role="alert" aria-live="assertive"></div>
+  <!-- DASHBOARD -->
+  <section id="sectionDashboard" role="tabpanel" tabindex="0" aria-labelledby="tabDashboard">
+    <h2>Dashboard de Stock</h2>
+    <canvas id="chartStock" aria-label="Gráfico de barras das quantidades de stock" role="img" style="max-width: 100%; height: 400px;"></canvas>
+  </section>
 
-<footer>
-  Produzido por Bruno Tavares 2025
-</footer>
-
-<!-- SheetJS para exportar XLSX -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <footer>
+    Produzido por Bruno Tavares 2025
+  </footer>
+</div>
 
 <script>
 (() => {
-  'use strict';
-
-  // Dados iniciais para testes (será salvo no localStorage)
-  const defaultUsers = [
-    { id: 1, username: 'admin', password: 'admin123', role: 'admin', active: true },
-    { id: 2, username: 'gestor', password: 'gestor123', role: 'gestor', active: true },
-    { id: 3, username: 'vendedor', password: 'vend123', role: 'vendedor', active: true },
+  // Estado
+  let utilizadores = JSON.parse(localStorage.getItem('utilizadores')) || [
+    { id: 1, username: 'admin', password: 'admin123', permission: 'admin', active: true },
+    { id: 2, username: 'vendedor', password: 'venda123', permission: 'vendedor', active: true },
+    { id: 3, username: 'gestor', password: 'gestor123', permission: 'gestor', active: true }
   ];
-  const defaultProducts = [
-    { id: 1, name: 'Produto A', quantity: 15, reference: 'REF-A', lastModified: new Date().toISOString(), minStock: 5 },
-    { id: 2, name: 'Produto B', quantity: 3, reference: 'REF-B', lastModified: new Date().toISOString(), minStock: 5 },
-    { id: 3, name: 'Produto C', quantity: 8, reference: 'REF-C', lastModified: new Date().toISOString(), minStock: 3 },
-  ];
-  let historyChanges = [];
-
-  // Estado atual
-  let currentUser = null;
-  let users = [];
-  let products = [];
-
-  // DOM refs
-  const loginSection = document.getElementById('loginSection');
-  const appSection = document.getElementById('app');
-  const loginForm = document.getElementById('loginForm');
-  const loginUsername = document.getElementById('loginUsername');
-  const loginPassword = document.getElementById('loginPassword');
-  const loginError = document.getElementById('loginError');
-  const notification = document.getElementById('notification');
-  const tabs = document.querySelectorAll('.tab');
-  const tabContents = document.querySelectorAll('.tabContent');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const themeToggle = document.getElementById('themeToggle');
-
-  // Tabelas e botões
-  const stockTableBody = document.querySelector('#stockTable tbody');
-  const usersTableBody = document.querySelector('#usersTable tbody');
-  const historyTableBody = document.querySelector('#historyTable tbody');
-  const stockSearchInput = document.getElementById('stockSearch');
-  const btnAddProduct = document.getElementById('btnAddProduct');
-  const btnAddUser = document.getElementById('btnAddUser');
-  const btnExportXLSX = document.getElementById('btnExportXLSX');
-  const btnResetQuantities = document.getElementById('btnResetQuantities');
-
-  // Dashboard
-  const dashboardTotalProducts = document.getElementById('dashboardTotalProducts');
-  const dashboardLowStock = document.getElementById('dashboardLowStock');
-  const dashboardActiveUsers = document.getElementById('dashboardActiveUsers');
-  const dashboardTotalStock = document.getElementById('dashboardTotalStock');
-  const chartCanvas = document.getElementById('chartStockByUser');
+  let stock = JSON.parse(localStorage.getItem('stock')) || [];
+  let loggedInUser = JSON.parse(sessionStorage.getItem('loggedInUser')) || null;
+  let currentTab = 'stock';
   let chartInstance = null;
 
-  // Função para salvar tudo no localStorage
-  function saveAll() {
-    localStorage.setItem('stockUsers', JSON.stringify(users));
-    localStorage.setItem('stockProducts', JSON.stringify(products));
-    localStorage.setItem('stockHistory', JSON.stringify(historyChanges));
-  }
-  // Função para carregar tudo do localStorage
-  function loadAll() {
-    const lsUsers = localStorage.getItem('stockUsers');
-    const lsProducts = localStorage.getItem('stockProducts');
-    const lsHistory = localStorage.getItem('stockHistory');
+  // ELEMENTS
+  const loginForm = document.getElementById('loginForm');
+  const app = document.getElementById('app');
+  const inputUsername = document.getElementById('inputUsername');
+  const inputPassword = document.getElementById('inputPassword');
+  const msgErro = document.getElementById('msgErro');
+  const btnLogin = document.getElementById('btnLogin');
+  const btnLogout = document.getElementById('btnLogout');
+  const tabStock = document.getElementById('tabStock');
+  const tabUtilizadores = document.getElementById('tabUtilizadores');
+  const tabDashboard = document.getElementById('tabDashboard');
+  const sectionStock = document.getElementById('sectionStock');
+  const sectionUtilizadores = document.getElementById('sectionUtilizadores');
+  const sectionDashboard = document.getElementById('sectionDashboard');
+  const tbodyStock = document.getElementById('tbodyStock');
+  const tbodyUtilizadores = document.getElementById('tbodyUtilizadores');
+  const btnAddProduct = document.getElementById('btnAddProduct');
+  const btnSaveStock = document.getElementById('btnSaveStock');
+  const btnExportStock = document.getElementById('btnExportStock');
+  const btnResetQuantities = document.getElementById('btnResetQuantities');
+  const btnAddUser = document.getElementById('btnAddUser');
+  const btnSaveUsers = document.getElementById('btnSaveUsers');
+  const searchStock = document.getElementById('searchStock');
+  const searchUtilizador = document.getElementById('searchUtilizador');
+  const toggleTheme = document.getElementById('toggleTheme');
+  const chartStock = document.getElementById('chartStock').getContext('2d');
 
-    users = lsUsers ? JSON.parse(lsUsers) : defaultUsers.slice();
-    products = lsProducts ? JSON.parse(lsProducts) : defaultProducts.slice();
-    historyChanges = lsHistory ? JSON.parse(lsHistory) : [];
+  // Funções utilitárias
+  const generateId = (arr) => arr.length ? Math.max(...arr.map(x => x.id)) + 1 : 1;
+  const formatDateTime = (date) => new Date(date).toLocaleString('pt-PT', { dateStyle: 'short', timeStyle: 'short' });
 
-    saveAll(); // Garantir persistência padrão
-  }
+  // === LOGIN ===
+  function login() {
+    const username = inputUsername.value.trim();
+    const password = inputPassword.value.trim();
 
-  // Mostrar notificação temporária
-  function showNotification(msg, type = 'success') {
-    notification.textContent = msg;
-    notification.style.backgroundColor = type === 'error' ? 'var(--clr-danger)' : 'var(--clr-success)';
-    notification.classList.add('show');
-    setTimeout(() => {
-      notification.classList.remove('show');
-    }, 3000);
-  }
+    const user = utilizadores.find(u => u.username === username && u.password === password);
 
-  // Mostrar/ocultar tabs e ajustar foco
-  function activateTab(tabId) {
-    tabs.forEach(tab => {
-      const selected = tab.id === tabId;
-      tab.classList.toggle('active', selected);
-      tab.setAttribute('aria-selected', selected);
-      tab.setAttribute('tabindex', selected ? '0' : '-1');
-    });
-    tabContents.forEach(tc => {
-      tc.hidden = tc.id !== tabId.replace('Btn', '');
-      tc.classList.toggle('active', tc.id === tabId.replace('Btn', ''));
-    });
-  }
-
-  // Controlar acessos baseado no role do utilizador
-  function adjustUIByRole() {
-    const usersTabBtn = document.getElementById('tabUsersBtn');
-    if(currentUser.role !== 'admin'){
-      usersTabBtn.style.display = 'none';
-    } else {
-      usersTabBtn.style.display = 'inline-block';
+    if (!user) {
+      msgErro.textContent = 'Utilizador ou senha incorretos.';
+      msgErro.style.display = 'block';
+      return;
+    }
+    if (!user.active) {
+      msgErro.textContent = 'Utilizador inativo. Contacte o administrador.';
+      msgErro.style.display = 'block';
+      return;
     }
 
-    // Controlar botão adicionar produto (gestor/admin)
-    btnAddProduct.disabled = !['admin','gestor'].includes(currentUser.role);
-    btnResetQuantities.disabled = !['admin','gestor'].includes(currentUser.role);
+    loggedInUser = { id: user.id, username: user.username, permission: user.permission };
+    sessionStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
+    msgErro.style.display = 'none';
+    inputPassword.value = '';
+    inputUsername.value = '';
+
+    showApp();
   }
 
-  // Atualizar dashboard
-  function updateDashboard(){
-    dashboardTotalProducts.textContent = products.length;
-    dashboardLowStock.textContent = products.filter(p => p.quantity <= (p.minStock||5)).length;
-    dashboardActiveUsers.textContent = users.filter(u => u.active).length;
-    dashboardTotalStock.textContent = products.reduce((a,b) => a + b.quantity, 0);
+  btnLogin.addEventListener('click', login);
+  inputPassword.addEventListener('keydown', e => { if(e.key === 'Enter') login(); });
 
-    // Gráfico simples por utilizador que alterou produtos
-    const stockByUser = {};
-    historyChanges.forEach(h => {
-      if(h.user){
-        stockByUser[h.user] = (stockByUser[h.user] || 0) + (h.newQuantity - h.oldQuantity);
-      }
+  // === SHOW APP ===
+  function showApp() {
+    loginForm.classList.remove('active');
+    app.classList.add('active');
+    renderTabs();
+    renderStock();
+    renderUtilizadores();
+    renderDashboard();
+    renderUserGreeting();
+  }
+
+  // === LOGOUT ===
+  btnLogout.addEventListener('click', () => {
+    sessionStorage.removeItem('loggedInUser');
+    loggedInUser = null;
+    app.classList.remove('active');
+    loginForm.classList.add('active');
+  });
+
+  // === NAV TABS ===
+  function renderTabs() {
+    [tabStock, tabUtilizadores, tabDashboard].forEach(btn => {
+      btn.classList.remove('active');
+      btn.setAttribute('aria-selected', 'false');
     });
+    sectionStock.classList.remove('active');
+    sectionUtilizadores.classList.remove('active');
+    sectionDashboard.classList.remove('active');
 
-    const labels = Object.keys(stockByUser);
-    const data = Object.values(stockByUser);
+    if(currentTab === 'stock') {
+      tabStock.classList.add('active');
+      tabStock.setAttribute('aria-selected', 'true');
+      sectionStock.classList.add('active');
+    } else if(currentTab === 'utilizadores') {
+      tabUtilizadores.classList.add('active');
+      tabUtilizadores.setAttribute('aria-selected', 'true');
+      sectionUtilizadores.classList.add('active');
+    } else if(currentTab === 'dashboard') {
+      tabDashboard.classList.add('active');
+      tabDashboard.setAttribute('aria-selected', 'true');
+      sectionDashboard.classList.add('active');
+    }
+  }
 
-    if(chartInstance) chartInstance.destroy();
+  tabStock.addEventListener('click', () => { currentTab = 'stock'; renderTabs(); });
+  tabUtilizadores.addEventListener('click', () => { currentTab = 'utilizadores'; renderTabs(); });
+  tabDashboard.addEventListener('click', () => { currentTab = 'dashboard'; renderTabs(); renderDashboard(); });
 
-    if(labels.length > 0){
-      chartInstance = new Chart(chartCanvas, {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [{
-            label: 'Alterações no stock',
-            data,
-            backgroundColor: 'rgba(41, 128, 185, 0.7)'
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: { beginAtZero: true }
-          }
+  // === RENDER STOCK ===
+  function renderStock(filter = '') {
+    tbodyStock.innerHTML = '';
+    let filteredStock = stock.filter(p => p.nome.toLowerCase().includes(filter.toLowerCase()) || p.referencia.toLowerCase().includes(filter.toLowerCase()));
+
+    filteredStock.forEach(produto => {
+      const tr = document.createElement('tr');
+
+      tr.innerHTML = `
+        <td>${produto.id}</td>
+        <td><input type="text" value="${produto.nome}" aria-label="Nome do produto ${produto.id}" /></td>
+        <td><input type="number" min="0" value="${produto.quantidade}" aria-label="Quantidade do produto ${produto.id}" /></td>
+        <td><input type="text" value="${produto.referencia}" aria-label="Referência do produto ${produto.id}" /></td>
+        <td>${formatDateTime(produto.ultimaAlteracao)}</td>
+        <td>
+          <button class="btn btn-danger btnDeleteProduct" title="Apagar produto" aria-label="Apagar produto ${produto.nome}">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </td>
+      `;
+
+      // EDITAR PRODUTO
+      const inputs = tr.querySelectorAll('input');
+      inputs[0].addEventListener('change', e => {
+        const novoNome = e.target.value.trim();
+        if (!novoNome) {
+          alert('O nome do produto não pode estar vazio.');
+          e.target.value = produto.nome;
+          return;
+        }
+        if(stock.some(p => p.nome.toLowerCase() === novoNome.toLowerCase() && p.id !== produto.id)) {
+          alert('Já existe um produto com esse nome.');
+          e.target.value = produto.nome;
+          return;
+        }
+        produto.nome = novoNome;
+        produto.ultimaAlteracao = new Date().toISOString();
+        renderStock(searchStock.value);
+      });
+      inputs[1].addEventListener('change', e => {
+        let novaQuant = parseInt(e.target.value);
+        if (isNaN(novaQuant) || novaQuant < 0) {
+          alert('Quantidade inválida.');
+          e.target.value = produto.quantidade;
+          return;
+        }
+        produto.quantidade = novaQuant;
+        produto.ultimaAlteracao = new Date().toISOString();
+        renderStock(searchStock.value);
+      });
+      inputs[2].addEventListener('change', e => {
+        produto.referencia = e.target.value.trim();
+        produto.ultimaAlteracao = new Date().toISOString();
+        renderStock(searchStock.value);
+      });
+
+      // DELETE PRODUCT
+      tr.querySelector('.btnDeleteProduct').addEventListener('click', () => {
+        if(confirm(`Deseja realmente apagar o produto "${produto.nome}"?`)) {
+          stock = stock.filter(p => p.id !== produto.id);
+          saveStock();
+          renderStock(searchStock.value);
+          renderDashboard();
         }
       });
-    } else {
-      chartCanvas.getContext('2d').clearRect(0, 0, chartCanvas.width, chartCanvas.height);
-    }
-  }
 
-  // Renderizar produtos
-  function renderProducts(filter=''){
-    stockTableBody.innerHTML = '';
-    const f = filter.toLowerCase();
-    products.forEach(prod => {
-      if(!prod.name.toLowerCase().includes(f) && !prod.reference.toLowerCase().includes(f)) return;
-
-      const tr = document.createElement('tr');
-      if(prod.quantity <= (prod.minStock||5)){
-        tr.classList.add('low-stock');
-      }
-      tr.innerHTML = `
-        <td>${prod.id}</td>
-        <td>${prod.name}</td>
-        <td>
-          <input type="number" min="0" value="${prod.quantity}" data-id="${prod.id}" ${['admin','gestor'].includes(currentUser.role) ? '' : 'disabled'} />
-        </td>
-        <td>${prod.reference}</td>
-        <td>${new Date(prod.lastModified).toLocaleString()}</td>
-        <td>
-          <input type="number" min="0" value="${prod.minStock||5}" data-id="${prod.id}" class="minStockInput" ${currentUser.role === 'admin' ? '' : 'disabled'} />
-        </td>
-        <td>
-          <button class="btnSaveProduct" data-id="${prod.id}" title="Guardar">
-            <svg viewBox="0 0 24 24"><path d="M17 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM7 19V5h10v14H7zM9 7h6v2H9V7z"/></svg>
-          </button>
-        </td>
-      `;
-      stockTableBody.appendChild(tr);
+      tbodyStock.appendChild(tr);
     });
   }
 
-  // Renderizar utilizadores
-  function renderUsers(){
-    usersTableBody.innerHTML = '';
-    users.forEach(u => {
+  searchStock.addEventListener('input', () => renderStock(searchStock.value));
+
+  // === ADD PRODUCT ===
+  btnAddProduct.addEventListener('click', () => {
+    const novoId = generateId(stock);
+    const novoProduto = {
+      id: novoId,
+      nome: 'Novo Produto',
+      quantidade: 0,
+      referencia: '',
+      ultimaAlteracao: new Date().toISOString()
+    };
+    stock.push(novoProduto);
+    saveStock();
+    renderStock();
+    renderDashboard();
+  });
+
+  // === SAVE STOCK ===
+  btnSaveStock.addEventListener('click', () => {
+    saveStock();
+    alert('Stock guardado com sucesso!');
+  });
+
+  function saveStock() {
+    localStorage.setItem('stock', JSON.stringify(stock));
+  }
+
+  // === RESET QUANTITIES ===
+  btnResetQuantities.addEventListener('click', () => {
+    if(confirm('Tem certeza que quer resetar todas as quantidades para zero?')) {
+      stock.forEach(p => {
+        p.quantidade = 0;
+        p.ultimaAlteracao = new Date().toISOString();
+      });
+      saveStock();
+      renderStock();
+      renderDashboard();
+    }
+  });
+
+  // === EXPORTAR PARA XLSX ===
+  btnExportStock.addEventListener('click', () => {
+    if(!stock.length){
+      alert('Não há produtos para exportar.');
+      return;
+    }
+    // Criar worksheet
+    const wsData = [
+      ['ID', 'Produto', 'Quantidade', 'Referência', 'Última Alteração'],
+      ...stock.map(p => [p.id, p.nome, p.quantidade, p.referencia, formatDateTime(p.ultimaAlteracao)])
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Stock');
+    XLSX.writeFile(wb, 'stock.xlsx');
+  });
+
+  // === RENDER UTILIZADORES ===
+  function renderUtilizadores(filter = '') {
+    tbodyUtilizadores.innerHTML = '';
+    let filteredUsers = utilizadores.filter(u => u.username.toLowerCase().includes(filter.toLowerCase()));
+
+    filteredUsers.forEach(user => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${u.id}</td>
-        <td><input type="text" class="userNameInput" data-id="${u.id}" value="${u.username}" ${currentUser.role === 'admin' ? '' : 'disabled'} /></td>
+        <td>${user.id}</td>
+        <td><input type="text" value="${user.username}" aria-label="Nome do utilizador ${user.id}" /></td>
         <td>
-          <select class="userRoleSelect" data-id="${u.id}" ${currentUser.role === 'admin' ? '' : 'disabled'}>
-            <option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>
-            <option value="gestor" ${u.role==='gestor'?'selected':''}>Gestor</option>
-            <option value="vendedor" ${u.role==='vendedor'?'selected':''}>Vendedor</option>
+          <select aria-label="Permissão do utilizador ${user.id}">
+            <option value="admin" ${user.permission === 'admin' ? 'selected' : ''}>Admin</option>
+            <option value="vendedor" ${user.permission === 'vendedor' ? 'selected' : ''}>Vendedor</option>
+            <option value="gestor" ${user.permission === 'gestor' ? 'selected' : ''}>Gestor</option>
           </select>
         </td>
-        <td><input type="checkbox" class="userActiveCheckbox" data-id="${u.id}" ${u.active ? 'checked' : ''} ${currentUser.role === 'admin' ? '' : 'disabled'}/></td>
         <td>
-          <button class="btnSaveUser" data-id="${u.id}" title="Guardar">
-            <svg viewBox="0 0 24 24"><path d="M17 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM7 19V5h10v14H7zM9 7h6v2H9V7z"/></svg>
+          <input type="checkbox" ${user.active ? 'checked' : ''} aria-label="Utilizador ativo ${user.id}" />
+        </td>
+        <td>
+          <button class="btn btn-danger btnDeleteUser" title="Apagar utilizador" aria-label="Apagar utilizador ${user.username}">
+            <i class="fas fa-trash-alt"></i>
           </button>
         </td>
       `;
-      usersTableBody.appendChild(tr);
-    });
-  }
 
-  // Renderizar histórico
-  function renderHistory(filter=''){
-    historyTableBody.innerHTML = '';
-    const f = filter.toLowerCase();
-    historyChanges.forEach(h => {
-      if(h.productName.toLowerCase().includes(f) || h.user.toLowerCase().includes(f)){
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${h.timestamp}</td>
-          <td>${h.productName}</td>
-          <td>${h.oldQuantity}</td>
-          <td>${h.newQuantity}</td>
-          <td>${h.user}</td>
-        `;
-        historyTableBody.appendChild(tr);
-      }
-    });
-  }
-
-  // Eventos
-
-  // Login
-  loginForm.addEventListener('submit', e => {
-    e.preventDefault();
-    const username = loginUsername.value.trim();
-    const password = loginPassword.value.trim();
-
-    const foundUser = users.find(u => u.username === username && u.password === password && u.active);
-    if(foundUser){
-      currentUser = foundUser;
-      loginSection.style.display = 'none';
-      appSection.style.display = 'block';
-      loginError.textContent = '';
-      adjustUIByRole();
-      activateTab('tabDashboardBtn');
-      renderProducts();
-      renderUsers();
-      renderHistory();
-      updateDashboard();
-      showNotification(`Bem-vindo(a), ${currentUser.username}!`);
-    } else {
-      loginError.textContent = 'Usuário ou senha inválidos, ou usuário inativo.';
-    }
-  });
-
-  // Logout
-  logoutBtn.addEventListener('click', () => {
-    currentUser = null;
-    loginSection.style.display = 'block';
-    appSection.style.display = 'none';
-    loginUsername.value = '';
-    loginPassword.value = '';
-  });
-
-  // Trocar tema claro/escuro
-  themeToggle.addEventListener('change', () => {
-    document.body.classList.toggle('dark-theme', themeToggle.checked);
-  });
-
-  // Filtrar produtos na tabela
-  stockSearchInput.addEventListener('input', () => {
-    renderProducts(stockSearchInput.value);
-  });
-
-  // Guardar alterações na quantidade e minStock de produtos
-  stockTableBody.addEventListener('click', e => {
-    if(e.target.classList.contains('btnSaveProduct')){
-      const id = parseInt(e.target.getAttribute('data-id'));
-      const product = products.find(p => p.id === id);
-      if(!product) return;
-
-      const row = e.target.closest('tr');
-      const quantityInput = row.querySelector('input[type="number"]:not(.minStockInput)');
-      const minStockInput = row.querySelector('.minStockInput');
-
-      const oldQuantity = product.quantity;
-      const newQuantity = parseInt(quantityInput.value) || 0;
-      const newMinStock = parseInt(minStockInput.value) || 5;
-
-      if(newQuantity !== oldQuantity || newMinStock !== product.minStock){
-        product.quantity = newQuantity;
-        product.minStock = newMinStock;
-        product.lastModified = new Date().toISOString();
-
-        // Registar histórico de alterações só para quantidade
-        if(newQuantity !== oldQuantity){
-          historyChanges.push({
-            timestamp: new Date().toLocaleString(),
-            productName: product.name,
-            oldQuantity,
-            newQuantity,
-            user: currentUser.username
-          });
+      // EDITAR UTILIZADOR
+      const inputs = tr.querySelectorAll('input, select');
+      inputs[0].addEventListener('change', e => {
+        const novoNome = e.target.value.trim();
+        if (!novoNome) {
+          alert('O nome do utilizador não pode estar vazio.');
+          e.target.value = user.username;
+          return;
         }
+        if(utilizadores.some(u => u.username.toLowerCase() === novoNome.toLowerCase() && u.id !== user.id)) {
+          alert('Já existe um utilizador com esse nome.');
+          e.target.value = user.username;
+          return;
+        }
+        user.username = novoNome;
+        saveUtilizadores();
+        renderUtilizadores(searchUtilizador.value);
+      });
+      inputs[1].addEventListener('change', e => {
+        user.permission = e.target.value;
+        saveUtilizadores();
+      });
+      inputs[2].addEventListener('change', e => {
+        user.active = e.target.checked;
+        saveUtilizadores();
+      });
 
-        saveAll();
-        renderProducts(stockSearchInput.value);
-        updateDashboard();
-        showNotification(`Produto "${product.name}" atualizado.`);
-      }
-    }
-  });
+      // DELETE USER
+      tr.querySelector('.btnDeleteUser').addEventListener('click', () => {
+        if(confirm(`Deseja realmente apagar o utilizador "${user.username}"?`)) {
+          utilizadores = utilizadores.filter(u => u.id !== user.id);
+          saveUtilizadores();
+          renderUtilizadores(searchUtilizador.value);
+        }
+      });
 
-  // Guardar alterações em utilizadores
-  usersTableBody.addEventListener('click', e => {
-    if(e.target.classList.contains('btnSaveUser')){
-      const id = parseInt(e.target.getAttribute('data-id'));
-      const user = users.find(u => u.id === id);
-      if(!user) return;
+      tbodyUtilizadores.appendChild(tr);
+    });
+  }
 
-      const row = e.target.closest('tr');
-      const usernameInput = row.querySelector('.userNameInput');
-      const roleSelect = row.querySelector('.userRoleSelect');
-      const activeCheckbox = row.querySelector('.userActiveCheckbox');
+  searchUtilizador.addEventListener('input', () => renderUtilizadores(searchUtilizador.value));
 
-      user.username = usernameInput.value.trim() || user.username;
-      user.role = roleSelect.value;
-      user.active = activeCheckbox.checked;
-
-      saveAll();
-      renderUsers();
-      updateDashboard();
-      showNotification(`Utilizador "${user.username}" atualizado.`);
-    }
-  });
-
-  // Adicionar produto
-  btnAddProduct.addEventListener('click', () => {
-    const newId = products.length ? Math.max(...products.map(p => p.id)) + 1 : 1;
-    const newProduct = {
-      id: newId,
-      name: `Produto ${newId}`,
-      quantity: 0,
-      reference: `REF${newId.toString().padStart(3, '0')}`,
-      lastModified: new Date().toISOString(),
-      minStock: 3
-    };
-    products.push(newProduct);
-    saveAll();
-    renderProducts();
-    updateDashboard();
-    showNotification('Produto adicionado.');
-  });
-
-  // Adicionar utilizador
+  // === ADD USER ===
   btnAddUser.addEventListener('click', () => {
-    const newId = users.length ? Math.max(...users.map(u => u.id)) + 1 : 1;
-    const newUser = {
-      id: newId,
-      username: `user${newId}`,
-      password: '123456',
-      role: 'vendedor',
+    const novoId = generateId(utilizadores);
+    const novoUser = {
+      id: novoId,
+      username: 'Novo Utilizador',
+      permission: 'vendedor',
       active: true
     };
-    users.push(newUser);
-    saveAll();
-    renderUsers();
-    updateDashboard();
-    showNotification('Utilizador adicionado.');
+    utilizadores.push(novoUser);
+    saveUtilizadores();
+    renderUtilizadores();
   });
 
-  // Exportar XLSX (Excel)
-  btnExportXLSX.addEventListener('click', () => {
-    exportToXLSX();
-  });
-
-  // Resetar quantidades para 0 (gestor/admin)
-  btnResetQuantities.addEventListener('click', () => {
-    products.forEach(p => {
-      p.quantity = 0;
-      p.lastModified = new Date().toISOString();
-    });
-    historyChanges.push({
-      timestamp: new Date().toLocaleString(),
-      productName: 'Todos os produtos',
-      oldQuantity: null,
-      newQuantity: 0,
-      user: currentUser.username
-    });
-    saveAll();
-    renderProducts();
-    updateDashboard();
-    showNotification('Todas as quantidades foram resetadas para 0.');
-  });
-
-  // Inicialização
-  loadAll();
-
-  // No início mostra login
-  loginSection.style.display = 'block';
-  appSection.style.display = 'none';
-
-  // Não deixar abrir app sem login
-  if(!currentUser){
-    loginSection.style.display = 'block';
-    appSection.style.display = 'none';
+  // === SAVE USERS ===
+  function saveUtilizadores() {
+    localStorage.setItem('utilizadores', JSON.stringify(utilizadores));
   }
 
-  // Ativar tab dashboard por padrão
-  activateTab('tabDashboardBtn');
+  // === RENDER DASHBOARD ===
+  function renderDashboard() {
+    // Quantidade total de produtos
+    const totalProdutos = stock.length;
+    // Soma das quantidades
+    const somaQuantidades = stock.reduce((acc, p) => acc + p.quantidade, 0);
+    // Número de utilizadores ativos
+    const totalUtilizadoresAtivos = utilizadores.filter(u => u.active).length;
 
-  // Botões tabs
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      activateTab(tab.id);
+    totalProdutosElem.textContent = totalProdutos;
+    somaQuantidadesElem.textContent = somaQuantidades;
+    totalUtilizadoresAtivosElem.textContent = totalUtilizadoresAtivos;
+  }
+
+  // === USER GREETING ===
+  function renderUserGreeting() {
+    if(loggedInUser) {
+      userGreeting.textContent = `Olá, ${loggedInUser.username}!`;
+    } else {
+      userGreeting.textContent = '';
+    }
+  }
+
+  // === HELPER FUNCTIONS ===
+  function formatDateTime(dateTimeStr) {
+    const date = new Date(dateTimeStr);
+    return date.toLocaleString('pt-PT', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
     });
-  });
-  
-})();Aqui está um sistema completo de gestão de stock com login, permissões por papel (admin, gestor, vendedor), painel de controlo, histórico de alterações, e funcionalidades como adicionar produtos/usuários, exportar para Excel e tema claro/escuro.  
+  }
 
-**Funcionalidades-chave:**
-- Login com validação e papel (role) que controla o acesso e funcionalidades disponíveis.
-- Visualização e edição de produtos com quantidade, stock mínimo e referência.
-- Gestão de utilizadores (admin apenas).
-- Histórico de alterações de stock.
-- Dashboard com estatísticas e gráfico de alterações por utilizador (usando Chart.js).
-- Exportação para XLSX via SheetJS.
-- Tema claro/escuro.
-- Filtros de pesquisa em produtos e histórico.
+  function generateId(arr) {
+    return arr.length ? Math.max(...arr.map(item => item.id)) + 1 : 1;
+  }
 
-O código já está pronto para usar localmente. Só precisas de abrir o HTML num navegador moderno para testar. Posso ajudar a adaptar, explicar ou expandir funcionalidades!
+  // === INIT ===
+  loadData();
 
----
-
-Quer que te explique alguma parte do código? Ou gostarias de ver como exportar para Excel está implementado?  
-Ou queres que faça uma versão simplificada só com o básico?
+})();  
