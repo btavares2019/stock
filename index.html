@@ -3,657 +3,946 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Gestão Avançada de Stock</title>
+<title>Gestão de Stock & Utilizadores</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+
+<!-- FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<!-- SheetJS -->
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-  /* Reset básico */
-  * { margin:0; padding:0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
+  /* Reset */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
   body {
-    background: linear-gradient(135deg, #0077b6, #90e0ef);
-    min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px;
-    color: #03045e;
+    margin: 0; 
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
-  header { font-size: 2rem; font-weight: 700; margin-bottom: 15px; color: #caf0f8; }
-  main {
-    background: #caf0f8dd; padding: 20px; border-radius: 12px;
-    width: 95%; max-width: 1200px; flex-grow: 1; display: flex; flex-direction: column;
+
+  #loginScreen, #mainApp {
+    max-width: 1024px;
+    margin: 40px auto 60px auto;
+    background: #fff;
+    border-radius: 20px;
+    padding: 40px 50px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
   }
-  nav {
-    margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap;
+
+  #loginScreen {
+    max-width: 400px;
   }
-  nav button {
-    background: #0077b6; border: none; color: white; padding: 10px 20px;
-    font-weight: 600; border-radius: 8px; cursor: pointer; display: flex; align-items: center;
-    gap: 8px; transition: background-color 0.3s ease;
+
+  h1 {
+    font-weight: 700;
+    font-size: 2.8rem;
+    color: #4B367C;
+    margin-bottom: 30px;
+    text-align: center;
+    letter-spacing: 1.5px;
   }
-  nav button:hover, nav button.active {
-    background: #023e8a;
+  h2 {
+    font-weight: 600;
+    font-size: 1.8rem;
+    color: #4B367C;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #8e7cc3;
+    padding-bottom: 8px;
   }
-  nav button svg { width: 20px; height: 20px; fill: white; }
-  section { display: none; flex-direction: column; }
-  section.active { display: flex; }
-  /* Form */
-  label {
-    margin: 10px 0 5px; font-weight: 600;
+
+  /* Inputs */
+  input[type=text], input[type=password], select {
+    width: 100%;
+    padding: 14px 16px;
+    margin: 12px 0 24px 0;
+    border-radius: 12px;
+    border: 1.8px solid #b7a9d1;
+    font-size: 1.1rem;
+    color: #4B367C;
+    font-weight: 500;
+    transition: border-color 0.3s ease;
   }
-  input[type="text"], input[type="number"], input[type="password"], select {
-    padding: 8px 12px; border-radius: 6px; border: 1px solid #0077b6; font-size: 1rem; width: 100%;
+  input[type=text]:focus, input[type=password]:focus, select:focus {
+    outline: none;
+    border-color: #5e3cae;
+    box-shadow: 0 0 12px rgba(94,60,174,0.3);
   }
-  input[type="checkbox"] {
-    width: 20px; height: 20px; cursor: pointer;
+
+  /* Buttons */
+  button {
+    background: linear-gradient(45deg, #6a49ff, #a678f0);
+    border: none;
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+    padding: 14px 26px;
+    margin: 8px 8px 8px 0;
+    border-radius: 14px;
+    cursor: pointer;
+    box-shadow: 0 8px 18px rgba(106,73,255,0.45);
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
   }
+  button:hover {
+    background: linear-gradient(45deg, #8b72ff, #be9dff);
+    box-shadow: 0 12px 30px rgba(139,114,255,0.6);
+  }
+  button:active::after {
+    content: "";
+    position: absolute;
+    width: 120%;
+    height: 120%;
+    background: rgba(255,255,255,0.15);
+    border-radius: 50%;
+    animation: ripple 0.6s linear;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  @keyframes ripple {
+    to {transform: translate(-50%, -50%) scale(2);}
+  }
+
+  button:disabled {
+    background: #ccc;
+    box-shadow: none;
+    cursor: not-allowed;
+    color: #888;
+  }
+
+  /* Tabs */
+  .tab-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .tab-buttons button {
+    background: #ddd;
+    color: #5a4e80;
+    padding: 12px 28px;
+    border-radius: 30px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+  .tab-buttons button.active {
+    background: linear-gradient(45deg, #6a49ff, #a678f0);
+    color: white;
+    box-shadow: 0 8px 20px rgba(106,73,255,0.45);
+  }
+  .tab-buttons button:hover:not(.active) {
+    background: #b8aaff;
+    color: #4B367C;
+    box-shadow: 0 8px 18px rgba(106,73,255,0.25);
+  }
+
+  /* Table styles */
   table {
-    border-collapse: collapse; width: 100%; margin-top: 15px;
-    background: white; border-radius: 10px; overflow: hidden;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+    font-size: 1rem;
   }
   th, td {
-    border: 1px solid #0077b6cc; padding: 10px; text-align: center; vertical-align: middle;
+    text-align: center;
+    padding: 14px 12px;
+    border-bottom: none;
+    vertical-align: middle;
   }
-  th {
-    background-color: #0077b6cc; color: white; cursor: pointer;
-    user-select: none;
+  thead th {
+    background: linear-gradient(45deg, #6a49ff, #a678f0);
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border-radius: 12px;
   }
-  tr:nth-child(even) { background: #e0f7fa; }
-  button.btn {
-    background: #0077b6; border: none; color: white; padding: 8px 16px;
-    margin: 8px 0; border-radius: 8px; font-weight: 700; cursor: pointer;
-    transition: background-color 0.3s ease;
-    display: inline-flex; align-items: center; gap: 6px;
+  tbody tr {
+    background: #fafaff;
+    box-shadow: 0 3px 12px rgba(106,73,255,0.1);
+    border-radius: 12px;
+    transition: background 0.25s ease;
   }
-  button.btn:hover {
-    background: #023e8a;
+  tbody tr:hover {
+    background: #ede7ff;
   }
-  .input-group {
-    display: flex; gap: 15px; flex-wrap: wrap; margin-top: 15px;
+  tbody tr td:first-child {
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
   }
-  .input-group > div {
-    flex: 1 1 200px;
+  tbody tr td:last-child {
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
   }
+
+  /* Icon buttons inside table */
+  table button {
+    background: transparent;
+    box-shadow: none;
+    padding: 6px 10px;
+    border-radius: 10px;
+    color: #a678f0;
+    font-size: 1.2rem;
+    transition: color 0.25s ease;
+  }
+  table button:hover {
+    color: #4B367C;
+    background: #ddd9ff;
+  }
+
+  /* Checkbox center */
+  .checkbox-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .checkbox-center input[type=checkbox] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+  }
+
+  /* Search input */
+  #searchStock {
+    padding: 12px 16px;
+    border-radius: 20px;
+    border: 2px solid #a678f0;
+    width: 320px;
+    font-size: 1rem;
+    margin-left: 16px;
+    color: #4B367C;
+    font-weight: 600;
+    transition: border-color 0.3s ease;
+  }
+  #searchStock:focus {
+    outline: none;
+    border-color: #6a49ff;
+    box-shadow: 0 0 14px rgba(106,73,255,0.4);
+  }
+
+  /* Layout improvements */
+  .tabContent > button {
+    margin-bottom: 18px;
+  }
+
   /* Footer */
-  footer {
-    margin-top: 30px; font-size: 0.9rem; color: #caf0f8cc; user-select:none;
+  .footer {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #bbb;
+    margin-bottom: 40px;
   }
-  /* Login */
-  #login-section {
-    background: white; border-radius: 12px; padding: 25px; width: 100%; max-width: 400px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    display: flex; flex-direction: column;
-  }
-  #login-section h2 {
-    text-align: center; margin-bottom: 20px; color: #0077b6;
-  }
-  #login-section input {
-    margin-bottom: 15px;
-  }
-  #login-error {
-    color: red; font-weight: 700; text-align: center; margin-bottom: 10px;
-    display: none;
-  }
+
   /* Responsive */
-  @media (max-width: 768px) {
-    nav {
-      justify-content: center;
+  @media (max-width: 850px) {
+    #loginScreen, #mainApp {
+      margin: 20px 10px 40px 10px;
+      padding: 30px 20px;
     }
-    .input-group {
+    #searchStock {
+      width: 100%;
+      margin-left: 0;
+      margin-bottom: 20px;
+    }
+    .tab-buttons {
       flex-direction: column;
+      gap: 12px;
+    }
+    .tab-buttons button {
+      width: 100%;
     }
   }
+
+  /* Modal styles */
+  #modalBackground {
+    position: fixed;
+    top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 5000;
+  }
+  #modalContent {
+    background: white;
+    border-radius: 18px;
+    max-width: 480px;
+    width: 90%;
+    padding: 30px 40px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+    position: relative;
+  }
+  #modalContent h3 {
+    margin-top: 0;
+    font-weight: 700;
+    color: #4B367C;
+  }
+  #modalContent label {
+    font-weight: 600;
+    display: block;
+    margin: 15px 0 8px 0;
+    color: #5e3cae;
+  }
+  #modalContent input, #modalContent select {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1.8px solid #b7a9d1;
+    font-size: 1rem;
+    color: #4B367C;
+  }
+  #modalContent button {
+    margin-top: 25px;
+    width: 100%;
+  }
+  #modalCloseBtn {
+    position: absolute;
+    top: 12px;
+    right: 20px;
+    font-size: 1.5rem;
+    color: #aaa;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.25s ease;
+  }
+  #modalCloseBtn:hover {
+    color: #4B367C;
+  }
+
 </style>
 </head>
 <body>
-<header>Gestão Avançada de Stock</header>
 
-<div id="login-section">
-  <h2>Login</h2>
-  <input type="text" id="login-username" placeholder="Usuário" autocomplete="username" />
-  <input type="password" id="login-password" placeholder="Senha" autocomplete="current-password" />
-  <div id="login-error">Usuário ou senha incorretos.</div>
-  <button id="login-btn" class="btn">Entrar</button>
+<div id="loginScreen">
+  <h1><i class="fa-solid fa-lock"></i> Gestão de Stock</h1>
+  <input type="text" id="loginUsername" placeholder="Nome do utilizador" autocomplete="username" />
+  <input type="password" id="loginPassword" placeholder="Senha" autocomplete="current-password" />
+  <button id="loginBtn"><i class="fa-solid fa-right-to-bracket"></i> Entrar</button>
+  <p id="loginError" style="color:#b00020; text-align:center; display:none; margin-top:15px;">Utilizador ou senha inválidos.</p>
 </div>
 
-<main style="display:none;">
-  <nav>
-    <button id="tab-stock" class="active" title="Stock">
-      <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm3 0h13v-2H6v2zm-3 5h2v-2H3v2zm3 0h13v-2H6v2zm-3-10h2V6H3v2zm3 0h13V6H6v2z"/></svg> Stock
+<div id="mainApp" style="display:none;">
+  <div class="tab-buttons" role="tablist" aria-label="Tabs">
+    <button class="tabBtn active" data-tab="stockTab" role="tab" aria-selected="true" aria-controls="stockTab" id="tabStockBtn">
+      <i class="fa-solid fa-boxes-stacked"></i> Stock
     </button>
-    <button id="tab-users" title="Utilizadores">
-      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Utilizadores
+    <button class="tabBtn" data-tab="usersTab" role="tab" aria-selected="false" aria-controls="usersTab" id="tabUsersBtn">
+      <i class="fa-solid fa-users"></i> Utilizadores
     </button>
-    <button id="tab-dashboard" title="Dashboard">
-      <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm10 8h8v-6h-8v6zm0-8h8V3h-8v10z"/></svg> Dashboard
+    <button class="tabBtn" data-tab="dashboardTab" role="tab" aria-selected="false" aria-controls="dashboardTab" id="tabDashboardBtn">
+      <i class="fa-solid fa-chart-bar"></i> Dashboard
     </button>
-    <button id="btn-logout" style="margin-left:auto; background:#d90429;">Logout</button>
-  </nav>
+    <button id="logoutBtn" style="margin-left:auto; background:#d54e4e; box-shadow:none;">
+      <i class="fa-solid fa-right-from-bracket"></i> Sair
+    </button>
+  </div>
 
-  <!-- Stock Section -->
-  <section id="stock-section" class="active">
-    <h3>Stock</h3>
-    <div class="input-group">
+  <section id="stockTab" class="tabContent" role="tabpanel" aria-labelledby="tabStockBtn">
+    <h2><i class="fa-solid fa-box"></i> Gestão do Stock</h2>
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap;">
+      <input type="text" id="searchStock" placeholder="Procurar produto..." aria-label="Procurar produto" />
       <div>
-        <label for="search-stock">Procurar Produto</label>
-        <input type="text" id="search-stock" placeholder="Pesquisar..." />
-      </div>
-      <div>
-        <button id="btn-add-stock" class="btn">
-          <svg viewBox="0 0 24 24" style="width:18px;height:18px;"><path d="M19 13H5v-2h14v2z"/></svg> Adicionar Produto
-        </button>
-      </div>
-      <div>
-        <button id="btn-reset-quantities" class="btn" style="background:#f48c06;">
-          <svg viewBox="0 0 24 24" style="width:18px;height:18px;"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6a6 6 0 1 1-6-6z"/></svg> Reset Quantidades
-        </button>
-      </div>
-      <div>
-        <button id="btn-export-stock" class="btn" style="background:#023e8a;">
-          <svg viewBox="0 0 24 24" style="width:18px;height:18px;"><path d="M5 20h14v-2H5v2zm7-18L5.33 9h3.67v6h4v-6h3.67L12 2z"/></svg> Exportar Excel
-        </button>
+        <button id="addProductBtn"><i class="fa-solid fa-plus"></i> Adicionar Produto</button>
+        <button id="exportXLSXBtn"><i class="fa-solid fa-file-export"></i> Exportar XLSX</button>
+        <button id="resetStockBtn" style="background:#ffa41b;"><i class="fa-solid fa-arrow-rotate-left"></i> Reset Quantidades</button>
       </div>
     </div>
-    <table id="stock-table" aria-label="Tabela de stock">
+    <table aria-label="Tabela de stock">
       <thead>
         <tr>
-          <th data-col="id">ID</th>
-          <th data-col="name">Produto</th>
-          <th data-col="quantity">Quantidade</th>
-          <th data-col="reference">Referência</th>
-          <th data-col="lastModified">Última Alteração</th>
-          <th data-col="actions">Ações</th>
+          <th>ID</th>
+          <th>Produto</th>
+          <th>Quantidade</th>
+          <th>Referência</th>
+          <th>Última Alteração</th>
+          <th>Acções</th>
         </tr>
       </thead>
-      <tbody></tbody>
+      <tbody id="stockTableBody"></tbody>
     </table>
   </section>
 
-  <!-- Users Section -->
-  <section id="users-section">
-    <h3>Utilizadores</h3>
-    <div class="input-group">
-      <div>
-        <label for="search-users">Procurar Utilizador</label>
-        <input type="text" id="search-users" placeholder="Pesquisar..." />
-      </div>
-      <div>
-        <button id="btn-add-user" class="btn" style="background:#0077b6;">
-          <svg viewBox="0 0 24 24" style="width:18px;height:18px;"><path d="M19 13H5v-2h14v2z"/></svg> Adicionar Utilizador
-        </button>
-      </div>
-      <div>
-        <button id="btn-save-users" class="btn" style="background:#023e8a;">Guardar Alterações</button>
-      </div>
-    </div>
-    <table id="users-table" aria-label="Tabela de utilizadores">
+  <section id="usersTab" class="tabContent" role="tabpanel" aria-labelledby="tabUsersBtn" hidden>
+    <h2><i class="fa-solid fa-user-gear"></i> Gestão de Utilizadores</h2>
+    <button id="addUserBtn"><i class="fa-solid fa-user-plus"></i> Novo Utilizador</button>
+    <table aria-label="Tabela de utilizadores">
       <thead>
         <tr>
-          <th data-col="id">ID</th>
-          <th data-col="username">Nome</th>
-          <th data-col="role">Função</th>
-          <th data-col="active">Ativo</th>
-          <th data-col="actions">Ações</th>
+          <th>ID</th>
+          <th>Utilizador</th>
+          <th>Permissão</th>
+          <th>Ativo</th>
+          <th>Acções</th>
         </tr>
       </thead>
-      <tbody></tbody>
+      <tbody id="usersTableBody"></tbody>
     </table>
   </section>
 
-  <!-- Dashboard Section -->
-  <section id="dashboard-section">
-    <h3>Dashboard</h3>
-    <canvas id="stock-chart" width="800" height="400" aria-label="Gráfico de stock"></canvas>
+  <section id="dashboardTab" class="tabContent" role="tabpanel" aria-labelledby="tabDashboardBtn" hidden>
+    <h2><i class="fa-solid fa-chart-simple"></i> Dashboard</h2>
+    <canvas id="stockChart" aria-label="Gráfico de quantidades em stock" role="img" style="max-width:100%; height:320px;"></canvas>
   </section>
-</main>
+</div>
 
-<footer>
+<!-- Modal para edição/adicionar -->
+<div id="modalBackground" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div id="modalContent">
+    <button id="modalCloseBtn" aria-label="Fechar modal"><i class="fa-solid fa-xmark"></i></button>
+    <h3 id="modalTitle">Editar</h3>
+    <form id="modalForm">
+      <!-- Campos gerados dinamicamente -->
+    </form>
+  </div>
+</div>
+
+<footer class="footer">
   Produzido por Bruno Tavares 2025
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-(() => {
-  // Estado global
-  let currentUser = null;
-  let stock = [];
-  let users = [];
-  let sortStockCol = null;
-  let sortStockAsc = true;
-  let sortUsersCol = null;
-  let sortUsersAsc = true;
-
-  // ELEMENTOS
-  const loginSection = document.getElementById('login-section');
-  const mainSection = document.querySelector('main');
-  const loginError = document.getElementById('login-error');
-  const loginBtn = document.getElementById('login-btn');
-  const usernameInput = document.getElementById('login-username');
-  const passwordInput = document.getElementById('login-password');
-
-  const navButtons = {
-    stock: document.getElementById('tab-stock'),
-    users: document.getElementById('tab-users'),
-    dashboard: document.getElementById('tab-dashboard'),
-    logout: document.getElementById('btn-logout'),
-  };
-
-  const sections = {
-    stock: document.getElementById('stock-section'),
-    users: document.getElementById('users-section'),
-    dashboard: document.getElementById('dashboard-section'),
-  };
-
-  // Stock Elements
-  const stockTableBody = document.querySelector('#stock-table tbody');
-  const searchStockInput = document.getElementById('search-stock');
-  const btnAddStock = document.getElementById('btn-add-stock');
-  const btnResetQuantities = document.getElementById('btn-reset-quantities');
-  const btnExportStock = document.getElementById('btn-export-stock');
-
-  // Users Elements
-  const usersTableBody = document.querySelector('#users-table tbody');
-  const searchUsersInput = document.getElementById('search-users');
-  const btnAddUser = document.getElementById('btn-add-user');
-  const btnSaveUsers = document.getElementById('btn-save-users');
-
-  // Dashboard
-  const stockChartCtx = document.getElementById('stock-chart').getContext('2d');
-  let stockChart = null;
-
-  // ----- Dados iniciais -----
-  // Utilizadores padrão
-  const defaultUsers = [
-    { id: 1, username: 'admin', password: 'admin123', role: 'admin', active: true, lastLogin: null },
-    { id: 2, username: 'vendedor', password: 'vend123', role: 'vendedor', active: true, lastLogin: null },
+  // --- Dados mock iniciais ---
+  let utilizadores = JSON.parse(localStorage.getItem('utilizadores')) || [
+    {id: 1, username: 'admin', password: 'admin123', role: 'admin', active:true},
+    {id: 2, username: 'vendedor', password: 'vend123', role: 'vendedor', active:true},
+    {id: 3, username: 'gestor', password: 'gestor123', role: 'gestor', active:true}
   ];
+  let stock = JSON.parse(localStorage.getItem('stock')) || [];
 
-  // Carregar dados do localStorage
-  function loadData() {
-    const usersLS = localStorage.getItem('users');
-    users = usersLS ? JSON.parse(usersLS) : [...defaultUsers];
-    const stockLS = localStorage.getItem('stock');
-    stock = stockLS ? JSON.parse(stockLS) : [];
-  }
+  let currentUser = JSON.parse(sessionStorage.getItem('currentUser')) || null;
 
-  // Salvar dados
-  function saveData() {
-    localStorage.setItem('users', JSON.stringify(users));
-    localStorage.setItem('stock', JSON.stringify(stock));
-  }
+  // Elementos
+  const loginScreen = document.getElementById('loginScreen');
+  const mainApp = document.getElementById('mainApp');
+  const loginBtn = document.getElementById('loginBtn');
+  const loginError = document.getElementById('loginError');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const stockTableBody = document.getElementById('stockTableBody');
+  const usersTableBody = document.getElementById('usersTableBody');
+  const searchStockInput = document.getElementById('searchStock');
 
-  // Atualizar UI dos Tabs
-  function showSection(name) {
-    for (const sec in sections) {
-      sections[sec].classList.toggle('active', sec === name);
-      navButtons[sec].classList.toggle('active', sec === name);
-    }
-  }
+  // Modal
+  const modalBg = document.getElementById('modalBackground');
+  const modalContent = document.getElementById('modalContent');
+  const modalForm = document.getElementById('modalForm');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalCloseBtn = document.getElementById('modalCloseBtn');
 
-  // Mostrar erro de login temporariamente
-  function showLoginError(show) {
-    loginError.style.display = show ? 'block' : 'none';
-  }
+  // Tabs
+  const tabButtons = document.querySelectorAll('.tabBtn');
+  const tabContents = document.querySelectorAll('.tabContent');
 
-  // Gerar novo ID único (maior + 1)
-  function generateId(collection) {
-    if (collection.length === 0) return 1;
-    return Math.max(...collection.map(item => item.id)) + 1;
-  }
+  // Login
+  loginBtn.addEventListener('click', () => {
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value;
 
-  // --- Login ---
-  function login() {
-    const user = users.find(u => u.username === usernameInput.value.trim());
-    if (!user || user.password !== passwordInput.value || !user.active) {
-      showLoginError(true);
+    if(!username || !password){
+      showLoginError("Preencha todos os campos.");
       return;
     }
-    showLoginError(false);
-    currentUser = user;
-    currentUser.lastLogin = new Date().toISOString();
-    saveData();
-    loginSection.style.display = 'none';
-    mainSection.style.display = 'flex';
-    usernameInput.value = '';
-    passwordInput.value = '';
-    renderStock();
-    renderUsers();
-    renderDashboard();
-    showSection('stock');
-    updateLastLoginDisplay();
+
+    const user = utilizadores.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
+
+    if(!user){
+      showLoginError("Utilizador ou senha inválidos.");
+      return;
+    }
+
+    if(!user.active){
+      showLoginError("Utilizador está inativo. Contacte o administrador.");
+      return;
+    }
+
+    currentUser = {id: user.id, username: user.username, role: user.role};
+    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+    hideLogin();
+    loadAll();
+  });
+
+  function showLoginError(msg){
+    loginError.style.display = 'block';
+    loginError.textContent = msg;
+  }
+  function hideLoginError(){
+    loginError.style.display = 'none';
+  }
+
+  function hideLogin(){
+    loginScreen.style.display = 'none';
+    mainApp.style.display = 'block';
+    hideLoginError();
+  }
+  function showLogin(){
+    loginScreen.style.display = 'block';
+    mainApp.style.display = 'none';
   }
 
   // Logout
-  function logout() {
+  logoutBtn.addEventListener('click', () => {
     currentUser = null;
-    loginSection.style.display = 'flex';
-    mainSection.style.display = 'none';
-    showLoginError(false);
+    sessionStorage.removeItem('currentUser');
+    showLogin();
+  });
+
+  // Load Data and Render Tables
+  function loadAll(){
+    renderStockTable();
+    renderUsersTable();
+    renderDashboard();
   }
 
-  // Atualizar campo último login no footer
-  function updateLastLoginDisplay() {
-    let footer = document.querySelector('footer');
-    if(currentUser) {
-      footer.textContent = `Produzido por Bruno Tavares 2025 | Último login: ${new Date(currentUser.lastLogin).toLocaleString()}`;
-    } else {
-      footer.textContent = 'Produzido por Bruno Tavares 2025';
-    }
-  }
-
-  // Render Stock Table
-  function renderStock() {
-    const filter = searchStockInput.value.toLowerCase();
-    let filtered = stock.filter(p =>
-      p.name.toLowerCase().includes(filter) || p.reference.toLowerCase().includes(filter)
-    );
-
-    if(sortStockCol) {
-      filtered.sort((a,b) => {
-        let valA = a[sortStockCol];
-        let valB = b[sortStockCol];
-        if(typeof valA === 'string') valA = valA.toLowerCase();
-        if(typeof valB === 'string') valB = valB.toLowerCase();
-        if(valA > valB) return sortStockAsc ? 1 : -1;
-        if(valA < valB) return sortStockAsc ? -1 : 1;
-        return 0;
-      });
-    }
-
+  // Stock Table Render
+  function renderStockTable(filterText=''){
     stockTableBody.innerHTML = '';
-    for(const p of filtered) {
+    const filteredStock = stock.filter(p => p.name.toLowerCase().includes(filterText.toLowerCase()) || p.reference.toLowerCase().includes(filterText.toLowerCase()));
+
+    filteredStock.forEach(prod => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${p.id}</td>
-        <td contenteditable="true" data-field="name" data-id="${p.id}">${p.name}</td>
-        <td contenteditable="true" data-field="quantity" data-id="${p.id}">${p.quantity}</td>
-        <td contenteditable="true" data-field="reference" data-id="${p.id}">${p.reference}</td>
-        <td>${new Date(p.lastModified).toLocaleString()}</td>
-        <td>
-          <button class="btn btn-del" data-id="${p.id}" title="Eliminar Produto" style="background:#d90429;">✖</button>
-        </td>
-      `;
-      stockTableBody.appendChild(tr);
-    }
-  }
 
-  // Render Users Table
-  function renderUsers() {
-    const filter = searchUsersInput.value.toLowerCase();
-    let filtered = users.filter(u =>
-      u.username.toLowerCase().includes(filter) || u.role.toLowerCase().includes(filter)
-    );
+      const idTd = document.createElement('td');
+      idTd.textContent = prod.id;
+      tr.appendChild(idTd);
 
-    if(sortUsersCol) {
-      filtered.sort((a,b) => {
-        let valA = a[sortUsersCol];
-        let valB = b[sortUsersCol];
-        if(typeof valA === 'string') valA = valA.toLowerCase();
-        if(typeof valB === 'string') valB = valB.toLowerCase();
-        if(valA > valB) return sortUsersAsc ? 1 : -1;
-        if(valA < valB) return sortUsersAsc ? -1 : 1;
-        return 0;
-      });
-    }
+      const nameTd = document.createElement('td');
+      nameTd.textContent = prod.name;
+      tr.appendChild(nameTd);
 
-    usersTableBody.innerHTML = '';
-    for(const u of filtered) {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${u.id}</td>
-        <td contenteditable="true" data-field="username" data-id="${u.id}">${u.username}</td>
-        <td>
-          <select data-field="role" data-id="${u.id}">
-            <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
-            <option value="vendedor" ${u.role === 'vendedor' ? 'selected' : ''}>Vendedor</option>
-            <option value="gestor" ${u.role === 'gestor' ? 'selected' : ''}>Gestor</option>
-          </select>
-        </td>
-        <td>
-          <input type="checkbox" data-field="active" data-id="${u.id}" ${u.active ? 'checked' : ''} />
-        </td>
-        <td>
-          ${u.id === 1 ? '<em>Conta padrão</em>' : `<button class="btn btn-del" data-id="${u.id}" style="background:#d90429;">Eliminar</button>`}
-        </td>
-      `;
-      usersTableBody.appendChild(tr);
-    }
-  }
+      const qtyTd = document.createElement('td');
+      qtyTd.textContent = prod.quantity;
+      tr.appendChild(qtyTd);
 
-  // Adicionar Produto
-  function addProduct() {
-    const newProduct = {
-      id: generateId(stock),
-      name: 'Novo Produto',
-      quantity: 0,
-      reference: 'Ref000',
-      lastModified: new Date().toISOString(),
-    };
-    stock.push(newProduct);
-    saveData();
-    renderStock();
-  }
+      const refTd = document.createElement('td');
+      refTd.textContent = prod.reference;
+      tr.appendChild(refTd);
 
-  // Adicionar Utilizador
-  function addUser() {
-    const newUser = {
-      id: generateId(users),
-      username: 'novo.utilizador',
-      password: '123456', // padrão - pode criar função para mudar depois
-      role: 'vendedor',
-      active: true,
-      lastLogin: null,
-    };
-    users.push(newUser);
-    saveData();
-    renderUsers();
-  }
+      const lastEditTd = document.createElement('td');
+      lastEditTd.textContent = prod.lastEdit || '-';
+      tr.appendChild(lastEditTd);
 
-  // Guardar alterações do stock (editáveis)
-  function saveStockChanges() {
-    const tds = stockTableBody.querySelectorAll('td[contenteditable]');
-    tds.forEach(td => {
-      const id = Number(td.dataset.id);
-      const field = td.dataset.field;
-      const product = stock.find(p => p.id === id);
-      if(product) {
-        let val = td.textContent.trim();
-        if(field === 'quantity') {
-          val = parseInt(val);
-          if(isNaN(val) || val < 0) val = 0;
+      const actionsTd = document.createElement('td');
+      actionsTd.style.whiteSpace = 'nowrap';
+
+      const editBtn = document.createElement('button');
+      editBtn.title = "Editar produto";
+      editBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i>';
+      editBtn.addEventListener('click', () => openModal('editProduct', prod));
+      actionsTd.appendChild(editBtn);
+
+      const delBtn = document.createElement('button');
+      delBtn.title = "Eliminar produto";
+      delBtn.style.color = '#d54e4e';
+      delBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+      delBtn.addEventListener('click', () => {
+        if(confirm(`Eliminar produto "${prod.name}"?`)) {
+          stock = stock.filter(p => p.id !== prod.id);
+          saveStock();
+          renderStockTable(searchStockInput.value);
+          renderDashboard();
         }
-        product[field] = val;
-        product.lastModified = new Date().toISOString();
+      });
+      actionsTd.appendChild(delBtn);
+
+      tr.appendChild(actionsTd);
+      stockTableBody.appendChild(tr);
+    });
+  }
+
+  // Users Table Render
+  function renderUsersTable(){
+    usersTableBody.innerHTML = '';
+    utilizadores.forEach(u => {
+      const tr = document.createElement('tr');
+
+      const idTd = document.createElement('td');
+      idTd.textContent = u.id;
+      tr.appendChild(idTd);
+
+      const usernameTd = document.createElement('td');
+      usernameTd.textContent = u.username;
+      tr.appendChild(usernameTd);
+
+      const roleTd = document.createElement('td');
+      roleTd.textContent = u.role.charAt(0).toUpperCase() + u.role.slice(1);
+      tr.appendChild(roleTd);
+
+      const activeTd = document.createElement('td');
+      activeTd.classList.add('checkbox-center');
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = u.active;
+      checkbox.addEventListener('change', () => {
+        if(u.id === currentUser?.id && !checkbox.checked) {
+          alert("Não pode desativar o utilizador em sessão.");
+          checkbox.checked = true;
+          return;
+        }
+        u.active = checkbox.checked;
+        saveUtilizadores();
+      });
+      activeTd.appendChild(checkbox);
+      tr.appendChild(activeTd);
+
+      const actionsTd = document.createElement('td');
+      actionsTd.style.whiteSpace = 'nowrap';
+
+      const editBtn = document.createElement('button');
+      editBtn.title = "Editar utilizador";
+      editBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i>';
+      editBtn.addEventListener('click', () => openModal('editUser', u));
+      actionsTd.appendChild(editBtn);
+
+      const delBtn = document.createElement('button');
+      delBtn.title = "Eliminar utilizador";
+      delBtn.style.color = '#d54e4e';
+      delBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+      delBtn.addEventListener('click', () => {
+        if(u.id === currentUser?.id) {
+          alert("Não pode eliminar o utilizador em sessão.");
+          return;
+        }
+        if(confirm(`Eliminar utilizador "${u.username}"?`)) {
+          utilizadores = utilizadores.filter(user => user.id !== u.id);
+          saveUtilizadores();
+          renderUsersTable();
+        }
+      });
+      actionsTd.appendChild(delBtn);
+
+      tr.appendChild(actionsTd);
+      usersTableBody.appendChild(tr);
+    });
+  }
+
+  // Save functions
+  function saveUtilizadores(){
+    localStorage.setItem('utilizadores', JSON.stringify(utilizadores));
+  }
+  function saveStock(){
+    localStorage.setItem('stock', JSON.stringify(stock));
+  }
+
+  // Search stock input
+  searchStockInput.addEventListener('input', e => {
+    renderStockTable(e.target.value);
+  });
+
+  // Tabs switch
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabButtons.forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+
+      tabContents.forEach(tc => tc.hidden = true);
+      document.getElementById(btn.dataset.tab).hidden = false;
+
+      if(btn.dataset.tab === 'dashboardTab'){
+        renderDashboard();
       }
     });
-    saveData();
-    renderStock();
-    renderDashboard();
-  }
+  });
 
-  // Guardar alterações dos utilizadores
-  function saveUserChanges() {
-    // Atualiza campos editáveis e selects/checkboxes
-    // usernames únicos e não vazios
-    const usernameSet = new Set();
-    let valid = true;
-    // Campos contenteditable username
-    const usernameCells = usersTableBody.querySelectorAll('td[contenteditable][data-field="username"]');
-    usernameCells.forEach(td => {
-      const id = Number(td.dataset.id);
-      const user = users.find(u => u.id === id);
-      const newName = td.textContent.trim();
-      if(!newName || usernameSet.has(newName.toLowerCase())) valid = false;
-      usernameSet.add(newName.toLowerCase());
-      if(user) user.username = newName;
-    });
-    // select roles
-    const roleSelects = usersTableBody.querySelectorAll('select[data-field="role"]');
-    roleSelects.forEach(sel => {
-      const id = Number(sel.dataset.id);
-      const user = users.find(u => u.id === id);
-      if(user) user.role = sel.value;
-    });
-    // checkboxes active
-    const activeChecks = usersTableBody.querySelectorAll('input[type="checkbox"][data-field="active"]');
-    activeChecks.forEach(chk => {
-      const id = Number(chk.dataset.id);
-      const user = users.find(u => u.id === id);
-      if(user) user.active = chk.checked;
-    });
-    if(!valid) {
-      alert('Nomes de utilizadores inválidos ou duplicados.');
-      renderUsers();
-      return;
+  // Modal control
+  modalCloseBtn.addEventListener('click', closeModal);
+  modalBg.addEventListener('click', e => {
+    if(e.target === modalBg) closeModal();
+  });
+  document.addEventListener('keydown', e => {
+    if(e.key === "Escape" && modalBg.style.display === 'flex'){
+      closeModal();
     }
-    saveData();
-    renderUsers();
+  });
+
+  // Open modal
+  // mode: 'editProduct' | 'addProduct' | 'editUser' | 'addUser'
+  // data: object to edit or null for add
+  function openModal(mode, data=null){
+    modalForm.innerHTML = '';
+    modalBg.style.display = 'flex';
+
+    if(mode === 'addProduct' || mode === 'editProduct'){
+      modalTitle.textContent = mode === 'addProduct' ? 'Adicionar Produto' : 'Editar Produto';
+
+      // Campos produto
+      createInput('name', 'Produto', 'text', data?.name || '', true);
+      createInput('quantity', 'Quantidade', 'number', data?.quantity || 0, true, {min:0});
+      createInput('reference', 'Referência', 'text', data?.reference || '', false);
+
+      const submitBtn = document.createElement('button');
+      submitBtn.type = 'submit';
+      submitBtn.textContent = mode === 'addProduct' ? 'Adicionar' : 'Guardar';
+      modalForm.appendChild(submitBtn);
+
+      modalForm.onsubmit = (e) => {
+        e.preventDefault();
+        const formData = new FormData(modalForm);
+        const name = formData.get('name').trim();
+        const quantity = parseInt(formData.get('quantity'));
+        const reference = formData.get('reference').trim();
+
+        if(!name || isNaN(quantity) || quantity < 0){
+          alert('Por favor preencha os campos corretamente.');
+          return;
+        }
+
+        // Verifica duplicados pelo nome (case insensitive) exceto se for o mesmo produto editado
+        const exists = stock.some(p => p.name.toLowerCase() === name.toLowerCase() && p.id !== data?.id);
+        if(exists){
+          alert('Já existe um produto com esse nome.');
+          return;
+        }
+
+        if(mode === 'addProduct'){
+          const newId = stock.length > 0 ? Math.max(...stock.map(p => p.id)) + 1 : 1;
+          stock.push({
+            id: newId,
+            name,
+            quantity,
+            reference,
+            lastEdit: new Date().toLocaleString()
+          });
+        } else {
+          const idx = stock.findIndex(p => p.id === data.id);
+          if(idx >= 0){
+            stock[idx].name = name;
+            stock[idx].quantity = quantity;
+            stock[idx].reference = reference;
+            stock[idx].lastEdit = new Date().toLocaleString();
+          }
+        }
+        saveStock();
+        renderStockTable(searchStockInput.value);
+        renderDashboard();
+        closeModal();
+      };
+    }
+    else if(mode === 'addUser' || mode === 'editUser'){
+      modalTitle.textContent = mode === 'addUser' ? 'Adicionar Utilizador' : 'Editar Utilizador';
+
+      createInput('username', 'Utilizador', 'text', data?.username || '', true);
+      createInput('password', 'Senha', 'password', '', mode === 'addUser', {autocomplete: 'new-password'});
+      createSelect('role', 'Permissão', ['admin', 'gestor', 'vendedor'], data?.role || 'vendedor');
+      createCheckbox('active', 'Ativo', data?.active ?? true);
+
+      const submitBtn = document.createElement('button');
+      submitBtn.type = 'submit';
+      submitBtn.textContent = mode === 'addUser' ? 'Adicionar' : 'Guardar';
+      modalForm.appendChild(submitBtn);
+
+      modalForm.onsubmit = (e) => {
+        e.preventDefault();
+        const formData = new FormData(modalForm);
+        const username = formData.get('username').trim();
+        const password = formData.get('password');
+        const role = formData.get('role');
+        const active = formData.get('active') === 'on';
+
+        if(!username){
+          alert('O nome de utilizador é obrigatório.');
+          return;
+        }
+
+        // Verifica duplicados pelo username (case insensitive), exceto o próprio em edição
+        const exists = utilizadores.some(u => u.username.toLowerCase() === username.toLowerCase() && u.id !== data?.id);
+        if(exists){
+          alert('Já existe um utilizador com esse nome.');
+          return;
+        }
+
+        if(mode === 'addUser' && !password){
+          alert('A senha é obrigatória para novo utilizador.');
+          return;
+        }
+
+        if(mode === 'addUser'){
+          const newId = utilizadores.length > 0 ? Math.max(...utilizadores.map(u => u.id)) + 1 : 1;
+          utilizadores.push({
+            id: newId,
+            username,
+            password,
+            role,
+            active
+          });
+        } else {
+          const idx = utilizadores.findIndex(u => u.id === data.id);
+          if(idx >= 0){
+            utilizadores[idx].username = username;
+            // Altera senha só se preenchida
+            if(password){
+              utilizadores[idx].password = password;
+            }
+            utilizadores[idx].role = role;
+            utilizadores[idx].active = active;
+          }
+        }
+        saveUtilizadores();
+        renderUsersTable();
+        closeModal();
+      };
+    }
   }
 
-  // Eliminar produto
-  function deleteProduct(id) {
-    if(!confirm('Tem certeza que deseja eliminar este produto?')) return;
-    stock = stock.filter(p => p.id !== id);
-    saveData();
-    renderStock();
-    renderDashboard();
-  }
+  // Helper functions to create inputs
+  function createInput(name, label, type='text', value='', required=false, attrs={}){
+    const labelEl = document.createElement('label');
+    labelEl.setAttribute('for', name);
+    labelEl.textContent = label;
+    modalForm.appendChild(labelEl);
 
-  // Eliminar utilizador
-  function deleteUser(id) {
-    if(!confirm('Tem certeza que deseja eliminar este utilizador?')) return;
-    users = users.filter(u => u.id !== id);
-    saveData();
-    renderUsers();
-  }
-
-  // Reset Quantidades para 0
-  function resetQuantities() {
-    if(!confirm('Resetar todas as quantidades para zero?')) return;
-    stock.forEach(p => p.quantity = 0);
-    saveData();
-    renderStock();
-    renderDashboard();
-  }
-
-  // Exportar stock para Excel (simple XLSX com dados básicos)
-  function exportStockExcel() {
-    // Simplificado: CSV com MIME para Excel abrir, sem dependência externa
-    let csvContent = 'data:text/csv;charset=utf-8,';
-    csvContent += ['ID','Produto','Quantidade','Referência','Última Alteração'].join(';') + '\r\n';
-    stock.forEach(p => {
-      csvContent += [p.id, p.name, p.quantity, p.reference, new Date(p.lastModified).toLocaleString()].join(';') + '\r\n';
+    const input = document.createElement('input');
+    input.type = type;
+    input.name = name;
+    input.id = name;
+    input.value = value;
+    if(required) input.required = true;
+    Object.entries(attrs).forEach(([k,v]) => {
+      input.setAttribute(k,v);
     });
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `stock_${new Date().toISOString().slice(0,10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    modalForm.appendChild(input);
   }
 
-  // Atualizar gráfico
-  function renderDashboard() {
+  function createSelect(name, label, options, selectedValue){
+    const labelEl = document.createElement('label');
+    labelEl.setAttribute('for', name);
+    labelEl.textContent = label;
+    modalForm.appendChild(labelEl);
+
+    const select = document.createElement('select');
+    select.name = name;
+    select.id = name;
+
+    options.forEach(opt => {
+      const option = document.createElement('option');
+      option.value = opt;
+      option.textContent = opt.charAt(0).toUpperCase() + opt.slice(1);
+      if(opt === selectedValue) option.selected = true;
+      select.appendChild(option);
+    });
+
+    modalForm.appendChild(select);
+  }
+
+  function createCheckbox(name, label, checked=false){
+    const labelEl = document.createElement('label');
+    labelEl.setAttribute('for', name);
+    labelEl.textContent = label;
+    modalForm.appendChild(labelEl);
+
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.name = name;
+    input.id = name;
+    input.checked = checked;
+    modalForm.appendChild(input);
+  }
+
+  function closeModal(){
+    modalBg.style.display = 'none';
+    modalForm.innerHTML = '';
+  }
+
+  // Dashboard (Chart.js)
+  let stockChart = null;
+  function renderDashboard(){
+    const ctx = document.getElementById('stockChart').getContext('2d');
     if(stockChart) stockChart.destroy();
+
     const labels = stock.map(p => p.name);
-    const data = stock.map(p => p.quantity);
-    stockChart = new Chart(stockChartCtx, {
+    const quantities = stock.map(p => p.quantity);
+
+    stockChart = new Chart(ctx, {
       type: 'bar',
       data: {
         labels,
         datasets: [{
-          label: 'Quantidade em Stock',
-          data,
-          backgroundColor: 'rgba(0, 119, 182, 0.7)',
-          borderColor: 'rgba(0, 77, 128, 0.9)',
+          label: 'Quantidade',
+          data: quantities,
+          backgroundColor: 'rgba(75, 54, 124, 0.7)',
+          borderColor: 'rgba(75, 54, 124, 1)',
           borderWidth: 1,
+          borderRadius: 8,
         }]
       },
       options: {
         responsive: true,
         scales: {
-          y: { beginAtZero: true }
+          y: {
+            beginAtZero: true,
+            precision: 0,
+            ticks: {
+              stepSize: 1
+            }
+          }
         }
       }
     });
   }
 
-  // --- Event Listeners ---
-  loginBtn.addEventListener('click', login);
-  passwordInput.addEventListener('keydown', e => {
-    if(e.key === 'Enter') login();
+  // Buttons events
+  document.getElementById('addProductBtn').addEventListener('click', () => openModal('addProduct'));
+  document.getElementById('addUserBtn').addEventListener('click', () => openModal('addUser'));
+
+  document.getElementById('resetStockBtn').addEventListener('click', () => {
+    if(confirm('Tem a certeza que quer resetar as quantidades para zero?')){
+      stock.forEach(p => p.quantity = 0);
+      saveStock();
+      renderStockTable(searchStockInput.value);
+      renderDashboard();
+    }
   });
-  navButtons.stock.addEventListener('click', () => showSection('stock'));
-  navButtons.users.addEventListener('click', () => showSection('users'));
-  navButtons.dashboard.addEventListener('click', () => showSection('dashboard'));
-  navButtons.logout.addEventListener('click', logout);
 
-  searchStockInput.addEventListener('input', renderStock);
-  searchUsersInput.addEventListener('input', renderUsers);
-
-  btnAddStock.addEventListener('click', () => {
-    if(currentUser.role !== 'admin' && currentUser.role !== 'gestor') {
-      alert('Permissão negada para adicionar produtos.');
+  // Export to XLSX (simple CSV approach)
+  document.getElementById('exportXLSXBtn').addEventListener('click', () => {
+    if(stock.length === 0){
+      alert('Nenhum produto para exportar.');
       return;
     }
-    addProduct();
-  });
-  btnAddUser.addEventListener('click', () => {
-    if(currentUser.role !== 'admin') {
-      alert('Permissão negada para adicionar utilizadores.');
-      return;
-    }
-    addUser();
-  });
 
-  btnResetQuantities.addEventListener('click', () => {
-    if(currentUser.role !== 'admin' && currentUser.role !== 'gestor') {
-      alert('Permissão negada para resetar quantidades.');
-      return;
-    }
-    resetQuantities();
+    const headers = ['ID', 'Produto', 'Quantidade', 'Referência', 'Última Alteração'];
+    const rows = stock.map(p => [p.id, p.name, p.quantity, p.reference, p.lastEdit || '']);
+    let csvContent = "data:text/csv;charset=utf-8," 
+      + headers.join(";") + "\n"
+      + rows.map(e => e.map(cell => `"${cell}"`).join(";")).join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'stock_export.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   });
 
-  btnExportStock.addEventListener('click', exportStockExcel);
+  // Auto login if session exists
+  if(currentUser){
+    hideLogin();
+    loadAll();
+  }
 
-  btnSaveUsers.addEventListener('click', () => {
-    if(currentUser.role !== 'admin') {
-      alert('Permissão negada para guardar utilizadores.');
-      return;
-    }
-    saveUserChanges();
-  });
-
-  // Eventos para salvar edições na tabela stock on blur
-  stockTableBody.addEventListener('blur', e => {
-    if(e.target.matches('td[contenteditable]')) {
-      saveStockChanges();
-    }
-  }, true);
-
-  // Eventos para detectar mudança nos selects e checkboxes de utilizadores
-  usersTableBody.addEventListener('change', e => {
-    if(e.target.matches('select[data-field], input[type="checkbox"][data-field]')) {
-      // Salvar diretamente após alteração
-      saveUserChanges();
-    }
-  });
-
-  // Eventos para eliminar produtos e utilizadores (delegação)
-  stockTableBody.addEventListener('click', e => {
-    if(e.target.matches('button.btn-del')) {
-      const id = Number(e.target.dataset.id);
-      deleteProduct(id);
-    }
-  });
-
-  usersTableBody.addEventListener('click', e => {
-    if(e.target.matches('button.btn-del')) {
-      const id = Number(e.target.dataset.id);
-      deleteUser(id);
-    }
-  });
-
-  // Inicialização
-  loadData();
-  showSection('login');
-
-})(); 
 </script>
 
 </body>
