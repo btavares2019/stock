@@ -1,495 +1,344 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gestão de Produtos - Criado por Bruno Tavares 2025</title>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f9fafb;
-      margin: 0; padding: 0;
-      color: #333;
-    }
-    header {
-      background: #2563eb;
-      color: white;
-      padding: 1rem 2rem;
-      font-size: 1.4rem;
-      font-weight: 700;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    button {
-      cursor: pointer;
-      transition: background-color 0.25s ease;
-      border: none;
-      border-radius: 5px;
-      font-weight: 600;
-    }
-    button:focus {
-      outline: 3px solid #93c5fd;
-      outline-offset: 2px;
-    }
-    .tab-btn {
-      background: none;
-      border-bottom: 3px solid transparent;
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      font-weight: 600;
-      color: #374151;
-    }
-    .tab-btn.border-blue-600 {
-      border-color: #2563eb;
-      color: #1e40af;
-    }
-    .tab-btn:hover:not(.border-blue-600) {
-      color: #2563eb;
-    }
-    .tab-content {
-      padding: 1rem 2rem;
-      background: white;
-      border-radius: 8px;
-      margin: 1rem 2rem 3rem 2rem;
-      box-shadow: 0 4px 6px rgb(0 0 0 / 0.1);
-    }
-    .hidden {
-      display: none;
-    }
-    input[type="text"], input[type="number"], input[type="password"] {
-      padding: 0.5rem 0.75rem;
-      font-size: 1rem;
-      border: 1px solid #d1d5db;
-      border-radius: 5px;
-      width: 100%;
-      max-width: 350px;
-      box-sizing: border-box;
-      transition: border-color 0.25s ease;
-    }
-    input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:focus {
-      border-color: #2563eb;
-      outline: none;
-      box-shadow: 0 0 5px #93c5fd;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.95rem;
-    }
-    th, td {
-      border: 1px solid #e5e7eb;
-      padding: 0.6rem 0.75rem;
-      text-align: left;
-    }
-    th {
-      background: #2563eb;
-      color: white;
-      user-select: none;
-    }
-    tr:hover {
-      background-color: #e0e7ff;
-    }
-    .btn-primary {
-      background-color: #2563eb;
-      color: white;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      margin-top: 0.5rem;
-      font-weight: 700;
-    }
-    .btn-primary:hover {
-      background-color: #1e40af;
-    }
-    .btn-danger {
-      background-color: #dc2626;
-      color: white;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      margin-top: 0.5rem;
-      font-weight: 700;
-    }
-    .btn-danger:hover {
-      background-color: #991b1b;
-    }
-    .btn-warning {
-      background-color: #f59e0b;
-      color: white;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      margin-top: 0.5rem;
-      font-weight: 700;
-    }
-    .btn-warning:hover {
-      background-color: #b45309;
-    }
-    .filter-inputs {
-      margin-bottom: 1rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      align-items: center;
-    }
-    .filter-inputs input {
-      flex-grow: 1;
-      max-width: 350px;
-    }
-    footer {
-      text-align: center;
-      color: #666;
-      font-size: 0.9rem;
-      padding: 1rem 0;
-      user-select: none;
-    }
-    .login-container {
-      max-width: 400px;
-      margin: 5rem auto;
-      background: white;
-      padding: 2rem 2.5rem;
-      border-radius: 10px;
-      box-shadow: 0 8px 24px rgb(0 0 0 / 0.15);
-    }
-    .login-container h2 {
-      margin-bottom: 1.5rem;
-      text-align: center;
-      color: #2563eb;
-    }
-    .login-container label {
-      font-weight: 600;
-      display: block;
-      margin-bottom: 0.3rem;
-      margin-top: 1rem;
-    }
-    .login-container input {
-      width: 100%;
-      font-size: 1rem;
-      padding: 0.5rem 0.75rem;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-    }
-    .login-container button {
-      width: 100%;
-      margin-top: 1.5rem;
-      padding: 0.75rem;
-      font-size: 1.1rem;
-      background-color: #2563eb;
-      color: white;
-      font-weight: 700;
-      border-radius: 8px;
-    }
-    .login-container button:hover {
-      background-color: #1e40af;
-    }
-    @media (max-width: 600px) {
-      header, .tab-content {
-        padding: 1rem;
-      }
-      .filter-inputs {
-        flex-direction: column;
-      }
-      .filter-inputs input {
-        max-width: 100%;
-      }
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Gestão de Produtos - Bruno Tavares 2025</title>
+<style>
+  body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f7fa;
+    color: #333;
+    margin: 0; padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  header {
+    background: #2563eb;
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  header button {
+    background: #fbbf24;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  header button:hover {
+    background: #f59e0b;
+  }
+  main {
+    flex-grow: 1;
+    padding: 2rem;
+    max-width: 900px;
+    margin: auto;
+  }
+  h1, h2 {
+    margin-bottom: 1rem;
+  }
+  nav {
+    margin-bottom: 2rem;
+  }
+  nav button {
+    background: #2563eb;
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    margin-right: 0.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s ease;
+  }
+  nav button.active, nav button:hover {
+    background: #1e40af;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    box-shadow: 0 2px 5px rgb(0 0 0 / 0.1);
+  }
+  th, td {
+    border: 1px solid #ddd;
+    padding: 0.6rem 1rem;
+    text-align: left;
+  }
+  th {
+    background: #2563eb;
+    color: white;
+  }
+  input[type=text], input[type=number], input[type=password] {
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-right: 1rem;
+    width: 200px;
+  }
+  input[type=number] {
+    max-width: 120px;
+  }
+  .flex-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .btn {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s ease;
+  }
+  .btn:hover {
+    background: #1e40af;
+  }
+  .btn-danger {
+    background: #f87171;
+  }
+  .btn-danger:hover {
+    background: #ef4444;
+  }
+  footer {
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.9rem;
+    background: #f0f0f0;
+    margin-top: auto;
+  }
+  .hidden {
+    display: none;
+  }
+  #exportButtons {
+    margin-top: 1rem;
+  }
+  #exportButtons button {
+    margin-right: 0.8rem;
+  }
+</style>
 </head>
 <body>
 
 <header>
-  <div>Gestão de Produtos</div>
-  <div id="headerUserArea"></div>
+  <div>
+    <strong>Gestão de Produtos</strong>
+  </div>
+  <div>
+    <span id="lastLoginDisplay"></span>
+    <button id="logoutBtn" class="hidden">Logout</button>
+  </div>
 </header>
 
-<!-- Login -->
-<div id="loginScreen" class="login-container">
-  <h2>Entrar</h2>
-  <label for="loginUser">Nome de utilizador</label>
-  <input type="text" id="loginUser" autocomplete="username" />
-  <label for="loginPass">Palavra-passe</label>
-  <input type="password" id="loginPass" autocomplete="current-password" />
-  <button onclick="login()">Entrar</button>
-</div>
-
-<!-- Aplicação -->
-<div id="app" class="hidden">
-
-  <!-- Abas -->
-  <nav style="display:flex; gap:1rem; margin: 1rem 2rem;">
-    <button class="tab-btn" id="tab-produtos" onclick="showTab('produtos')">Produtos</button>
-    <button class="tab-btn" id="tab-historico" onclick="showTab('historico')">Histórico</button>
-    <button class="tab-btn" id="tab-utilizadores" onclick="showTab('utilizadores')">Utilizadores</button>
+<main>
+  <nav>
+    <button class="active" data-tab="produtos">Produtos</button>
+    <button data-tab="historico">Histórico</button>
+    <button data-tab="utilizadores">Utilizadores</button>
   </nav>
 
-  <!-- Conteúdos -->
-  <section id="produtos" class="tab-content">
-    <h2>Produtos</h2>
-
-    <!-- Filtros -->
-    <div class="filter-inputs">
-      <input id="filterName" type="text" placeholder="Pesquisar por nome..." oninput="renderProducts()" />
-      <input id="filterQty" type="number" min="0" placeholder="Quantidade inferior a..." oninput="renderProducts()" />
+  <!-- Login -->
+  <section id="loginSection">
+    <h2>Iniciar Sessão</h2>
+    <div class="flex-row" style="margin-bottom:1rem;">
+      <input type="text" id="loginUsername" placeholder="Nome de utilizador" autocomplete="username"/>
+      <input type="password" id="loginPassword" placeholder="Palavra-passe" autocomplete="current-password"/>
+      <button class="btn" id="loginBtn">Entrar</button>
     </div>
+    <div id="loginMsg" style="color: red;"></div>
+  </section>
 
-    <div style="margin-bottom:1rem;">
-      <input type="text" id="productName" placeholder="Nome do produto" />
-      <input type="number" id="productQty" min="0" placeholder="Quantidade" style="width: 120px; margin-left: 1rem;" />
-      <button class="btn-primary" onclick="addOrUpdateProduct()">Guardar</button>
+  <!-- Produtos -->
+  <section id="produtosSection" class="hidden" aria-label="Gestão de produtos">
+    <h2>Produtos</h2>
+    <div class="flex-row" style="margin-bottom:1rem;">
+      <input type="text" id="filterName" placeholder="Pesquisar por nome" aria-label="Pesquisar por nome do produto" />
+      <input type="number" id="filterQty" min="0" placeholder="Quantidade inferior a" aria-label="Filtrar produtos por quantidade inferior a" />
     </div>
 
     <table aria-label="Tabela de produtos">
       <thead>
         <tr>
-          <th>Produto</th>
+          <th>Nome</th>
           <th>Quantidade</th>
-          <th>Última Alteração</th>
+          <th>Data da última alteração</th>
           <th>Ações</th>
         </tr>
       </thead>
       <tbody id="productTable"></tbody>
     </table>
 
-    <div style="margin-top: 1rem;">
-      <button class="btn-primary" onclick="exportToExcel()">Exportar para Excel</button>
-      <button class="btn-primary" onclick="exportToPDF()">Exportar para PDF</button>
-      <button class="btn-warning" onclick="window.print()">Imprimir</button>
+    <div id="exportButtons" class="flex-row">
+      <button class="btn" id="exportExcelBtn" aria-label="Exportar produtos para Excel">Exportar Excel</button>
+      <button class="btn" id="exportPdfBtn" aria-label="Exportar produtos para PDF">Exportar PDF</button>
+      <button class="btn" id="printBtn" aria-label="Imprimir tabela de produtos">Imprimir</button>
+    </div>
+
+    <h3>Adicionar / Editar Produto</h3>
+    <div class="flex-row" style="margin-bottom:1rem; gap:0.5rem;">
+      <input type="text" id="productName" placeholder="Nome do produto" aria-label="Nome do produto" />
+      <input type="number" id="productQty" min="0" placeholder="Quantidade" aria-label="Quantidade do produto" />
+      <button class="btn" id="addEditProductBtn">Adicionar</button>
+      <button class="btn btn-danger hidden" id="cancelEditBtn">Cancelar</button>
     </div>
   </section>
 
-  <section id="historico" class="tab-content hidden">
+  <!-- Histórico -->
+  <section id="historicoSection" class="hidden" aria-label="Histórico de contagens">
     <h2>Histórico de Contagens</h2>
-    <table aria-label="Tabela de histórico">
+    <table aria-label="Histórico de produtos">
       <thead>
-        <tr>
-          <th>Produto</th>
-          <th>Quantidade</th>
-          <th>Data</th>
-          <th>Utilizador</th>
-        </tr>
+        <tr><th>Data</th><th>Produto</th><th>Quantidade</th></tr>
       </thead>
-      <tbody id="historyTable"></tbody>
+      <tbody id="historicoTable"></tbody>
     </table>
   </section>
 
-  <section id="utilizadores" class="tab-content hidden">
-    <h2>Utilizadores</h2>
-    <table aria-label="Tabela de utilizadores">
-      <thead>
-        <tr><th>Nome</th></tr>
-      </thead>
-      <tbody id="usersTable"></tbody>
-    </table>
-  </section>
+  <!-- Utilizadores -->
+  <section id="utilizadoresSection" class="hidden" aria-label="Gestão de utilizadores">
+    <h2>Gestão de Utilizadores</h2>
 
-</div>
+    <table aria-label="Tabela de utilizadores" style="margin-bottom:1rem;">
+      <thead>
+        <tr><th>Nome de utilizador</th><th>Último login</th><th>Ações</th></tr>
+      </thead>
+      <tbody id="utilizadoresTable"></tbody>
+    </table>
+
+    <h3>Adicionar Utilizador</h3>
+    <div class="flex-row" style="margin-bottom:1rem; gap:0.5rem;">
+      <input type="text" id="newUsername" placeholder="Nome de utilizador" aria-label="Nome de utilizador" autocomplete="username"/>
+      <input type="password" id="newPassword" placeholder="Palavra-passe" aria-label="Palavra-passe" autocomplete="new-password"/>
+      <button class="btn" id="addUserBtn">Adicionar</button>
+    </div>
+    <div id="userMsg" style="color:red;"></div>
+  </section>
+</main>
 
 <footer>
   Criado por Bruno Tavares 2025
 </footer>
 
+<!-- Bibliotecas externas -->
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+
 <script>
-  // Utilizadores fixos
-  const fixedUsers = [
-    { name: 'btavares', password: 'btavares' },
-    { name: 'ltavares', password: 'ltavares' },
-    { name: 'dsantos', password: 'dsantos' },
-    { name: 'palvarenga', password: 'palvarenga' },
-    { name: 'rsantos', password: 'inovar' }
-  ];
+  // --- Dados e armazenamento ---
+  let currentUser = null;
+  let editingProductIndex = null;
 
-  let currentTab = 'produtos';
-  let editingIndex = -1;
+  function saveUsers(users) {
+    localStorage.setItem('users', JSON.stringify(users));
+  }
 
-  // -----------------------
-  // Inicialização
-  // -----------------------
-  function init() {
-    // Verifica se está logado
-    const loggedUser = sessionStorage.getItem('loggedUser');
-    const lastLogin = sessionStorage.getItem('lastLogin');
-
-    if (loggedUser && lastLogin) {
-      showApp(loggedUser, lastLogin);
+  function loadUsers() {
+    let users = localStorage.getItem('users');
+    if (!users) {
+      // criar utilizador padrão
+      users = [{ username: "admin", password: "admin", lastLogin: null }];
+      saveUsers(users);
     } else {
-      showLogin();
+      users = JSON.parse(users);
     }
-    renderUsers();
-    renderHistory();
-    renderProducts();
-    showTab(currentTab);
+    return users;
   }
 
-  // -----------------------
-  // Mostrar / ocultar e login/logout
-  // -----------------------
-  function showLogin() {
-    document.getElementById('loginScreen').classList.remove('hidden');
-    document.getElementById('app').classList.add('hidden');
-    document.getElementById('headerUserArea').textContent = '';
-  }
-
-  function showApp(user, lastLogin) {
-    document.getElementById('loginScreen').classList.add('hidden');
-    document.getElementById('app').classList.remove('hidden');
-    document.getElementById('headerUserArea').textContent = `${user} - Último login: ${lastLogin} `;
-    const logoutBtn = document.createElement('button');
-    logoutBtn.textContent = 'Logout';
-    logoutBtn.className = 'btn-danger';
-    logoutBtn.style.marginLeft = '1rem';
-    logoutBtn.onclick = logout;
-    // Remove logout se existir para não acumular
-    const headerArea = document.getElementById('headerUserArea');
-    while (headerArea.children.length > 0) headerArea.removeChild(headerArea.children[0]);
-    headerArea.textContent = `${user} - Último login: ${lastLogin} `;
-    headerArea.appendChild(logoutBtn);
-  }
-
-  function login() {
-    const username = document.getElementById('loginUser').value.trim();
-    const password = document.getElementById('loginPass').value;
-
-    if (!username || !password) {
-      alert('Por favor, insira nome de utilizador e palavra-passe.');
-      return;
-    }
-
-    const user = fixedUsers.find(u => u.name === username && u.password === password);
-
-    if (user) {
-      const now = new Date().toLocaleString();
-      sessionStorage.setItem('loggedUser', user.name);
-      sessionStorage.setItem('lastLogin', now);
-      showApp(user.name, now);
-      // Limpar campos login
-      document.getElementById('loginUser').value = '';
-      document.getElementById('loginPass').value = '';
-      editingIndex = -1;
-      renderProducts();
-      renderHistory();
-      renderUsers();
-      showTab(currentTab);
-    } else {
-      alert('Nome de utilizador ou palavra-passe inválidos.');
-    }
-  }
-
-  function logout() {
-    if (confirm('Quer realmente terminar sessão?')) {
-      sessionStorage.removeItem('loggedUser');
-      sessionStorage.removeItem('lastLogin');
-      showLogin();
-    }
-  }
-
-  // -----------------------
-  // Abas
-  // -----------------------
-  function showTab(tab) {
-    currentTab = tab;
-
-    document.querySelectorAll('.tab-content').forEach(s => s.classList.add('hidden'));
-    document.getElementById(tab).classList.remove('hidden');
-
-    // Atualizar estilos dos botões
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.classList.remove('border-blue-600', 'font-semibold');
-      btn.classList.add('hover:text-blue-700');
-    });
-    document.getElementById('tab-' + tab).classList.add('border-blue-600', 'font-semibold');
-    document.getElementById('tab-' + tab).classList.remove('hover:text-blue-700');
-  }
-
-  // -----------------------
-  // Produtos
-  // -----------------------
-  function getProducts() {
-    return JSON.parse(localStorage.getItem('products') || '[]');
-  }
-
-  function setProducts(products) {
+  function saveProducts(products) {
     localStorage.setItem('products', JSON.stringify(products));
   }
 
-  function renderProducts() {
-    const products = getProducts();
-
-    const filterName = document.getElementById('filterName').value.trim().toLowerCase();
-    const filterQtyRaw = document.getElementById('filterQty').value;
-    const filterQty = filterQtyRaw === '' ? null : Number(filterQtyRaw);
-
-    const tbody = document.getElementById('productTable');
-    tbody.innerHTML = '';
-
-    const filtered = products.filter(p => {
-      const nameMatch = p.name.toLowerCase().includes(filterName);
-      const qtyMatch = filterQty === null || p.qty < filterQty;
-      return nameMatch && qtyMatch;
-    });
-
-    filtered.forEach(p => {
-      const i = products.indexOf(p);
-      const tr = document.createElement('tr');
-      tr.className = 'hover:bg-gray-100';
-
-      tr.innerHTML = `
-        <td class="border px-4 py-2">${p.name}</td>
-        <td class="border px-4 py-2">${p.qty}</td>
-        <td class="border px-4 py-2">${p.updated}</td>
-        <td class="border px-4 py-2 space-x-2">
-          <button onclick="editProduct(${i})" class="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded transition">Editar</button>
-          <button onclick="deleteProduct(${i})" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded transition">Apagar</button>
-        </td>
-      `;
-
-      tbody.appendChild(tr);
-    });
-  }
-
-  function addOrUpdateProduct() {
-    const nameInput = document.getElementById('productName');
-    const qtyInput = document.getElementById('productQty');
-
-    const name = nameInput.value.trim();
-    const qty = Number(qtyInput.value);
-
-    if (!name) {
-      alert('Por favor, insira o nome do produto.');
-      return;
-    }
-    if (!qty || qty < 0) {
-      alert('Por favor, insira uma quantidade válida.');
-      return;
-    }
-
-    const products = getProducts();
-    const now = new Date().toLocaleString();
-    const user = sessionStorage.getItem('loggedUser') || 'Desconhecido';
-
-    if (editingIndex >= 0) {
-      products[editingIndex].name = name;
-      products[editingIndex].qty = qty;
-      products[editingIndex].updated = now;
-
-      salvarHistorico(name, qty, now, user);
-
-      editingIndex = -1;
+  function loadProducts() {
+    let products = localStorage.getItem('products');
+    if (!products) {
+      products = [];
+      saveProducts(products);
     } else {
-      products.push({ name, qty, updated: now });
-      salvarHistorico(name, qty, now, user);
+      products = JSON.parse(products);
     }
-
-    setProducts(products);
-    renderProducts();
-
-    nameInput.value = '';
-    qtyInput.value = '';
+    return products;
   }
 
-  function editProduct(i) {
-    const products = getProducts();
-    const p = products[i];
-    document.getElementById('productName').value = p.name;
-    document.getElementById('productQty').value = p.qty;
-    editingIndex = i;
-    showTab('produtos');
+  function saveHistorico(historico) {
+    localStorage.setItem('historico', JSON.stringify(historico));
+  }
+
+  function loadHistorico() {
+    let historico = localStorage.getItem('historico');
+    if (!historico) {
+      historico = [];
+      saveHistorico(historico);
+    } else {
+      historico = JSON.parse(historico);
+    }
+    return historico;
+  }
+
+  // --- UI e lógica ---
+  const loginSection = document.getElementById('loginSection');
+  const produtosSection = document.getElementById('produtosSection');
+  const historicoSection = document.getElementById('historicoSection');
+  const utilizadoresSection = document.getElementById('utilizadoresSection');
+  const lastLoginDisplay = document.getElementById('lastLoginDisplay');
+
+  const loginUsername = document.getElementById('loginUsername');
+  const loginPassword = document.getElementById('loginPassword');
+  const loginBtn = document.getElementById('loginBtn');
+const loginMsg = document.getElementById('loginMsg');
+const logoutBtn = document.getElementById('logoutBtn');
+
+const filterName = document.getElementById('filterName');
+const filterQty = document.getElementById('filterQty');
+const productTable = document.getElementById('productTable');
+const historicoTable = document.getElementById('historicoTable');
+
+const exportExcelBtn = document.getElementById('exportExcelBtn');
+const exportPdfBtn = document.getElementById('exportPdfBtn');
+const printBtn = document.getElementById('printBtn');
+
+// --- Exportação ---
+exportExcelBtn.onclick = () => {
+const rows = Array.from(productTable.querySelectorAll('tr')).map(row => {
+const cols = row.querySelectorAll('td');
+return Array.from(cols).slice(0, 3).map(cell => cell.textContent.trim());
+});
+const wb = XLSX.utils.book_new();
+const ws = XLSX.utils.aoa_to_sheet([["Nome", "Quantidade", "Última alteração"], ...rows]);
+XLSX.utils.book_append_sheet(wb, ws, "Produtos");
+XLSX.writeFile(wb, "produtos.xlsx");
+};
+
+exportPdfBtn.onclick = () => {
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF();
+doc.autoTable({
+head: [["Nome", "Quantidade", "Última alteração"]],
+body: Array.from(productTable.querySelectorAll('tr')).map(row => {
+const cols = row.querySelectorAll('td');
+return Array.from(cols).slice(0, 3).map(cell => cell.textContent.trim());
+}),
+});
+doc.save("produtos.pdf");
+};
+
+printBtn.onclick = () => {
+const win = window.open('', '', 'width=800,height=600');
+const html = <html><head><title>Imprimir Produtos</title></head> <body> <h2>Lista de Produtos</h2> ${productTable.parentNode.innerHTML} </body></html> ;
+win.document.write(html);
+win.document.close();
+win.print();
+};
+</script>
+
+</body> </html>
