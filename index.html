@@ -1,353 +1,473 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Gestão de Estoque</title>
-<style>
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: #333;
-    margin: 0; padding: 0;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding-top: 40px;
-  }
-  #container {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgb(0 0 0 / 0.15);
-    width: 900px;
-    max-width: 95vw;
-    padding: 30px 40px;
-  }
-  h2 {
-    margin-top: 0;
-    color: #4a3fbd;
-    text-align: center;
-  }
-  input[type=text], input[type=number], input[type=password] {
-    width: 100%;
-    padding: 8px 10px;
-    margin-top: 4px;
-    margin-bottom: 12px;
-    border-radius: 6px;
-    border: 1.5px solid #ccc;
-    font-size: 16px;
-    transition: border-color 0.3s;
-  }
-  input[type=text]:focus, input[type=number]:focus, input[type=password]:focus {
-    border-color: #764ba2;
-    outline: none;
-  }
-  button {
-    background: #764ba2;
-    color: white;
-    border: none;
-    padding: 10px 18px;
-    margin: 6px 4px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 3px 8px rgb(118 75 162 / 0.5);
-    transition: background-color 0.25s;
-  }
-  button:hover {
-    background: #5b378a;
-  }
-  #loginForm, #app {
-    max-width: 100%;
-  }
-  #app {
-    display: none;
-  }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    margin-top: 20px;
-    font-size: 15px;
-  }
-  th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: center;
-  }
-  th {
-    background-color: #764ba2;
-    color: white;
-  }
-  #errorMsg {
-    color: red;
-    margin-top: -8px;
-    margin-bottom: 12px;
-    font-weight: 600;
-  }
-  .flex-row {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  .flex-col {
-    flex: 1;
-    min-width: 120px;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gestão de Estoque - Login e Controle</title>
+  <style>
+    /* Reset básico */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #6b73ff 0%, #000dff 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    /* Container login */
+    #loginForm {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 40px 30px;
+      border-radius: 12px;
+      width: 320px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      text-align: center;
+    }
+
+    #loginForm h2 {
+      margin-bottom: 24px;
+      font-weight: 700;
+      font-size: 28px;
+      letter-spacing: 1.2px;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 12px 15px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      transition: background 0.3s ease;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+
+    input[type="text"]:focus, input[type="password"]:focus {
+      background: rgba(255, 255, 255, 0.35);
+      box-shadow: 0 0 6px #6b73ff;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: #304ffe;
+      color: white;
+      font-weight: 700;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #1a2ed0;
+    }
+
+    .error-message {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #ff6b6b;
+      display: none;
+    }
+
+    /* App container */
+    #app {
+      display: none;
+      background: #fff;
+      color: #333;
+      padding: 20px 30px;
+      border-radius: 10px;
+      max-width: 900px;
+      width: 95vw;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      flex-direction: column;
+    }
+
+    #app header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    #app header h2 {
+      margin-bottom: 10px;
+      color: #222;
+    }
+
+    #userInfo {
+      font-weight: 600;
+      font-size: 14px;
+      color: #555;
+    }
+
+    #app .btn {
+      background: #304ffe;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-left: 8px;
+      transition: background 0.3s ease;
+      user-select: none;
+    }
+    #app .btn:hover {
+      background: #1a2ed0;
+    }
+    #app .btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    #controls {
+      margin-bottom: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    #searchInput {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #bbb;
+      flex-grow: 1;
+      font-size: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px 8px;
+      text-align: center;
+    }
+    th {
+      background: #304ffe;
+      color: white;
+    }
+
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    /* Scroll horizontal para tabelas pequenas telas */
+    .table-wrapper {
+      overflow-x: auto;
+    }
+  </style>
 </head>
 <body>
 
-<div id="container">
-
-  <!-- LOGIN -->
+  <!-- Tela de login -->
   <div id="loginForm">
-    <h2>Login</h2>
-    <label for="username">Usuário:</label>
-    <input type="text" id="username" placeholder="Digite seu usuário" />
-    <label for="password">Senha:</label>
-    <input type="password" id="password" placeholder="Digite sua senha" />
+    <h2>Entrar</h2>
+    <div class="input-group">
+      <label for="username">Usuário</label>
+      <input type="text" id="username" placeholder="Digite seu usuário" />
+    </div>
+    <div class="input-group">
+      <label for="password">Senha</label>
+      <input type="password" id="password" placeholder="Digite sua senha" />
+    </div>
     <button onclick="login()">Entrar</button>
-    <p id="msgErro" style="color: red; display:none; font-weight:600; margin-top: 12px;">Usuário ou senha incorretos.</p>
+    <p id="errorMsg" class="error-message">Usuário ou senha incorretos.</p>
   </div>
 
-  <!-- APP -->
-  <div id="app">
-    <h2>Controle de Estoque</h2>
-    <button onclick="logout()" style="float:right; background:#cc3366;">Logout</button>
+  <!-- Tela do app após login -->
+  <div id="app" style="display: none; flex-direction: column;">
+    <header>
+      <h2>Controle de Estoque</h2>
+      <div>
+        <span id="userInfo"></span>
+        <button class="btn" onclick="logout()">Logout</button>
+      </div>
+    </header>
 
-    <div class="flex-row" style="margin-top: 30px;">
-      <div class="flex-col">
-        <label>Produto</label>
-        <input type="text" id="produto" placeholder="Nome do produto" />
-      </div>
-      <div class="flex-col">
-        <label>Quantidade</label>
-        <input type="number" id="quantidade" min="0" placeholder="Quantidade" />
-      </div>
-      <div class="flex-col">
-        <label>Referência</label>
-        <input type="text" id="referencia" placeholder="Referência" />
-      </div>
-      <div class="flex-col">
-        <label>Data (YYYY-MM-DD)</label>
-        <input type="text" id="data" placeholder="2025-05-27" />
-      </div>
-      <div class="flex-col">
-        <label>Quem fez a alteração <span style="color:red">*</span></label>
-        <input type="text" id="alterador" placeholder="Responsável" />
-      </div>
+    <div id="controls">
+      <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Procurar produto..." />
+      <button class="btn" onclick="addRow()">Adicionar Produto</button>
+      <button class="btn" onclick="saveData()">Salvar</button>
+      <button class="btn" onclick="exportToExcel()">Exportar Excel</button>
+      <button class="btn" onclick="resetQuantities()">Reset Quantidades</button>
+      <button class="btn" onclick="loadData()">Carregar Lista</button>
     </div>
-    <p id="errorMsg" style="display:none;"></p>
-    <button onclick="addRow()">Adicionar Produto</button>
 
-    <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Procurar produto..." style="margin-left: 20px; padding:8px; font-size:15px; width: 250px; border-radius: 6px; border:1.5px solid #ccc;" />
-
-    <table id="estoqueTable">
-      <thead>
-        <tr>
-          <th>Produto</th>
-          <th>Quantidade</th>
-          <th>Referência</th>
-          <th>Data</th>
-          <th>Quem fez a alteração</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Linhas adicionadas dinamicamente -->
-      </tbody>
-    </table>
-
-    <div style="margin-top: 15px;">
-      <button onclick="saveTable()" title="Salvar dados em arquivo JSON">Salvar Dados</button>
-      <input type="file" id="loadFile" accept=".json" />
-      <button onclick="loadTable()">Carregar Dados</button>
-      <button onclick="exportToExcel()">Exportar Excel</button>
+    <div class="table-wrapper">
+      <table id="estoqueTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Produto</th>
+            <th>Quantidade</th>
+            <th>Referência</th>
+            <th>Data Última Alteração</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Linhas serão geradas aqui -->
+        </tbody>
+      </table>
     </div>
   </div>
 
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-  // Login fixo
-  const USER = 'admin';
-  const PASS = '1234';
+  // Usuários fixos
+  const users = [
+    { username: 'admin', password: 'admin123' },
+    { username: 'usuario', password: 'senha123' }
+  ];
 
-  const loginForm = document.getElementById('loginForm');
-  const app = document.getElementById('app');
-  const msgErro = document.getElementById('msgErro');
-  const errorMsg = document.getElementById('errorMsg');
+  // Estado
+  let currentUser = null;
+  let produtos = [];
 
+  // Login
   function login() {
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
+    const errorMsg = document.getElementById('errorMsg');
 
-    if (username === USER && password === PASS) {
-      loginForm.style.display = 'none';
-      app.style.display = 'block';
-      msgErro.style.display = 'none';
-      // Limpar campos
-      document.getElementById('username').value = '';
-      document.getElementById('password').value = '';
+    const user = users.find(u => u.username === username && u.password === password);
+    if(user) {
+      currentUser = user.username;
+      errorMsg.style.display = 'none';
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('app').style.display = 'flex';
+      document.getElementById('userInfo').textContent = `Logado como: ${currentUser}`;
+      loadData();
     } else {
-      msgErro.style.display = 'block';
+      errorMsg.style.display = 'block';
     }
   }
 
+  // Logout
   function logout() {
-    app.style.display = 'none';
-    loginForm.style.display = 'block';
+    currentUser = null;
+    produtos = [];
+    document.getElementById('loginForm').style.display = 'block';
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
+    document.getElementById('errorMsg').style.display = 'none';
   }
 
-  function addRow() {
-    const produto = document.getElementById('produto').value.trim();
-    const quantidade = document.getElementById('quantidade').value.trim();
-    const referencia = document.getElementById('referencia').value.trim();
-    const data = document.getElementById('data').value.trim();
-    const alterador = document.getElementById('alterador').value.trim();
+  // Gerar ID único simples
+  function generateId() {
+    return 'id-' + Math.random().toString(36).substr(2, 9);
+  }
 
-    errorMsg.style.display = 'none';
-
-    if (!produto || !quantidade || !referencia || !data || !alterador) {
-      errorMsg.innerText = 'Preencha todos os campos. "Quem fez a alteração" é obrigatório.';
-      errorMsg.style.display = 'block';
-      return;
-    }
-
-    // Data YYYY-MM-DD simples validação
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) {
-      errorMsg.innerText = 'Data inválida. Use o formato YYYY-MM-DD.';
-      errorMsg.style.display = 'block';
-      return;
-    }
-
+  // Renderizar tabela
+  function renderTable() {
     const tbody = document.querySelector('#estoqueTable tbody');
-    const tr = document.createElement('tr');
+    tbody.innerHTML = '';
 
-    tr.innerHTML = `
-      <td>${produto}</td>
-      <td>${quantidade}</td>
-      <td>${referencia}</td>
-      <td>${data}</td>
-      <td>${alterador}</td>
-      <td>
-        <button onclick="removeRow(this)" style="background:#cc4444;">Remover</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
+    produtos.forEach(prod => {
+      const tr = document.createElement('tr');
 
-    // limpar campos
-    document.getElementById('produto').value = '';
-    document.getElementById('quantidade').value = '';
-    document.getElementById('referencia').value = '';
-    document.getElementById('data').value = '';
-    document.getElementById('alterador').value = '';
-  }
-
-  function removeRow(btn) {
-    const tr = btn.closest('tr');
-    tr.remove();
-  }
-
-  function searchTable() {
-    const filter = document.getElementById('searchInput').value.toLowerCase();
-    const rows = document.querySelectorAll('#estoqueTable tbody tr');
-
-    rows.forEach(row => {
-      const produto = row.cells[0].innerText.toLowerCase();
-      if (produto.indexOf(filter) > -1) {
-        row.style.display = '';
-      } else {
-        row.style.display = 'none';
-      }
+      tr.innerHTML = `
+        <td>${prod.id}</td>
+        <td><input type="text" value="${prod.produto}" oninput="updateProduto('${prod.id}', this.value)" /></td>
+        <td><input type="number" min="0" value="${prod.quantidade}" oninput="updateQuantidade('${prod.id}', this.value)" /></td>
+        <td><input type="text" value="${prod.referencia}" oninput="updateReferencia('${prod.id}', this.value)" /></td>
+        <td>${prod.dataAlteracao}</td>
+        <td><button onclick="removeRow('${prod.id}')">Remover</button></td>
+      `;
+      tbody.appendChild(tr);
     });
   }
 
-  // Salvar dados em JSON
-  function saveTable() {
-    const rows = document.querySelectorAll('#estoqueTable tbody tr');
-    const data = [];
+  // Atualizar campos
+  function updateProduto(id, val) {
+    val = val.trim();
+    if (!val) return; // não aceita vazio
 
-    rows.forEach(row => {
-      data.push({
-        produto: row.cells[0].innerText,
-        quantidade: row.cells[1].innerText,
-        referencia: row.cells[2].innerText,
-        data: row.cells[3].innerText,
-        alterador: row.cells[4].innerText,
-      });
-    });
-
-    const jsonStr = JSON.stringify(data, null, 2);
-    const blob = new Blob([jsonStr], {type: "application/json"});
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'estoque_dados.json';
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  // Carregar dados de arquivo JSON
-  function loadTable() {
-    const fileInput = document.getElementById('loadFile');
-    if (!fileInput.files.length) {
-      alert('Selecione um arquivo JSON para carregar.');
+    // Checar duplicados (ignorando o próprio id)
+    if(produtos.some(p => p.produto.toLowerCase() === val.toLowerCase() && p.id !== id)) {
+      alert('Produto duplicado não permitido!');
+      loadData(); // revert changes visually
       return;
     }
-    const file = fileInput.files[0];
-    const reader = new FileReader();
 
-    reader.onload = function(e) {
-      try {
-        const data = JSON.parse(e.target.result);
-        const tbody = document.querySelector('#estoqueTable tbody');
-        tbody.innerHTML = '';
+    let prod = produtos.find(p => p.id === id);
+    if(prod) {
+      prod.produto = val;
+      prod.dataAlteracao = new Date().toLocaleString();
+      renderTable();
+    }
+  }
+  function updateQuantidade(id, val) {
+    val = Number(val);
+    if (isNaN(val) || val < 0) return;
+    let prod = produtos.find(p => p.id === id);
+    if(prod) {
+      prod.quantidade = val;
+      prod.dataAlteracao = new Date().toLocaleString();
+      renderTable();
+    }
+  }
+  function updateReferencia(id, val) {
+    val = val.trim();
+    let prod = produtos.find(p => p.id === id);
+    if(prod) {
+      prod.referencia = val;
+      prod.dataAlteracao = new Date().toLocaleString();
+      renderTable();
+    }
+  }
 
-        data.forEach(item => {
-          if (!item.produto || !item.quantidade || !item.referencia || !item.data || !item.alterador) {
-            throw new Error('Arquivo JSON inválido: faltam campos.');
-          }
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${item.produto}</td>
-            <td>${item.quantidade}</td>
-            <td>${item.referencia}</td>
-            <td>${item.data}</td>
-            <td>${item.alterador}</td>
-            <td><button onclick="removeRow(this)" style="background:#cc4444;">Remover</button></td>
-          `;
-          tbody.appendChild(tr);
-        });
-      } catch {
-        alert('Erro ao ler arquivo JSON. Verifique o formato.');
+  // Adicionar linha
+  function addRow() {
+    let novoId = generateId();
+    // Novo produto vazio, mas produto não pode ser duplicado, então deixa vazio e obriga usuário preencher
+    produtos.push({
+      id: novoId,
+      produto: '',
+      quantidade: 0,
+      referencia: '',
+      dataAlteracao: new Date().toLocaleString()
+    });
+    renderTable();
+  }
+
+  // Remover linha
+  function removeRow(id) {
+    if(confirm('Deseja remover este produto?')) {
+      produtos = produtos.filter(p => p.id !== id);
+      renderTable();
+    }
+  }
+
+  // Buscar produtos na tabela
+  function searchTable() {
+    const input = document.getElementById('searchInput').value.toLowerCase();
+    const trs = document.querySelectorAll('#estoqueTable tbody tr');
+
+    trs.forEach(tr => {
+      const produto = tr.querySelector('td:nth-child(2) input').value.toLowerCase();
+      if(produto.includes(input)) {
+        tr.style.display = '';
+      } else {
+        tr.style.display = 'none';
       }
-    };
-    reader.readAsText(file);
+    });
+  }
+
+  // Salvar no localStorage
+  function saveData() {
+    // Valida antes de salvar
+    for(let p of produtos) {
+      if(!p.produto || p.produto.trim() === '') {
+        alert('Todos os produtos devem ter nome preenchido!');
+        return;
+      }
+    }
+    localStorage.setItem('estoqueProdutos', JSON.stringify(produtos));
+    localStorage.setItem('lastUser', currentUser);
+    alert('Dados salvos com sucesso!');
+  }
+
+  // Carregar do localStorage
+  function loadData() {
+    let dados = localStorage.getItem('estoqueProdutos');
+    if(dados) {
+      produtos = JSON.parse(dados);
+    } else {
+      produtos = [];
+    }
+    renderTable();
+  }
+
+  // Resetar quantidades para zero
+  function resetQuantities() {
+    if(confirm('Deseja zerar todas as quantidades?')) {
+      produtos.forEach(p => {
+        p.quantidade = 0;
+        p.dataAlteracao = new Date().toLocaleString();
+      });
+      renderTable();
+    }
   }
 
   // Exportar para Excel usando SheetJS
   function exportToExcel() {
-    const rows = [];
-    const header = ['Produto', 'Quantidade', 'Referência', 'Data', 'Quem fez a alteração'];
-    rows.push(header);
+    if(produtos.length === 0) {
+      alert('Não há dados para exportar.');
+      return;
+    }
+    // Gerar array para SheetJS
+    const dataToExport = produtos.map(p => ({
+      ID: p.id,
+      Produto: p.produto,
+      Quantidade: p.quantidade,
+      Referencia: p.referencia,
+      'Data Última Alteração': p.dataAlteracao
+    }));
 
-    document.querySelectorAll('#estoqueTable tbody tr').forEach(row => {
-      const rowData = [];
-      for (let i = 0; i < 5; i++) {
-        rowData.push(row.cells[i].innerText);
-      }
-      rows.push(rowData);
-    });
+    // Carregar SheetJS via CDN
+    if(typeof XLSX === 'undefined') {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js';
+      script.onload = () => gerarExcel(dataToExport);
+      document.body.appendChild(script);
+    } else {
+      gerarExcel(dataToExport);
+    }
+  }
 
-    const ws = XLSX.utils.aoa_to_sheet(rows);
+  function gerarExcel(data) {
+    const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Estoque');
+    XLSX.utils.book_append_sheet(wb, ws, "Estoque");
+    XLSX.writeFile(wb, "estoque.xlsx");
+  }
 
-    XLSX.writeFile(wb, 'estoque.xlsx');
+  // Auto login se tiver usuário salvo
+  window.onload = function() {
+    const lastUser = localStorage.getItem('lastUser');
+    if(lastUser) {
+      currentUser = lastUser;
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('app').style.display = 'flex';
+      document.getElementById('userInfo').textContent = `Logado como: ${currentUser}`;
+      loadData();
+    }
   }
 </script>
 
