@@ -2,7 +2,7 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gestão de Estoque</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
@@ -10,30 +10,171 @@
     #app { display: none; }
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    input[type="text"], input[type="number"] { width: 100%; padding: 4px; }
-    .btn { padding: 6px 10px; margin: 2px; }
+    input[type="text"], input[type="number"], input[type="date"] { width: 100%; padding: 6px; box-sizing: border-box; }
+    .btn { padding: 6px 12px; margin: 5px 2px; cursor: pointer; }
+    #logo { display: block; margin: 0 auto 20px auto; max-width: 200px; }
+    #msgErro { color: red; display: none; }
+    .removeBtn { background-color: #e74c3c; color: white; border: none; border-radius: 4px; }
+    .removeBtn:hover { background-color: #c0392b; }
   </style>
 </head>
 <body>
 
 <div id="loginForm">
+  <img id="logo" src="https://inovar-mais.com/wp-content/uploads/2020/07/inovarmais_logo_branco.png" alt="Logo Inovar Mais" />
   <h2>Login</h2>
-  <label>Usuário:</label><br>
-  <input type="text" id="username"><br><br>
-  <label>Senha:</label><br>
-  <input type="password" id="password"><br><br>
-  <button onclick="login()">Entrar</button>
-  <p id="msgErro" style="color: red; display: none;">Usuário ou senha incorretos.</p>
+  <label for="username">Usuário:</label><br>
+  <input type="text" id="username" autocomplete="username"><br><br>
+  <label for="password">Senha:</label><br>
+  <input type="password" id="password" autocomplete="current-password"><br><br>
+  <button class="btn" onclick="login()">Entrar</button>
+  <p id="msgErro">Usuário ou senha incorretos.</p>
 </div>
 
 <div id="app">
   <h2>Controle de Estoque</h2>
   <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Procurar produto...">
-  <button onclick="addRow()">Adicionar Produto</button>
-  <button onclick="exportToExcel()">Exportar Excel</button>
+  <button class="btn" onclick="addRow()">Adicionar Produto</button>
+  <button class="btn" onclick="exportToExcel()">Exportar Excel</button>
+
   <table id="estoqueTable">
     <thead>
       <tr>
         <th>Produto</th>
         <th>Quantidade</th>
-        <th>
+        <th>Referência</th>
+        <th>Data Última Alteração</th>
+        <th>Ação</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Linhas dinâmicas aqui -->
+    </tbody>
+  </table>
+</div>
+
+<script>
+  // Usuário e senha fixos
+  const USER = 'admin';
+  const PASS = '12345';
+
+  function login() {
+    const userInput = document.getElementById('username').value.trim();
+    const passInput = document.getElementById('password').value.trim();
+    const msgErro = document.getElementById('msgErro');
+
+    if(userInput === USER && passInput === PASS) {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      msgErro.style.display = 'none';
+      loadTableFromStorage();
+    } else {
+      msgErro.style.display = 'block';
+    }
+  }
+
+  function addRow(produto = '', quantidade = '', referencia = '', dataAlteracao = '') {
+    const tbody = document.querySelector('#estoqueTable tbody');
+    const tr = document.createElement('tr');
+
+    // Use current date if dataAlteracao não fornecida
+    if (!dataAlteracao) {
+      const hoje = new Date();
+      dataAlteracao = hoje.toISOString().split('T')[0]; // yyyy-mm-dd
+    }
+
+    tr.innerHTML = `
+      <td><input type="text" class="produto" value="${produto}" oninput="updateDate(this)"></td>
+      <td><input type="number" class="quantidade" min="0" value="${quantidade}" oninput="updateDate(this)"></td>
+      <td><input type="text" class="referencia" value="${referencia}" oninput="updateDate(this)"></td>
+      <td><input type="date" class="dataAlteracao" value="${dataAlteracao}" readonly></td>
+      <td><button class="removeBtn btn" onclick="removeRow(this)">Remover</button></td>
+    `;
+
+    tbody.appendChild(tr);
+    saveTableToStorage();
+  }
+
+  function removeRow(button) {
+    button.closest('tr').remove();
+    saveTableToStorage();
+  }
+
+  function updateDate(inputElement) {
+    const tr = inputElement.closest('tr');
+    const dataInput = tr.querySelector('.dataAlteracao');
+    const hoje = new Date();
+    dataInput.value = hoje.toISOString().split('T')[0];
+    saveTableToStorage();
+  }
+
+  function searchTable() {
+    const input = document.getElementById('searchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('#estoqueTable tbody tr');
+
+    rows.forEach(row => {
+      const produto = row.querySelector('.produto').value.toLowerCase();
+      if (produto.indexOf(input) > -1) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+
+  // Exportar tabela para Excel (CSV simples)
+  function exportToExcel() {
+    const rows = document.querySelectorAll('#estoqueTable tr');
+    let csvContent = '';
+
+    rows.forEach(row => {
+      const cols = row.querySelectorAll('th, td');
+      const rowData = [];
+      cols.forEach(col => {
+        // Se for input, pegar o value, senão o texto
+        if (col.querySelector('input')) {
+          rowData.push(col.querySelector('input').value.replace(/;/g, ','));
+        } else {
+          rowData.push(col.textContent.trim().replace(/;/g, ','));
+        }
+      });
+      csvContent += rowData.join(';') + '\n';
+    });
+
+    // Criar arquivo CSV e baixar
+    const blob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'estoque.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // Salvar dados no localStorage
+  function saveTableToStorage() {
+    const rows = document.querySelectorAll('#estoqueTable tbody tr');
+    const data = [];
+
+    rows.forEach(row => {
+      const produto = row.querySelector('.produto').value;
+      const quantidade = row.querySelector('.quantidade').value;
+      const referencia = row.querySelector('.referencia').value;
+      const dataAlteracao = row.querySelector('.dataAlteracao').value;
+      data.push({ produto, quantidade, referencia, dataAlteracao });
+    });
+
+    localStorage.setItem('estoqueData', JSON.stringify(data));
+  }
+
+  // Carregar dados do localStorage
+  function loadTableFromStorage() {
+    const data = JSON.parse(localStorage.getItem('estoqueData') || '[]');
+    data.forEach(item => {
+      addRow(item.produto, item.quantidade, item.referencia, item.dataAlteracao);
+    });
+  }
+</script>
+
+</body>
+</html>
