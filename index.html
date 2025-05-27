@@ -100,10 +100,7 @@
       <h2 class="text-2xl font-semibold mb-4 text-blue-700">Gestão de Utilizadores</h2>
 
       <div class="bg-white p-4 rounded shadow mb-6 max-w-md">
-        <h3 class="text-lg font-semibold mb-4">Adicionar Utilizador</h3>
-        <input id="newUserName" type="text" placeholder="Nome de utilizador" class="w-full mb-3 p-2 border rounded" />
-        <input id="newUserPass" type="password" placeholder="Palavra-passe" class="w-full mb-3 p-2 border rounded" />
-        <button onclick="addUser()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded transition w-full">Adicionar</button>
+        <p class="text-gray-600 italic mb-4">A gestão de utilizadores está desativada nesta versão.</p>
       </div>
 
       <div class="bg-white p-4 rounded shadow overflow-auto max-h-[400px] max-w-md">
@@ -112,7 +109,6 @@
           <thead class="bg-gray-200 sticky top-0">
             <tr>
               <th class="border px-4 py-2">Nome</th>
-              <th class="border px-4 py-2">Ações</th>
             </tr>
           </thead>
           <tbody id="usersTable"></tbody>
@@ -129,7 +125,12 @@
   </footer>
 
 <script>
-  // Estado atual da aba
+  // Utilizadores fixos para login
+  const fixedUsers = [
+    { name: 'admin', password: '1234' },
+    { name: 'user2', password: 'abcd' }
+  ];
+
   let currentTab = 'produtos';
   let editingIndex = -1;
 
@@ -138,9 +139,9 @@
   // -----------------------
 
   function init() {
-    // Verifica se utilizador está logado
-    const user = localStorage.getItem('loggedUser');
-    const lastLogin = localStorage.getItem('lastLogin');
+    // Verifica se utilizador está logado (usando sessionStorage para sessão temporária)
+    const user = sessionStorage.getItem('loggedUser');
+    const lastLogin = sessionStorage.getItem('lastLogin');
 
     if (user) {
       showApp(user, lastLogin);
@@ -159,45 +160,41 @@
     document.getElementById('appScreen').classList.remove('hidden');
     document.getElementById('userNameDisplay').textContent = user;
     document.getElementById('lastLoginDisplay').textContent = 'Último login: ' + lastLogin;
-
-    showTab(currentTab);
-    renderUsers();
     renderProducts();
     renderHistory();
+    renderUsers();
+    showTab(currentTab);
   }
 
   function login() {
-    const userInput = document.getElementById('loginUser').value.trim();
-    const passInput = document.getElementById('loginPass').value;
+    const username = document.getElementById('loginUser').value.trim();
+    const password = document.getElementById('loginPass').value;
 
-    if (!userInput || !passInput) {
-      alert('Por favor, preencha o nome de utilizador e palavra-passe.');
+    if (!username || !password) {
+      alert('Por favor, insira nome de utilizador e palavra-passe.');
       return;
     }
 
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const userFound = users.find(u => u.name === userInput && u.password === passInput);
+    const user = fixedUsers.find(u => u.name === username && u.password === password);
 
-    if (!userFound) {
-      alert('Nome de utilizador ou palavra-passe incorretos.');
-      return;
+    if (user) {
+      const now = new Date().toLocaleString();
+      sessionStorage.setItem('loggedUser', user.name);
+      sessionStorage.setItem('lastLogin', now);
+      showApp(user.name, now);
+      // Limpar campos login
+      document.getElementById('loginUser').value = '';
+      document.getElementById('loginPass').value = '';
+      editingIndex = -1;
+    } else {
+      alert('Nome de utilizador ou palavra-passe inválidos.');
     }
-
-    const now = new Date().toLocaleString();
-    localStorage.setItem('loggedUser', userInput);
-    localStorage.setItem('lastLogin', now);
-
-    showApp(userInput, now);
-
-    // Limpa campos login
-    document.getElementById('loginUser').value = '';
-    document.getElementById('loginPass').value = '';
   }
 
   function logout() {
-    if (confirm('Deseja terminar a sessão?')) {
-      localStorage.removeItem('loggedUser');
-      localStorage.removeItem('lastLogin');
+    if (confirm('Quer realmente terminar sessão?')) {
+      sessionStorage.removeItem('loggedUser');
+      sessionStorage.removeItem('lastLogin');
       showLogin();
     }
   }
@@ -274,7 +271,7 @@
 
     const products = getProducts();
     const now = new Date().toLocaleString();
-    const user = localStorage.getItem('loggedUser') || 'Desconhecido';
+    const user = sessionStorage.getItem('loggedUser') || 'Desconhecido';
 
     if (editingIndex >= 0) {
       // Editar
@@ -357,82 +354,23 @@
   }
 
   // -----------------------
-  // Utilizadores
+  // Utilizadores (fixos, só leitura)
   // -----------------------
 
-  function getUsers() {
-    return JSON.parse(localStorage.getItem('users') || '[]');
-  }
-
-  function setUsers(users) {
-    localStorage.setItem('users', JSON.stringify(users));
-  }
-
   function renderUsers() {
-    const users = getUsers();
     const tbody = document.getElementById('usersTable');
     tbody.innerHTML = '';
 
-    users.forEach((u, i) => {
+    fixedUsers.forEach(u => {
       const tr = document.createElement('tr');
       tr.className = 'hover:bg-gray-100';
 
       tr.innerHTML = `
         <td class="border px-4 py-2">${u.name}</td>
-        <td class="border px-4 py-2">
-          <button onclick="deleteUser(${i})" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded transition">Apagar</button>
-        </td>
       `;
 
       tbody.appendChild(tr);
     });
-  }
-
-  function addUser() {
-    const nameInput = document.getElementById('newUserName');
-    const passInput = document.getElementById('newUserPass');
-
-    const name = nameInput.value.trim();
-    const pass = passInput.value;
-
-    if (!name) {
-      alert('Por favor, insira o nome do utilizador.');
-      return;
-    }
-    if (!pass) {
-      alert('Por favor, insira a palavra-passe.');
-      return;
-    }
-
-    const users = getUsers();
-    if (users.find(u => u.name === name)) {
-      alert('Já existe um utilizador com esse nome.');
-      return;
-    }
-
-    users.push({ name, password: pass });
-    setUsers(users);
-    renderUsers();
-
-    nameInput.value = '';
-    passInput.value = '';
-  }
-
-  function deleteUser(i) {
-    if (!confirm('Tem a certeza que deseja apagar este utilizador?')) return;
-
-    const users = getUsers();
-    const userToRemove = users[i].name;
-    users.splice(i, 1);
-    setUsers(users);
-    renderUsers();
-
-    // Se apagou o utilizador logado, faz logout
-    const loggedUser = localStorage.getItem('loggedUser');
-    if (loggedUser === userToRemove) {
-      alert('O utilizador apagado está logado. Vai terminar sessão.');
-      logout();
-    }
   }
 
   // -----------------------
@@ -494,20 +432,7 @@
     doc.save('produtos.pdf');
   }
 
-  // -----------------------
-  // Inicialização padrão
-  // -----------------------
-
-  // Criar um utilizador padrão se não houver nenhum
-  function criarUtilizadorPadrao() {
-    let users = getUsers();
-    if (users.length === 0) {
-      users.push({ name: 'admin', password: '1234' });
-      setUsers(users);
-    }
-  }
-
-  criarUtilizadorPadrao();
+  // Inicializa
   init();
 </script>
 
