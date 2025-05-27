@@ -10,10 +10,12 @@
     #app { display: none; }
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    input[type="text"], input[type="number"], input[type="date"] { width: 100%; padding: 6px; box-sizing: border-box; }
+    input[type="text"], input[type="number"], input[type="date"], input[type="password"] {
+      width: 100%; padding: 6px; box-sizing: border-box;
+    }
     .btn { padding: 6px 12px; margin: 5px 2px; cursor: pointer; }
     #logo { display: block; margin: 0 auto 20px auto; max-width: 200px; }
-    #msgErro { color: red; display: none; }
+    #msgErro { color: red; display: none; margin-top: 10px; }
     .removeBtn { background-color: #e74c3c; color: white; border: none; border-radius: 4px; }
     .removeBtn:hover { background-color: #c0392b; }
   </style>
@@ -24,16 +26,16 @@
   <img id="logo" src="https://inovar-mais.com/wp-content/uploads/2020/07/inovarmais_logo_branco.png" alt="Logo Inovar Mais" />
   <h2>Login</h2>
   <label for="username">Usuário:</label><br>
-  <input type="text" id="username" autocomplete="username"><br><br>
+  <input type="text" id="username" autocomplete="username" /><br><br>
   <label for="password">Senha:</label><br>
-  <input type="password" id="password" autocomplete="current-password"><br><br>
-  <button class="btn" onclick="login()">Entrar</button>
+  <input type="password" id="password" autocomplete="current-password" /><br><br>
+  <button class="btn" id="loginBtn">Entrar</button>
   <p id="msgErro">Usuário ou senha incorretos.</p>
 </div>
 
 <div id="app">
   <h2>Controle de Estoque</h2>
-  <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Procurar produto...">
+  <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Procurar produto..." />
   <button class="btn" onclick="addRow()">Adicionar Produto</button>
   <button class="btn" onclick="exportToExcel()">Exportar Excel</button>
 
@@ -48,20 +50,21 @@
       </tr>
     </thead>
     <tbody>
-      <!-- Linhas dinâmicas aqui -->
+      <!-- Linhas dinâmicas -->
     </tbody>
   </table>
 </div>
 
 <script>
-  // Usuário e senha fixos
   const USER = 'admin';
   const PASS = '12345';
 
-  function login() {
+  const loginBtn = document.getElementById('loginBtn');
+  const msgErro = document.getElementById('msgErro');
+
+  loginBtn.addEventListener('click', () => {
     const userInput = document.getElementById('username').value.trim();
     const passInput = document.getElementById('password').value.trim();
-    const msgErro = document.getElementById('msgErro');
 
     if(userInput === USER && passInput === PASS) {
       document.getElementById('loginForm').style.display = 'none';
@@ -71,16 +74,15 @@
     } else {
       msgErro.style.display = 'block';
     }
-  }
+  });
 
   function addRow(produto = '', quantidade = '', referencia = '', dataAlteracao = '') {
     const tbody = document.querySelector('#estoqueTable tbody');
     const tr = document.createElement('tr');
 
-    // Use current date if dataAlteracao não fornecida
     if (!dataAlteracao) {
       const hoje = new Date();
-      dataAlteracao = hoje.toISOString().split('T')[0]; // yyyy-mm-dd
+      dataAlteracao = hoje.toISOString().split('T')[0];
     }
 
     tr.innerHTML = `
@@ -114,15 +116,10 @@
 
     rows.forEach(row => {
       const produto = row.querySelector('.produto').value.toLowerCase();
-      if (produto.indexOf(input) > -1) {
-        row.style.display = '';
-      } else {
-        row.style.display = 'none';
-      }
+      row.style.display = produto.includes(input) ? '' : 'none';
     });
   }
 
-  // Exportar tabela para Excel (CSV simples)
   function exportToExcel() {
     const rows = document.querySelectorAll('#estoqueTable tr');
     let csvContent = '';
@@ -131,9 +128,9 @@
       const cols = row.querySelectorAll('th, td');
       const rowData = [];
       cols.forEach(col => {
-        // Se for input, pegar o value, senão o texto
-        if (col.querySelector('input')) {
-          rowData.push(col.querySelector('input').value.replace(/;/g, ','));
+        const input = col.querySelector('input');
+        if (input) {
+          rowData.push(input.value.replace(/;/g, ','));
         } else {
           rowData.push(col.textContent.trim().replace(/;/g, ','));
         }
@@ -141,7 +138,6 @@
       csvContent += rowData.join(';') + '\n';
     });
 
-    // Criar arquivo CSV e baixar
     const blob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -151,7 +147,6 @@
     URL.revokeObjectURL(url);
   }
 
-  // Salvar dados no localStorage
   function saveTableToStorage() {
     const rows = document.querySelectorAll('#estoqueTable tbody tr');
     const data = [];
@@ -167,7 +162,6 @@
     localStorage.setItem('estoqueData', JSON.stringify(data));
   }
 
-  // Carregar dados do localStorage
   function loadTableFromStorage() {
     const data = JSON.parse(localStorage.getItem('estoqueData') || '[]');
     data.forEach(item => {
