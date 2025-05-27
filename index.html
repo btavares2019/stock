@@ -1,474 +1,653 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gestão de Estoque - Login e Controle</title>
-  <style>
-    /* Reset básico */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Gestão de Stock com Gráficos</title>
 
-    body, html {
-      height: 100%;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #6b73ff 0%, #000dff 100%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: #fff;
-      min-height: 100vh;
-    }
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    /* Container login */
-    #loginForm {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 40px 30px;
-      border-radius: 12px;
-      width: 320px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      text-align: center;
-    }
+<!-- Ícones do FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
-    #loginForm h2 {
-      margin-bottom: 24px;
-      font-weight: 700;
-      font-size: 28px;
-      letter-spacing: 1.2px;
-    }
+<style>
+  /* Reset e base */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0; padding: 0; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: #fff;
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+  }
 
-    .input-group {
-      margin-bottom: 20px;
-      text-align: left;
-    }
+  header {
+    background: #122a5a;
+    padding: 1rem 2rem;
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
 
-    label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 6px;
-      font-size: 14px;
-    }
+  main {
+    flex: 1;
+    max-width: 1200px;
+    margin: 1.5rem auto;
+    background: #1f2f56;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 0 15px rgba(0,0,0,0.7);
+  }
 
-    input[type="text"], input[type="password"] {
-      width: 100%;
-      padding: 12px 15px;
-      border-radius: 8px;
-      border: none;
-      outline: none;
-      font-size: 16px;
-      transition: background 0.3s ease;
-      background: rgba(255, 255, 255, 0.2);
-      color: #fff;
-    }
+  #loginForm, #app {
+    max-width: 100%;
+  }
 
-    input[type="text"]:focus, input[type="password"]:focus {
-      background: rgba(255, 255, 255, 0.35);
-      box-shadow: 0 0 6px #6b73ff;
-    }
+  #loginForm {
+    max-width: 400px;
+    margin: 3rem auto;
+    background: #274078;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.6);
+  }
 
-    button {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      background: #304ffe;
-      color: white;
-      font-weight: 700;
-      font-size: 18px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
+  #loginForm h2 {
+    margin-bottom: 1.5rem;
+    text-align: center;
+    letter-spacing: 1px;
+  }
 
-    button:hover {
-      background: #1a2ed0;
-    }
+  #loginForm label {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-weight: 600;
+  }
 
-    .error-message {
-      margin-top: 15px;
-      font-size: 14px;
-      color: #ff6b6b;
-      display: none;
-    }
+  #loginForm input[type="text"],
+  #loginForm input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    margin-bottom: 1.2rem;
+    font-size: 1rem;
+  }
 
-    /* App container */
-    #app {
-      display: none;
-      background: #fff;
-      color: #333;
-      padding: 20px 30px;
-      border-radius: 10px;
-      max-width: 900px;
-      width: 95vw;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      flex-direction: column;
-    }
+  #loginForm button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    background: #46aaf3;
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
 
-    #app header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-    }
+  #loginForm button:hover {
+    background: #2f8edc;
+  }
 
-    #app header h2 {
-      margin-bottom: 10px;
-      color: #222;
-    }
+  #msgErro {
+    color: #f44336;
+    text-align: center;
+    margin-top: 0.5rem;
+    display: none;
+  }
 
-    #userInfo {
-      font-weight: 600;
-      font-size: 14px;
-      color: #555;
-    }
+  /* App visibilidade */
+  #app {
+    display: none;
+  }
 
-    #app .btn {
-      background: #304ffe;
-      color: white;
-      padding: 10px 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      margin-left: 8px;
-      transition: background 0.3s ease;
-      user-select: none;
-    }
-    #app .btn:hover {
-      background: #1a2ed0;
-    }
-    #app .btn:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
+  /* Barra superior */
+  #topBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
 
-    #controls {
-      margin-bottom: 15px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-    }
+  #topBar .user-info {
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
 
-    #searchInput {
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: 1px solid #bbb;
-      flex-grow: 1;
-      font-size: 16px;
-    }
+  #topBar button {
+    background: #46aaf3;
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    margin-left: 0.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.3s ease;
+  }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 10px 8px;
-      text-align: center;
-    }
-    th {
-      background: #304ffe;
-      color: white;
-    }
+  #topBar button:hover {
+    background: #2f8edc;
+  }
 
-    input[type="text"], input[type="number"] {
-      width: 100%;
-      padding: 6px 8px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
+  #topBar button i {
+    font-size: 1rem;
+  }
 
-    /* Scroll horizontal para tabelas pequenas telas */
-    .table-wrapper {
-      overflow-x: auto;
-    }
-  </style>
+  /* Inputs de busca e botões */
+  #controls {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  #searchInput {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: none;
+    font-size: 1rem;
+  }
+
+  #controls button {
+    background: #3c97e0;
+    border: none;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.3s ease;
+  }
+
+  #controls button:hover {
+    background: #2f7ac1;
+  }
+
+  #controls button i {
+    font-size: 1.1rem;
+  }
+
+  /* Tabela */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #2c3e70;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  th, td {
+    padding: 10px 14px;
+    text-align: center;
+    border-bottom: 1px solid #4169b8;
+    color: #e0e0e0;
+    font-weight: 600;
+  }
+
+  th {
+    background: #34518a;
+  }
+
+  tr:hover {
+    background: #3f549d;
+  }
+
+  input[type="text"], input[type="number"] {
+    width: 90%;
+    padding: 6px 8px;
+    border-radius: 5px;
+    border: none;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  /* Footer */
+  footer {
+    background: #122a5a;
+    color: #bbb;
+    text-align: center;
+    padding: 12px;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+  }
+
+  /* Canvas dos gráficos */
+  #charts {
+    display: flex;
+    gap: 20px;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  #charts canvas {
+    background: #1f2f56;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.4);
+    max-width: 380px;
+    width: 100%;
+    height: 250px;
+  }
+</style>
+
 </head>
 <body>
 
-  <!-- Tela de login -->
-  <div id="loginForm">
-    <h2>Entrar</h2>
-    <div class="input-group">
-      <label for="username">Usuário</label>
-      <input type="text" id="username" placeholder="Digite seu usuário" />
-    </div>
-    <div class="input-group">
-      <label for="password">Senha</label>
-      <input type="password" id="password" placeholder="Digite sua senha" />
-    </div>
-    <button onclick="login()">Entrar</button>
-    <p id="errorMsg" class="error-message">Usuário ou senha incorretos.</p>
-  </div>
+<header>Gestão de Stock com Dashboard</header>
 
-  <!-- Tela do app após login -->
-  <div id="app" style="display: none; flex-direction: column;">
-    <header>
-      <h2>Controle de Estoque</h2>
+<main>
+  <!-- Login -->
+  <section id="loginForm">
+    <h2>Login</h2>
+    <label for="username">Usuário:</label>
+    <input type="text" id="username" autocomplete="off" />
+    <label for="password">Senha:</label>
+    <input type="password" id="password" autocomplete="off" />
+    <button onclick="login()"><i class="fa fa-right-to-bracket"></i> Entrar</button>
+    <p id="msgErro">Usuário ou senha incorretos.</p>
+  </section>
+
+  <!-- App principal -->
+  <section id="app">
+    <div id="topBar">
+      <div class="user-info">Logado como: <span id="loggedUser"></span></div>
       <div>
-        <span id="userInfo"></span>
-        <button class="btn" onclick="logout()">Logout</button>
+        <button title="Logout" onclick="logout()"><i class="fa fa-right-from-bracket"></i> Logout</button>
       </div>
-    </header>
+    </div>
 
     <div id="controls">
-      <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Procurar produto..." />
-      <button class="btn" onclick="addRow()">Adicionar Produto</button>
-      <button class="btn" onclick="saveData()">Salvar</button>
-      <button class="btn" onclick="exportToExcel()">Exportar Excel</button>
-      <button class="btn" onclick="resetQuantities()">Reset Quantidades</button>
-      <button class="btn" onclick="loadData()">Carregar Lista</button>
+      <input type="text" id="searchInput" placeholder="Procurar produto..." onkeyup="searchTable()" />
+      <button onclick="addRow()" title="Adicionar Produto"><i class="fa fa-plus"></i> Adicionar Produto</button>
+      <button onclick="saveData()" title="Guardar alterações"><i class="fa fa-save"></i> Guardar</button>
+      <button onclick="exportToExcel()" title="Exportar para Excel"><i class="fa fa-file-excel"></i> Exportar Excel</button>
+      <button onclick="resetQuantities()" title="Resetar quantidades"><i class="fa fa-rotate-left"></i> Reset Quantidades</button>
+      <button onclick="loadProducts()" title="Carregar lista de produtos"><i class="fa fa-download"></i> Carregar Produtos</button>
     </div>
 
-    <div class="table-wrapper">
-      <table id="estoqueTable">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Produto</th>
-            <th>Quantidade</th>
-            <th>Referência</th>
-            <th>Data Última Alteração</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Linhas serão geradas aqui -->
-        </tbody>
-      </table>
+    <table id="stockTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Produto</th>
+          <th>Quantidade</th>
+          <th>Referência</th>
+          <th>Data Última Alteração</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- linhas inseridas dinamicamente -->
+      </tbody>
+    </table>
+
+    <div id="charts">
+      <canvas id="barChart"></canvas>
+      <canvas id="pieChart"></canvas>
+      <canvas id="lineChart"></canvas>
     </div>
-  </div>
+  </section>
+</main>
+
+<footer>Produzido por Bruno Tavares 2025</footer>
 
 <script>
-  // Usuários fixos
-  const users = [
-    { username: 'admin', password: 'admin123' },
-    { username: 'usuario', password: 'senha123' }
+  // Usuários fixos (exemplo)
+  const utilizadores = [
+    { username: "admin", password: "1234", ativo: true },
+    { username: "bruno", password: "senha", ativo: true },
+    { username: "visitante", password: "abc", ativo: false }
   ];
 
-  // Estado
   let currentUser = null;
   let produtos = [];
 
+  // Carregar produtos do localStorage
+  function loadData() {
+    const data = localStorage.getItem("produtos");
+    produtos = data ? JSON.parse(data) : [];
+  }
+
+  // Salvar produtos no localStorage
+  function saveData() {
+    // Atualizar produtos da tabela antes de salvar
+    const rows = document.querySelectorAll("#stockTable tbody tr");
+    produtos = [];
+    for (let row of rows) {
+      const id = row.querySelector(".id").textContent;
+      const nome = row.querySelector(".nome input").value.trim();
+      const quantidade = parseInt(row.querySelector(".quantidade input").value) || 0;
+      const referencia = row.querySelector(".referencia input").value.trim();
+      const dataAlt = row.querySelector(".dataAlt").textContent || new Date().toLocaleString();
+
+      // Validação produto não vazio e sem duplicados
+      if (!nome) {
+        alert("Produto não pode estar vazio!");
+        return;
+      }
+      if (produtos.find(p => p.nome.toLowerCase() === nome.toLowerCase() && p.id !== id)) {
+        alert("Produto duplicado: " + nome);
+        return;
+      }
+
+      produtos.push({
+        id,
+        nome,
+        quantidade,
+        referencia,
+        dataAlt
+      });
+    }
+
+    localStorage.setItem("produtos", JSON.stringify(produtos));
+    alert("Dados guardados com sucesso!");
+    renderTable();
+    renderCharts();
+  }
+
+  // Renderizar tabela de produtos
+  function renderTable() {
+    loadData();
+    const tbody = document.querySelector("#stockTable tbody");
+    tbody.innerHTML = "";
+    for (const p of produtos) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="id">${p.id}</td>
+        <td class="nome"><input type="text" value="${p.nome}" /></td>
+        <td class="quantidade"><input type="number" min="0" value="${p.quantidade}" /></td>
+        <td class="referencia"><input type="text" value="${p.referencia}" /></td>
+        <td class="dataAlt">${p.dataAlt}</td>
+        <td>
+          <button title="Remover" onclick="removeRow('${p.id}')" style="background:#f44336; color:#fff; border:none; border-radius:4px; padding:4px 8px; cursor:pointer;">
+            <i class="fa fa-trash"></i>
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    }
+  }
+
+  // Adicionar nova linha (novo produto)
+  function addRow() {
+    const tbody = document.querySelector("#stockTable tbody");
+    const newId = Date.now().toString();
+    const tr = document.createElement("tr");
+    const now = new Date().toLocaleString();
+    tr.innerHTML = `
+      <td class="id">${newId}</td>
+      <td class="nome"><input type="text" placeholder="Nome do produto" /></td>
+      <td class="quantidade"><input type="number" min="0" value="0" /></td>
+      <td class="referencia"><input type="text" placeholder="Referência" /></td>
+      <td class="dataAlt">${now}</td>
+      <td>
+        <button title="Remover" onclick="removeRow('${newId}')" style="background:#f44336; color:#fff; border:none; border-radius:4px; padding:4px 8px; cursor:pointer;">
+          <i class="fa fa-trash"></i>
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  }
+
+  // Remover linha pelo id
+  function removeRow(id) {
+    if (confirm("Quer mesmo remover este produto?")) {
+      produtos = produtos.filter(p => p.id !== id);
+      localStorage.setItem("produtos", JSON.stringify(produtos));
+      renderTable();
+      renderCharts();
+    }
+  }
+
+  // Procurar na tabela
+  function searchTable() {
+    const filter = document.getElementById("searchInput").value.toLowerCase();
+    const trs = document.querySelectorAll("#stockTable tbody tr");
+    for (let tr of trs) {
+      const nome = tr.querySelector(".nome input").value.toLowerCase();
+      tr.style.display = nome.includes(filter) ? "" : "none";
+    }
+  }
+
   // Login
   function login() {
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value.trim();
-    const errorMsg = document.getElementById('errorMsg');
+    const userInput = document.getElementById("username").value.trim();
+    const passInput = document.getElementById("password").value.trim();
+    const erroMsg = document.getElementById("msgErro");
 
-    const user = users.find(u => u.username === username && u.password === password);
-    if(user) {
+    const user = utilizadores.find(u => u.username === userInput && u.password === passInput);
+
+    if (user && user.ativo) {
       currentUser = user.username;
-      errorMsg.style.display = 'none';
-      document.getElementById('loginForm').style.display = 'none';
-      document.getElementById('app').style.display = 'flex';
-      document.getElementById('userInfo').textContent = `Logado como: ${currentUser}`;
-      loadData();
+      erroMsg.style.display = "none";
+      document.getElementById("loginForm").style.display = "none";
+      document.getElementById("app").style.display = "block";
+      document.getElementById("loggedUser").textContent = currentUser;
+      renderTable();
+      renderCharts();
     } else {
-      errorMsg.style.display = 'block';
+      erroMsg.style.display = "block";
     }
   }
 
   // Logout
   function logout() {
-    currentUser = null;
-    produtos = [];
-    document.getElementById('loginForm').style.display = 'block';
-    document.getElementById('app').style.display = 'none';
-    document.getElementById('username').value = '';
-    document.getElementById('password').value = '';
-    document.getElementById('errorMsg').style.display = 'none';
-  }
-
-  // Gerar ID único simples
-  function generateId() {
-    return 'id-' + Math.random().toString(36).substr(2, 9);
-  }
-
-  // Renderizar tabela
-  function renderTable() {
-    const tbody = document.querySelector('#estoqueTable tbody');
-    tbody.innerHTML = '';
-
-    produtos.forEach(prod => {
-      const tr = document.createElement('tr');
-
-      tr.innerHTML = `
-        <td>${prod.id}</td>
-        <td><input type="text" value="${prod.produto}" oninput="updateProduto('${prod.id}', this.value)" /></td>
-        <td><input type="number" min="0" value="${prod.quantidade}" oninput="updateQuantidade('${prod.id}', this.value)" /></td>
-        <td><input type="text" value="${prod.referencia}" oninput="updateReferencia('${prod.id}', this.value)" /></td>
-        <td>${prod.dataAlteracao}</td>
-        <td><button onclick="removeRow('${prod.id}')">Remover</button></td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  // Atualizar campos
-  function updateProduto(id, val) {
-    val = val.trim();
-    if (!val) return; // não aceita vazio
-
-    // Checar duplicados (ignorando o próprio id)
-    if(produtos.some(p => p.produto.toLowerCase() === val.toLowerCase() && p.id !== id)) {
-      alert('Produto duplicado não permitido!');
-      loadData(); // revert changes visually
-      return;
-    }
-
-    let prod = produtos.find(p => p.id === id);
-    if(prod) {
-      prod.produto = val;
-      prod.dataAlteracao = new Date().toLocaleString();
-      renderTable();
-    }
-  }
-  function updateQuantidade(id, val) {
-    val = Number(val);
-    if (isNaN(val) || val < 0) return;
-    let prod = produtos.find(p => p.id === id);
-    if(prod) {
-      prod.quantidade = val;
-      prod.dataAlteracao = new Date().toLocaleString();
-      renderTable();
-    }
-  }
-  function updateReferencia(id, val) {
-    val = val.trim();
-    let prod = produtos.find(p => p.id === id);
-    if(prod) {
-      prod.referencia = val;
-      prod.dataAlteracao = new Date().toLocaleString();
-      renderTable();
+    if (confirm("Quer sair da aplicação?")) {
+      currentUser = null;
+      document.getElementById("app").style.display = "none";
+      document.getElementById("loginForm").style.display = "block";
+      document.getElementById("username").value = "";
+      document.getElementById("password").value = "";
+      document.getElementById("msgErro").style.display = "none";
     }
   }
 
-  // Adicionar linha
-  function addRow() {
-    let novoId = generateId();
-    // Novo produto vazio, mas produto não pode ser duplicado, então deixa vazio e obriga usuário preencher
-    produtos.push({
-      id: novoId,
-      produto: '',
-      quantidade: 0,
-      referencia: '',
-      dataAlteracao: new Date().toLocaleString()
-    });
-    renderTable();
-  }
+  // Exportar para Excel (XLSX)
+  function exportToExcel() {
+    // Criar planilha usando SheetJS (XLSX)
+    // Vamos usar CSV simples, pois XLSX requer biblioteca extra (ou usar SheetJS CDN)
+    // Para simplicidade, aqui está CSV (pode adaptar para XLSX com SheetJS)
 
-  // Remover linha
-  function removeRow(id) {
-    if(confirm('Deseja remover este produto?')) {
-      produtos = produtos.filter(p => p.id !== id);
-      renderTable();
+    let csv = 'ID,Produto,Quantidade,Referencia,Data Última Alteração\n';
+    for (const p of produtos) {
+      csv += `"${p.id}","${p.nome}",${p.quantidade},"${p.referencia}","${p.dataAlt}"\n`;
     }
-  }
 
-  // Buscar produtos na tabela
-  function searchTable() {
-    const input = document.getElementById('searchInput').value.toLowerCase();
-    const trs = document.querySelectorAll('#estoqueTable tbody tr');
-
-    trs.forEach(tr => {
-      const produto = tr.querySelector('td:nth-child(2) input').value.toLowerCase();
-      if(produto.includes(input)) {
-        tr.style.display = '';
-      } else {
-        tr.style.display = 'none';
-      }
-    });
-  }
-
-  // Salvar no localStorage
-  function saveData() {
-    // Valida antes de salvar
-    for(let p of produtos) {
-      if(!p.produto || p.produto.trim() === '') {
-        alert('Todos os produtos devem ter nome preenchido!');
-        return;
-      }
-    }
-    localStorage.setItem('estoqueProdutos', JSON.stringify(produtos));
-    localStorage.setItem('lastUser', currentUser);
-    alert('Dados salvos com sucesso!');
-  }
-
-  // Carregar do localStorage
-  function loadData() {
-    let dados = localStorage.getItem('estoqueProdutos');
-    if(dados) {
-      produtos = JSON.parse(dados);
-    } else {
-      produtos = [];
-    }
-    renderTable();
+    const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'stock.csv';
+    a.click();
   }
 
   // Resetar quantidades para zero
   function resetQuantities() {
-    if(confirm('Deseja zerar todas as quantidades?')) {
+    if(confirm("Quer resetar todas as quantidades para zero?")) {
       produtos.forEach(p => {
         p.quantidade = 0;
-        p.dataAlteracao = new Date().toLocaleString();
+        p.dataAlt = new Date().toLocaleString();
       });
+      localStorage.setItem("produtos", JSON.stringify(produtos));
       renderTable();
+      renderCharts();
+      alert("Quantidades resetadas com sucesso!");
     }
   }
 
-  // Exportar para Excel usando SheetJS
-  function exportToExcel() {
-    if(produtos.length === 0) {
-      alert('Não há dados para exportar.');
+  // Carregar lista de produtos (exemplo fixo)
+  function loadProducts() {
+    const exemplo = [
+      {id: Date.now() + 1, nome: "Produto A", quantidade: 10, referencia: "REF-A", dataAlt: new Date().toLocaleString()},
+      {id: Date.now() + 2, nome: "Produto B", quantidade: 5, referencia: "REF-B", dataAlt: new Date().toLocaleString()},
+      {id: Date.now() + 3, nome: "Produto C", quantidade: 20, referencia: "REF-C", dataAlt: new Date().toLocaleString()},
+    ];
+
+    // Adicionar apenas produtos não duplicados
+    exemplo.forEach(prod => {
+      if(!produtos.find(p => p.nome.toLowerCase() === prod.nome.toLowerCase())) {
+        produtos.push(prod);
+      }
+    });
+
+    localStorage.setItem("produtos", JSON.stringify(produtos));
+    renderTable();
+    renderCharts();
+    alert("Lista de produtos carregada com sucesso!");
+  }
+
+  // --- Gráficos ---
+
+  let barChart, pieChart, lineChart;
+
+  function renderCharts() {
+    if (!produtos.length) {
+      if (barChart) barChart.destroy();
+      if (pieChart) pieChart.destroy();
+      if (lineChart) lineChart.destroy();
       return;
     }
-    // Gerar array para SheetJS
-    const dataToExport = produtos.map(p => ({
-      ID: p.id,
-      Produto: p.produto,
-      Quantidade: p.quantidade,
-      Referencia: p.referencia,
-      'Data Última Alteração': p.dataAlteracao
-    }));
 
-    // Carregar SheetJS via CDN
-    if(typeof XLSX === 'undefined') {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js';
-      script.onload = () => gerarExcel(dataToExport);
-      document.body.appendChild(script);
-    } else {
-      gerarExcel(dataToExport);
+    const ctxBar = document.getElementById('barChart').getContext('2d');
+    const ctxPie = document.getElementById('pieChart').getContext('2d');
+    const ctxLine = document.getElementById('lineChart').getContext('2d');
+
+    const labels = produtos.map(p => p.nome);
+    const quantidades = produtos.map(p => p.quantidade);
+
+    // Destruir gráficos existentes antes de criar novos
+    if(barChart) barChart.destroy();
+    if(pieChart) pieChart.destroy();
+    if(lineChart) lineChart.destroy();
+
+    // Gráfico de barras
+    barChart = new Chart(ctxBar, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Quantidade em Stock',
+          data: quantidades,
+          backgroundColor: 'rgba(70,170,243,0.7)',
+          borderColor: 'rgba(70,170,243,1)',
+          borderWidth: 1,
+          borderRadius: 5,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          title: {
+            display: true,
+            text: 'Stock por Produto (Barra)'
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        }
+      }
+    });
+
+    // Gráfico de pizza
+    pieChart = new Chart(ctxPie, {
+      type: 'pie',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Stock',
+          data: quantidades,
+          backgroundColor: labels.map((_, i) => `hsl(${(i*60)%360},70%,60%)`),
+          borderColor: '#1f2f56',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Distribuição de Stock (Pizza)'
+          }
+        }
+      }
+    });
+
+    // Gráfico de linha (Quantidade ao longo do tempo - simplificado, só mostra quantidade atual)
+    lineChart = new Chart(ctxLine, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Quantidade Atual',
+          data: quantidades,
+          fill: false,
+          borderColor: 'rgba(70,170,243,1)',
+          backgroundColor: 'rgba(70,170,243,0.5)',
+          tension: 0.3,
+          pointRadius: 5,
+          pointHoverRadius: 7
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Quantidade Atual por Produto (Linha)'
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Auto atualizar data da última alteração quando mudar quantidade
+  document.addEventListener('input', e => {
+    if(e.target.matches('#stockTable tbody tr td.quantidade input')) {
+      const tr = e.target.closest('tr');
+      tr.querySelector('.dataAlt').textContent = new Date().toLocaleString();
     }
-  }
+  });
 
-  function gerarExcel(data) {
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Estoque");
-    XLSX.writeFile(wb, "estoque.xlsx");
-  }
-
-  // Auto login se tiver usuário salvo
-  window.onload = function() {
-    const lastUser = localStorage.getItem('lastUser');
-    if(lastUser) {
-      currentUser = lastUser;
-      document.getElementById('loginForm').style.display = 'none';
-      document.getElementById('app').style.display = 'flex';
-      document.getElementById('userInfo').textContent = `Logado como: ${currentUser}`;
-      loadData();
+  // Inicialização
+  window.onload = () => {
+    loadData();
+    if(currentUser) {
+      document.getElementById("loginForm").style.display = "none";
+      document.getElementById("app").style.display = "block";
+      document.getElementById("loggedUser").textContent = currentUser;
+      renderTable();
+      renderCharts();
     }
-  }
+  };
 </script>
 
 </body>
