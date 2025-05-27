@@ -1,967 +1,987 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-PT">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Gestão Stock & Utilizadores</title>
-
-<!-- Ícones Google Material -->
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
-<!-- Chart.js CDN -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<!-- SheetJS XLSX -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-
+<title>Gestão Completa de Stock e Utilizadores</title>
 <style>
-  /* Reset e base */
-  * {
+  /* Reset */
+  *, *::before, *::after {
     box-sizing: border-box;
   }
   body {
-    margin:0; padding:0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #4b79a1, #283e51);
-    color: #222;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* Container geral */
-  #container {
-    max-width: 1200px;
-    margin: 20px auto;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-    display: flex;
-    flex-direction: column;
-    min-height: 80vh;
-    padding: 0;
-  }
-
-  header {
-    background: #3f51b5;
-    color: white;
-    padding: 16px 32px;
-    border-radius: 12px 12px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  header h1 {
-    margin:0; font-weight: 700;
-    font-size: 1.8rem;
-    letter-spacing: 1px;
-  }
-  header button {
-    background: #ff5252;
-    border: none;
-    color: white;
-    padding: 8px 16px;
-    font-weight: 600;
-    font-size: 1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: background 0.3s ease;
-  }
-  header button:hover {
-    background: #e04848;
-  }
-
-  /* Login */
-  #loginPage {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: white;
-    border-radius: 12px;
-    padding: 32px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-  }
-  #loginPage form {
-    width: 320px;
-    display: flex;
-    flex-direction: column;
-  }
-  #loginPage h2 {
-    text-align: center;
-    margin-bottom: 24px;
-    color: #3f51b5;
-  }
-  #loginPage label {
-    font-weight: 600;
-    margin-bottom: 6px;
-    color: #444;
-  }
-  #loginPage input[type="text"],
-  #loginPage input[type="password"] {
-    padding: 12px 14px;
-    margin-bottom: 16px;
-    border-radius: 8px;
-    border: 1.8px solid #ccc;
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
-  }
-  #loginPage input[type="text"]:focus,
-  #loginPage input[type="password"]:focus {
-    border-color: #3f51b5;
-    outline: none;
-  }
-  #loginPage button {
-    background: #3f51b5;
-    border: none;
-    color: white;
-    font-weight: 700;
-    font-size: 1.1rem;
-    padding: 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    transition: background 0.3s ease;
-  }
-  #loginPage button:hover {
-    background: #2c3e9f;
-  }
-  #loginError {
-    color: #d32f2f;
-    margin-top: 12px;
-    text-align: center;
-    font-weight: 600;
-    display: none;
-  }
-
-  /* Tabs */
-  #app {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  nav.tabs {
-    display: flex;
+    margin: 0; padding: 0;
     background: #f5f7fa;
-    border-bottom: 2px solid #ddd;
+    color: #333;
+  }
+  header {
+    background-color: #4a90e2;
+    color: white;
+    padding: 24px 16px;
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
     user-select: none;
   }
-  nav.tabs button {
-    flex: 1;
-    padding: 14px 0;
-    border: none;
-    background: transparent;
-    font-weight: 600;
-    font-size: 1.1rem;
-    cursor: pointer;
-    color: #555;
-    border-bottom: 3px solid transparent;
+  nav {
     display: flex;
     justify-content: center;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.3s ease;
+    background-color: #3a78d8;
+    flex-wrap: wrap;
   }
-  nav.tabs button:hover {
-    background: #e0e6f7;
+  nav button {
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 16px 32px;
+    font-size: 17px;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+    border-radius: 8px 8px 0 0;
+    user-select: none;
+    margin: 0 4px;
   }
-  nav.tabs button.active {
-    border-bottom-color: #3f51b5;
-    color: #3f51b5;
+  nav button.active,
+  nav button:hover {
+    background-color: #2c5bb1;
+  }
+  main {
+    max-width: 960px;
+    margin: 28px auto;
+    background: white;
+    padding: 28px 32px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgb(0 0 0 / 0.12);
+  }
+  h2 {
+    margin-top: 0;
+    color: #4a90e2;
     font-weight: 700;
-    background: #d7defa;
   }
-
-  /* Content Sections */
-  section.tabContent {
-    flex: 1;
-    padding: 24px 32px;
-    overflow-y: auto;
-  }
-
-  /* Tables */
   table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.9rem;
+    margin-bottom: 20px;
+    font-size: 15px;
   }
   th, td {
-    border: 1px solid #ddd;
-    padding: 10px 12px;
-    text-align: center;
+    padding: 14px 18px;
+    border: 1px solid #e1e8f0;
+    text-align: left;
   }
   th {
-    background: #f0f3ff;
-    font-weight: 700;
+    background-color: #f0f4fc;
+    font-weight: 600;
   }
   tbody tr:nth-child(even) {
-    background: #f9faff;
+    background-color: #f9fbfe;
   }
-
-  /* Inputs inside table */
-  table input[type="text"], table input[type="number"], table select {
+  input, select {
     width: 100%;
-    padding: 6px 8px;
-    font-size: 0.9rem;
-    border-radius: 6px;
-    border: 1.2px solid #ccc;
-    box-sizing: border-box;
+    padding: 10px 14px;
+    margin-top: 8px;
+    margin-bottom: 18px;
+    border-radius: 8px;
+    border: 1px solid #cdd7e5;
+    font-size: 16px;
+    transition: border-color 0.2s ease;
   }
-  table input[type="number"]::-webkit-inner-spin-button,
-  table input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+  input:focus, select:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 6px #a5c7f9;
   }
-  table input[type="number"] {
-    -moz-appearance: textfield;
-  }
-
-  /* Buttons */
-  .btn {
-    cursor: pointer;
+  label {
     font-weight: 600;
-    padding: 8px 14px;
+    font-size: 16px;
+  }
+  .form-group {
+    margin-bottom: 14px;
+  }
+  button.action {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-size: 17px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    user-select: none;
+    margin-right: 12px;
+  }
+  button.action:hover {
+    background-color: #3a78d8;
+  }
+  button.secondary {
+    background-color: #6c757d;
+  }
+  button.secondary:hover {
+    background-color: #5a6268;
+  }
+  .flex-row {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  .flex-1 {
+    flex: 1;
+  }
+  .actions-cell button {
+    margin-right: 8px;
+    padding: 8px 16px;
+    font-size: 14px;
     border-radius: 8px;
     border: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: background 0.3s ease;
-    font-size: 0.9rem;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
   }
-  .btn-primary {
-    background: #3f51b5;
+  .actions-cell button.edit {
+    background-color: #198754;
     color: white;
   }
-  .btn-primary:hover {
-    background: #2c3e9f;
+  .actions-cell button.edit:hover {
+    background-color: #146c43;
   }
-  .btn-danger {
-    background: #d32f2f;
+  .actions-cell button.delete {
+    background-color: #dc3545;
     color: white;
   }
-  .btn-danger:hover {
-    background: #a12727;
+  .actions-cell button.delete:hover {
+    background-color: #b02a37;
   }
-  .btn-secondary {
-    background: #757575;
-    color: white;
-  }
-  .btn-secondary:hover {
-    background: #555;
-  }
-
-  /* Icon styling */
-  .material-icons {
-    font-size: 20px;
-    vertical-align: middle;
-  }
-
-  /* Form controls for checkbox */
-  .checkbox-center {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  /* Alerts */
-  #alertMsg {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #323232;
-    color: white;
-    padding: 12px 24px;
-    border-radius: 24px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.5s ease;
+  .message {
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
     font-weight: 600;
-    z-index: 999;
   }
-  #alertMsg.show {
-    opacity: 1;
-    pointer-events: auto;
+  .message.success {
+    background-color: #d1e7dd;
+    color: #0f5132;
   }
-
-  /* Dashboard Chart */
-  #dashboard canvas {
-    max-width: 100%;
-    height: 300px;
+  .message.error {
+    background-color: #f8d7da;
+    color: #842029;
   }
-
-  /* Scroll tables */
-  section.tabContent {
-    overflow-x: auto;
-  }
-
-  /* Footer */
-  footer {
-    text-align: center;
-    font-size: 0.8rem;
-    color: #666;
-    padding: 12px;
-    background: #f0f0f0;
-    border-radius: 0 0 12px 12px;
-    margin-top: auto;
-  }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    #container {
-      margin: 8px;
+  /* Responsivo */
+  @media (max-width: 700px) {
+    nav {
+      flex-direction: column;
     }
-    nav.tabs button {
-      font-size: 0.9rem;
-      padding: 12px 0;
+    nav button {
+      border-radius: 0;
+      margin: 0;
+      padding: 14px 0;
+      font-size: 16px;
     }
-    section.tabContent {
-      padding: 16px 12px;
+    main {
+      margin: 15px;
+      padding: 20px;
+    }
+    .flex-row {
+      flex-direction: column;
     }
   }
 </style>
 </head>
 <body>
 
-<div id="container">
+<header>Gestão Completa de Stock e Utilizadores</header>
 
-  <!-- LOGIN PAGE -->
-  <div id="loginPage">
-    <form id="loginForm" autocomplete="off">
-      <h2>Login</h2>
-      <label for="loginUser">Utilizador</label>
-      <input type="text" id="loginUser" required autofocus />
-      <label for="loginPass">Senha</label>
-      <input type="password" id="loginPass" required />
-      <button type="submit" class="btn btn-primary">
-        <span class="material-icons">login</span> Entrar
-      </button>
-      <p id="loginError">Utilizador ou senha incorretos / inativo.</p>
+<nav>
+  <button id="nav-stock" class="active" aria-controls="section-stock" aria-selected="true" role="tab">Stock</button>
+  <button id="nav-users" aria-controls="section-users" aria-selected="false" role="tab">Utilizadores</button>
+  <button id="nav-movements" aria-controls="section-movements" aria-selected="false" role="tab">Movimentações</button>
+</nav>
+
+<main>
+  <section id="section-stock" role="tabpanel" aria-labelledby="nav-stock">
+    <h2>Stock de Produtos</h2>
+    <div id="stock-message"></div>
+    <table id="table-stock" aria-describedby="stock-desc" role="grid">
+      <caption id="stock-desc" class="sr-only">Lista de produtos em stock</caption>
+      <thead>
+        <tr>
+          <th scope="col">ID Produto</th>
+          <th scope="col">Nome</th>
+          <th scope="col">Quantidade</th>
+          <th scope="col">Preço Unitário (€)</th>
+          <th scope="col">Categoria</th>
+          <th scope="col">Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <h3>Adicionar / Editar Produto</h3>
+    <form id="form-stock" novalidate>
+      <input type="hidden" id="stock-edit-id" />
+      <div class="flex-row">
+        <div class="flex-1 form-group">
+          <label for="product-id">ID Produto*</label>
+          <input type="text" id="product-id" required aria-required="true" placeholder="Ex: P001" />
+        </div>
+        <div class="flex-1 form-group">
+          <label for="product-name">Nome*</label>
+          <input type="text" id="product-name" required aria-required="true" placeholder="Ex: Caneta Azul" />
+        </div>
+      </div>
+      <div class="flex-row">
+        <div class="flex-1 form-group">
+          <label for="product-quantity">Quantidade*</label>
+          <input type="number" id="product-quantity" min="0" step="1" required aria-required="true" placeholder="Ex: 100" />
+        </div>
+        <div class="flex-1 form-group">
+          <label for="product-price">Preço Unitário (€)*</label>
+          <input type="number" id="product-price" min="0" step="0.01" required aria-required="true" placeholder="Ex: 1.50" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="product-category">Categoria</label>
+        <input type="text" id="product-category" placeholder="Ex: Material de Escritório" />
+      </div>
+      <button type="submit" class="action">Guardar Produto</button>
+      <button type="button" class="secondary" id="btn-stock-clear">Limpar</button>
     </form>
-  </div>
+  </section>
 
-  <!-- APP -->
-  <div id="app" style="display:none; flex-direction: column; height: 100%;">
-    <header>
-      <h1><span class="material-icons">inventory_2</span> Gestão Stock</h1>
-      <div>
-        <span id="loggedUser" style="font-weight:600; margin-right:16px;"></span>
-        <button id="logoutBtn" title="Logout" aria-label="Logout" class="btn btn-danger">
-          <span class="material-icons">logout</span> Sair
-        </button>
+  <section id="section-users" role="tabpanel" aria-labelledby="nav-users" hidden>
+    <h2>Gestão de Utilizadores</h2>
+    <div id="users-message"></div>
+    <table id="table-users" aria-describedby="users-desc" role="grid">
+      <caption id="users-desc" class="sr-only">Lista de utilizadores</caption>
+      <thead>
+        <tr>
+          <th scope="col">ID Utilizador</th>
+          <th scope="col">Nome</th>
+          <th scope="col">Função</th>
+          <th scope="col">Permissão</th>
+          <th scope="col">Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <h3>Adicionar / Editar Utilizador</h3>
+    <form id="form-users" novalidate>
+      <input type="hidden" id="user-edit-id" />
+      <div class="flex-row">
+        <div class="flex-1 form-group">
+          <label for="user-id">ID Utilizador*</label>
+          <input type="text" id="user-id" required aria-required="true" placeholder="Ex: U001" />
+        </div>
+        <div class="flex-1 form-group">
+          <label for="user-name">Nome*</label>
+          <input type="text" id="user-name" required aria-required="true" placeholder="Ex: João Silva" />
+        </div>
       </div>
-    </header>
-
-    <nav class="tabs" role="tablist" aria-label="Menu principal">
-      <button class="active" role="tab" aria-selected="true" aria-controls="tabStock" id="tabBtnStock">
-        <span class="material-icons">store</span> Stock
-      </button>
-      <button role="tab" aria-selected="false" aria-controls="tabUsers" id="tabBtnUsers">
-        <span class="material-icons">people</span> Utilizadores
-      </button>
-      <button role="tab" aria-selected="false" aria-controls="tabDashboard" id="tabBtnDashboard">
-        <span class="material-icons">dashboard</span> Dashboard
-      </button>
-    </nav>
-
-    <section id="tabStock" class="tabContent" role="tabpanel" aria-labelledby="tabBtnStock">
-      <div style="margin-bottom:16px; display:flex; gap:10px; flex-wrap: wrap;">
-        <input type="text" id="searchProduct" placeholder="Procurar produto..." style="flex-grow:1; padding: 10px; font-size:1rem; border-radius:8px; border:1.5px solid #ccc;" />
-        <button class="btn btn-primary" id="btnAddProduct" title="Adicionar Produto">
-          <span class="material-icons">add_circle</span> Adicionar Produto
-        </button>
-        <button class="btn btn-secondary" id="btnResetQuantities" title="Reset Quantidades">
-          <span class="material-icons">restart_alt</span> Reset Quantidades
-        </button>
-        <button class="btn btn-primary" id="btnExportXLSX" title="Exportar para Excel">
-          <span class="material-icons">file_download</span> Exportar XLSX
-        </button>
-        <button class="btn btn-primary" id="btnSaveStock" title="Guardar alterações">
-          <span class="material-icons">save</span> Guardar Stock
-        </button>
+      <div class="flex-row">
+        <div class="flex-1 form-group">
+          <label for="user-role">Função</label>
+          <input type="text" id="user-role" placeholder="Ex: Armazenista" />
+        </div>
+        <div class="flex-1 form-group">
+          <label for="user-permission">Permissão*</label>
+          <select id="user-permission" required aria-required="true">
+            <option value="" disabled selected>Selecione uma permissão</option>
+            <option value="Administrador">Administrador</option>
+            <option value="Utilizador">Utilizador</option>
+          </select>
+        </div>
       </div>
+      <button type="submit" class="action">Guardar Utilizador</button>
+      <button type="button" class="secondary" id="btn-users-clear">Limpar</button>
+    </form>
+  </section>
 
-      <table aria-label="Tabela de Stock" id="tableStock" role="grid">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Produto</th>
-            <th>Quantidade</th>
-            <th>Referência</th>
-            <th>Data Última Alteração</th>
-            <th>Histórico</th>
-            <th>Remover</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </section>
+  <section id="section-movements" role="tabpanel" aria-labelledby="nav-movements" hidden>
+    <h2>Registo de Movimentações</h2>
+    <div id="movements-message"></div>
+    <table id="table-movements" aria-describedby="movements-desc" role="grid">
+      <caption id="movements-desc" class="sr-only">Lista de movimentações de stock</caption>
+      <thead>
+        <tr>
+          <th scope="col">Data / Hora</th>
+          <th scope="col">ID Produto</th>
+          <th scope="col">Nome Produto</th>
+          <th scope="col">Tipo de Movimento</th>
+          <th scope="col">Quantidade</th>
+          <th scope="col">ID Utilizador</th>
+          <th scope="col">Nome Utilizador</th>
+          <th scope="col">Observações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
 
-    <section id="tabUsers" class="tabContent" role="tabpanel" aria-labelledby="tabBtnUsers" hidden>
-      <div style="margin-bottom:16px; display:flex; gap:10px; flex-wrap: wrap;">
-        <button class="btn btn-primary" id="btnAddUser" title="Adicionar Utilizador">
-          <span class="material-icons">person_add</span> Adicionar Utilizador
-        </button>
-        <button class="btn btn-primary" id="btnSaveUsers" title="Guardar alterações">
-          <span class="material-icons">save</span> Guardar Utilizadores
-        </button>
+    <h3>Adicionar Movimentação</h3>
+    <form id="form-movements" novalidate>
+      <div class="flex-row">
+        <div class="flex-1 form-group">
+          <label for="movement-product">Produto*</label>
+          <select id="movement-product" required aria-required="true">
+            <option value="" disabled selected>Selecione um produto</option>
+          </select>
+        </div>
+        <div class="flex-1 form-group">
+          <label for="movement-user">Utilizador*</label>
+          <select id="movement-user" required aria-required="true">
+            <option value="" disabled selected>Selecione um utilizador</option>
+          </select>
+        </div>
       </div>
-
-      <table aria-label="Tabela de Utilizadores" id="tableUsers" role="grid">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Senha</th>
-            <th>Permissão</th>
-            <th>Ativo</th>
-            <th>Remover</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </section>
-
-    <section id="tabDashboard" class="tabContent" role="tabpanel" aria-labelledby="tabBtnDashboard" hidden>
-      <h2>Dashboard</h2>
-      <canvas id="chartStock"></canvas>
-    </section>
-  </div>
-</div>
-
-<footer>
-  Produzido por Bruno Tavares 2025
-</footer>
-
-<div id="alertMsg"></div>
+      <div class="flex-row">
+        <div class="flex-1 form-group">
+          <label for="movement-type">Tipo de Movimento*</label>
+          <select id="movement-type" required aria-required="true">
+            <option value="" disabled selected>Entrada ou Saída</option>
+            <option value="Entrada">Entrada</option>
+            <option value="Saída">Saída</option>
+          </select>
+        </div>
+        <div class="flex-1 form-group">
+          <label for="movement-quantity">Quantidade*</label>
+          <input type="number" id="movement-quantity" min="1" step="1" required aria-required="true" placeholder="Ex: 10" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="movement-notes">Observações</label>
+        <input type="text" id="movement-notes" placeholder="Ex: Reposição de stock" />
+      </div>
+      <button type="submit" class="action">Registar Movimento</button>
+      <button type="button" class="secondary" id="btn-movements-clear">Limpar</button>
+    </form>
+  </section>
+</main>
 
 <script>
-  // Estado e dados
-  let utilizadores = [];
-  let stock = [];
-  let currentUser = null;
-
-  // Histórico simples por produto id
-  // Cada entrada: { data: ISOString, user: string, acao: string }
-  let historicoAlteracoes = {};
-
-  // Inicialização: carregar do localStorage
-  function carregarDados() {
-    const u = localStorage.getItem('utilizadores');
-    const s = localStorage.getItem('stock');
-    const h = localStorage.getItem('historicoAlteracoes');
-
-    if(u) utilizadores = JSON.parse(u);
-    if(s) stock = JSON.parse(s);
-    if(h) historicoAlteracoes = JSON.parse(h);
-
-    // Se não existir utilizadores, criar admin padrão
-    if(utilizadores.length === 0) {
-      utilizadores = [
-        {id: 1, nome: 'admin', senha: 'admin123', permissao: 'admin', ativo: true},
-        {id: 2, nome: 'vendedor', senha: 'vend123', permissao: 'vendedor', ativo: true}
-      ];
-      salvarUtilizadores();
-    }
-
-    // Se não existir stock, criar vazio
-    if(!stock) stock = [];
-    if(!historicoAlteracoes) historicoAlteracoes = {};
+  // Utilitário para mostrar mensagens (success ou error)
+  function showMessage(containerId, message, type='success') {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '<div class="message ' + type + '">' + message + '</div>';
+    setTimeout(() => container.innerHTML = '', 3500);
   }
 
-  // Salvar dados
-  function salvarUtilizadores() {
-    localStorage.setItem('utilizadores', JSON.stringify(utilizadores));
-  }
-  function salvarStock() {
-    localStorage.setItem('stock', JSON.stringify(stock));
-  }
-  function salvarHistorico() {
-    localStorage.setItem('historicoAlteracoes', JSON.stringify(historicoAlteracoes));
-  }
+  // Dados armazenados no localStorage
+  const STORAGE_KEYS = {
+    PRODUCTS: 'app_products',
+    USERS: 'app_users',
+    MOVEMENTS: 'app_movements',
+  };
 
-  // Util - gerar novo ID incremental
-  function novoId(array) {
-    if(array.length === 0) return 1;
-    return Math.max(...array.map(e => e.id)) + 1;
-  }
+  // Estado na memória (carregado do localStorage)
+  let products = [];
+  let users = [];
+  let movements = [];
 
-  // Mostra alerta temporário
-  function showAlert(msg, duracao=3000) {
-    const alertDiv = document.getElementById('alertMsg');
-    alertDiv.textContent = msg;
-    alertDiv.classList.add('show');
-    setTimeout(() => {
-      alertDiv.classList.remove('show');
-    }, duracao);
+  // Inicializar a app
+  function init() {
+    loadData();
+    renderTables();
+    setupNav();
+    setupForms();
   }
 
-  // LOGIN
-  const loginForm = document.getElementById('loginForm');
-  const loginUser = document.getElementById('loginUser');
-  const loginPass = document.getElementById('loginPass');
-  const loginError = document.getElementById('loginError');
-  const loginPage = document.getElementById('loginPage');
-  const app = document.getElementById('app');
-  const loggedUserSpan = document.getElementById('loggedUser');
+  // Carregar dados do localStorage
+  function loadData() {
+    products = JSON.parse(localStorage.getItem(STORAGE_KEYS.PRODUCTS)) || [];
+    users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS)) || [];
+    movements = JSON.parse(localStorage.getItem(STORAGE_KEYS.MOVEMENTS)) || [];
+  }
 
-  loginForm.addEventListener('submit', e => {
-    e.preventDefault();
-    const nome = loginUser.value.trim();
-    const senha = loginPass.value;
+  // Guardar dados no localStorage
+  function saveData() {
+    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+    localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+    localStorage.setItem(STORAGE_KEYS.MOVEMENTS, JSON.stringify(movements));
+  }
 
-    const u = utilizadores.find(u => u.nome === nome && u.senha === senha);
-    if(!u || !u.ativo) {
-      loginError.style.display = 'block';
+  // Renderizar tabela de produtos
+  function renderProducts() {
+    const tbody = document.querySelector('#table-stock tbody');
+    tbody.innerHTML = '';
+    if(products.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#777;">Nenhum produto registado.</td></tr>';
       return;
     }
-    currentUser = u;
-    loginError.style.display = 'none';
-    loginPage.style.display = 'none';
-    app.style.display = 'flex';
-    loggedUserSpan.textContent = `Olá, ${currentUser.nome} (${currentUser.permissao})`;
-    carregarTodasTabelas();
-    montarGrafico();
-  });
-
-  // LOGOUT
-  document.getElementById('logoutBtn').addEventListener('click', () => {
-    currentUser = null;
-    loginUser.value = '';
-    loginPass.value = '';
-    loginPage.style.display = 'flex';
-    app.style.display = 'none';
-  });
-
-  // TABS
-  const tabsBtns = document.querySelectorAll('nav.tabs button');
-  const tabsContent = document.querySelectorAll('section.tabContent');
-  tabsBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      tabsBtns.forEach(b => {
-        b.classList.remove('active');
-        b.setAttribute('aria-selected', 'false');
-      });
-      btn.classList.add('active');
-      btn.setAttribute('aria-selected', 'true');
-      const id = btn.id.replace('Btn', '');
-      tabsContent.forEach(tc => {
-        if(tc.id === id) {
-          tc.hidden = false;
-        } else {
-          tc.hidden = true;
-        }
-      });
-    });
-  });
-
-  // --- GESTÃO STOCK ---
-  const tableStockBody = document.querySelector('#tableStock tbody');
-  const searchProductInput = document.getElementById('searchProduct');
-  const btnAddProduct = document.getElementById('btnAddProduct');
-  const btnResetQuantities = document.getElementById('btnResetQuantities');
-  const btnSaveStock = document.getElementById('btnSaveStock');
-  const btnExportXLSX = document.getElementById('btnExportXLSX');
-
-  function carregarStockTabela(filter = '') {
-    tableStockBody.innerHTML = '';
-    const f = filter.trim().toLowerCase();
-    let filtered = stock;
-    if(f) {
-      filtered = stock.filter(p => p.nome.toLowerCase().includes(f) || p.referencia.toLowerCase().includes(f));
-    }
-    if(filtered.length === 0) {
+    products.forEach(prod => {
       const tr = document.createElement('tr');
-      const td = document.createElement('td');
-      td.colSpan = 7;
-      td.style.textAlign = 'center';
-      td.textContent = 'Nenhum produto encontrado.';
-      tr.appendChild(td);
-      tableStockBody.appendChild(tr);
+      tr.innerHTML = `
+        <td>${prod.id}</td>
+        <td>${prod.name}</td>
+        <td>${prod.quantity}</td>
+        <td>${prod.price.toFixed(2)}</td>
+        <td>${prod.category || ''}</td>
+        <td class="actions-cell">
+          <button class="edit" title="Editar Produto" onclick="editProduct('${prod.id}')">Editar</button>
+          <button class="delete" title="Eliminar Produto" onclick="deleteProduct('${prod.id}')">Eliminar</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Renderizar tabela de utilizadores
+  function renderUsers() {
+    const tbody = document.querySelector('#table-users tbody');
+    tbody.innerHTML = '';
+    if(users.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#777;">Nenhum utilizador registado.</td></tr>';
       return;
     }
-    filtered.forEach(p => {
+    users.forEach(user => {
       const tr = document.createElement('tr');
-
-      // ID
-      const tdId = document.createElement('td');
-      tdId.textContent = p.id;
-      tr.appendChild(tdId);
-
-      // Nome produto
-      const tdNome = document.createElement('td');
-      const inputNome = document.createElement('input');
-      inputNome.type = 'text';
-      inputNome.value = p.nome;
-      inputNome.title = "Editar nome do produto";
-      inputNome.addEventListener('change', () => {
-        p.nome = inputNome.value.trim();
-        atualizarDataAlteracao(p.id);
-      });
-      tdNome.appendChild(inputNome);
-      tr.appendChild(tdNome);
-
-      // Quantidade
-      const tdQtd = document.createElement('td');
-      const inputQtd = document.createElement('input');
-      inputQtd.type = 'number';
-      inputQtd.min = 0;
-      inputQtd.value = p.quantidade;
-      inputQtd.title = "Editar quantidade";
-      inputQtd.addEventListener('change', () => {
-        if(inputQtd.value < 0) inputQtd.value = 0;
-        p.quantidade = Number(inputQtd.value);
-        atualizarDataAlteracao(p.id);
-      });
-      tdQtd.appendChild(inputQtd);
-      tr.appendChild(tdQtd);
-
-      // Referência
-      const tdRef = document.createElement('td');
-      const inputRef = document.createElement('input');
-      inputRef.type = 'text';
-      inputRef.value = p.referencia;
-      inputRef.title = "Editar referência";
-      inputRef.addEventListener('change', () => {
-        p.referencia = inputRef.value.trim();
-        atualizarDataAlteracao(p.id);
-      });
-      tdRef.appendChild(inputRef);
-      tr.appendChild(tdRef);
-
-      // Data Última Alteração
-      const tdData = document.createElement('td');
-      tdData.textContent = p.dataUltimaAlteracao ? new Date(p.dataUltimaAlteracao).toLocaleString() : '-';
-      tr.appendChild(tdData);
-
-      // Histórico
-      const tdHist = document.createElement('td');
-      const btnHist = document.createElement('button');
-      btnHist.className = 'btn btn-secondary';
-      btnHist.title = 'Ver histórico';
-      btnHist.innerHTML = '<span class="material-icons">history</span>';
-      btnHist.addEventListener('click', () => {
-        mostrarHistorico(p.id);
-      });
-      tdHist.appendChild(btnHist);
-      tr.appendChild(tdHist);
-
-      // Remover
-      const tdRem = document.createElement('td');
-      const btnRem = document.createElement('button');
-      btnRem.className = 'btn btn-danger';
-      btnRem.title = 'Remover produto';
-      btnRem.innerHTML = '<span class="material-icons">delete</span>';
-      btnRem.addEventListener('click', () => {
-        if(confirm(`Deseja remover o produto "${p.nome}"?`)) {
-          stock = stock.filter(prod => prod.id !== p.id);
-          delete historicoAlteracoes[p.id];
-          salvarStock();
-          salvarHistorico();
-          carregarStockTabela(searchProductInput.value);
-          montarGrafico();
-          showAlert('Produto removido');
-        }
-      });
-      tdRem.appendChild(btnRem);
-      tr.appendChild(tdRem);
-
-      tableStockBody.appendChild(tr);
+      tr.innerHTML = `
+        <td>${user.id}</td>
+        <td>${user.name}</td>
+        <td>${user.role || ''}</td>
+        <td>${user.permission}</td>
+        <td class="actions-cell">
+          <button class="edit" title="Editar Utilizador" onclick="editUser('${user.id}')">Editar</button>
+          <button class="delete" title="Eliminar Utilizador" onclick="deleteUser('${user.id}')">Eliminar</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
     });
   }
 
-  function atualizarDataAlteracao(prodId) {
-    const prod = stock.find(p => p.id === prodId);
-    if(!prod) return;
-    prod.dataUltimaAlteracao = new Date().toISOString();
-
-    // Atualizar histórico
-    if(!historicoAlteracoes[prodId]) historicoAlteracoes[prodId] = [];
-    historicoAlteracoes[prodId].push({
-      data: new Date().toISOString(),
-      user: currentUser.nome,
-      acao: 'Alteração no produto'
+  // Renderizar tabela de movimentações
+  function renderMovements() {
+    const tbody = document.querySelector('#table-movements tbody');
+    tbody.innerHTML = '';
+    if(movements.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#777;">Nenhuma movimentação registada.</td></tr>';
+      return;
+    }
+    movements.forEach(mov => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${new Date(mov.date).toLocaleString('pt-PT')}</td>
+        <td>${mov.productId}</td>
+        <td>${mov.productName}</td>
+        <td>${mov.type}</td>
+        <td>${mov.quantity}</td>
+        <td>${mov.userId}</td>
+        <td>${mov.userName}</td>
+        <td>${mov.notes || ''}</td>
+      `;
+      tbody.appendChild(tr);
     });
-
-    salvarStock();
-    salvarHistorico();
-    montarGrafico();
   }
 
-  btnAddProduct.addEventListener('click', () => {
-    const novoProduto = {
-      id: novoId(stock),
-      nome: 'Novo Produto',
-      quantidade: 0,
-      referencia: '',
-      dataUltimaAlteracao: new Date().toISOString()
-    };
-    stock.push(novoProduto);
-    carregarStockTabela(searchProductInput.value);
-    montarGrafico();
-  });
+  // Renderizar todas as tabelas e selects
+  function renderTables() {
+    renderProducts();
+    renderUsers();
+    renderMovements();
+    populateSelects();
+  }
 
-  btnResetQuantities.addEventListener('click', () => {
-    if(confirm('Deseja resetar todas as quantidades para zero?')) {
-      stock.forEach(p => {
-        p.quantidade = 0;
-        p.dataUltimaAlteracao = new Date().toISOString();
-        if(!historicoAlteracoes[p.id]) historicoAlteracoes[p.id] = [];
-        historicoAlteracoes[p.id].push({
-          data: new Date().toISOString(),
-          user: currentUser.nome,
-          acao: 'Reset da quantidade'
+  // Preencher selects de produtos e utilizadores no formulário de movimentações
+  function populateSelects() {
+    const productSelect = document.getElementById('movement-product');
+    const userSelect = document.getElementById('movement-user');
+
+    // Limpar opções anteriores
+    productSelect.innerHTML = '<option value="" disabled selected>Selecione um produto</option>';
+    userSelect.innerHTML = '<option value="" disabled selected>Selecione um utilizador</option>';
+
+    products.forEach(prod => {
+      const option = document.createElement('option');
+      option.value = prod.id;
+      option.textContent = `${prod.id} - ${prod.name}`;
+      productSelect.appendChild(option);
+    });
+
+    users.forEach(user => {
+      const option = document.createElement('option');
+      option.value = user.id;
+      option.textContent = `${user.id} - ${user.name}`;
+      userSelect.appendChild(option);
+    });
+  }
+
+  // Navegação entre secções
+  function setupNav() {
+    const navButtons = document.querySelectorAll('nav button');
+    navButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        navButtons.forEach(btn => {
+          btn.classList.remove('active');
+          btn.setAttribute('aria-selected', 'false');
+          document.getElementById(btn.getAttribute('aria-controls')).hidden = true;
         });
+        button.classList.add('active');
+        button.setAttribute('aria-selected', 'true');
+        document.getElementById(button.getAttribute('aria-controls')).hidden = false;
       });
-      salvarStock();
-      salvarHistorico();
-      carregarStockTabela(searchProductInput.value);
-      montarGrafico();
-      showAlert('Quantidades resetadas');
-    }
-  });
-
-  btnSaveStock.addEventListener('click', () => {
-    salvarStock();
-    salvarHistorico();
-    showAlert('Stock guardado com sucesso');
-  });
-
-  btnExportXLSX.addEventListener('click', () => {
-    if(stock.length === 0) {
-      showAlert('Stock vazio, nada para exportar');
-      return;
-    }
-    // Formatar dados para exportar
-    const exportData = stock.map(p => ({
-      ID: p.id,
-      Produto: p.nome,
-      Quantidade: p.quantidade,
-      Referencia: p.referencia,
-      'Data Última Alteração': p.dataUltimaAlteracao ? new Date(p.dataUltimaAlteracao).toLocaleString() : ''
-    }));
-    const ws = XLSX.utils.json_to_sheet(exportData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Stock');
-    XLSX.writeFile(wb, 'stock.xlsx');
-  });
-
-  searchProductInput.addEventListener('input', () => {
-    carregarStockTabela(searchProductInput.value);
-  });
-
-  // --- GESTÃO UTILIZADORES ---
-  const tableUsersBody = document.querySelector('#tableUsers tbody');
-  const btnAddUser = document.getElementById('btnAddUser');
-  const btnSaveUsers = document.getElementById('btnSaveUsers');
-
-  function carregarUsersTabela() {
-    tableUsersBody.innerHTML = '';
-    if(utilizadores.length === 0) {
-      const tr = document.createElement('tr');
-      const td = document.createElement('td');
-      td.colSpan = 6;
-      td.style.textAlign = 'center';
-      td.textContent = 'Nenhum utilizador encontrado.';
-      tr.appendChild(td);
-      tableUsersBody.appendChild(tr);
-      return;
-    }
-
-    utilizadores.forEach(u => {
-      const tr = document.createElement('tr');
-
-      // ID
-      const tdId = document.createElement('td');
-      tdId.textContent = u.id;
-      tr.appendChild(tdId);
-
-      // Nome
-      const tdNome = document.createElement('td');
-      const inputNome = document.createElement('input');
-      inputNome.type = 'text';
-      inputNome.value = u.nome;
-      inputNome.title = 'Editar nome';
-      inputNome.addEventListener('change', () => {
-        u.nome = inputNome.value.trim();
-      });
-      tdNome.appendChild(inputNome);
-      tr.appendChild(tdNome);
-
-      // Email
-      const tdEmail = document.createElement('td');
-      const inputEmail = document.createElement('input');
-      inputEmail.type = 'email';
-      inputEmail.value = u.email;
-      inputEmail.title = 'Editar email';
-      inputEmail.addEventListener('change', () => {
-        u.email = inputEmail.value.trim();
-      });
-      tdEmail.appendChild(inputEmail);
-      tr.appendChild(tdEmail);
-
-      // Permissão
-      const tdPerm = document.createElement('td');
-      const selectPerm = document.createElement('select');
-      ['admin', 'user'].forEach(role => {
-        const option = document.createElement('option');
-        option.value = role;
-        option.textContent = role.charAt(0).toUpperCase() + role.slice(1);
-        if(u.permissao === role) option.selected = true;
-        selectPerm.appendChild(option);
-      });
-      selectPerm.title = 'Editar permissão';
-      selectPerm.addEventListener('change', () => {
-        u.permissao = selectPerm.value;
-      });
-      tdPerm.appendChild(selectPerm);
-      tr.appendChild(tdPerm);
-
-      // Password
-      const tdPass = document.createElement('td');
-      const inputPass = document.createElement('input');
-      inputPass.type = 'password';
-      inputPass.placeholder = 'Nova senha';
-      inputPass.title = 'Alterar senha';
-      inputPass.addEventListener('change', () => {
-        if(inputPass.value.trim().length > 0) {
-          u.password = inputPass.value;
-        }
-      });
-      tdPass.appendChild(inputPass);
-      tr.appendChild(tdPass);
-
-      // Remover
-      const tdRem = document.createElement('td');
-      const btnRem = document.createElement('button');
-      btnRem.className = 'btn btn-danger';
-      btnRem.title = 'Remover utilizador';
-      btnRem.innerHTML = '<span class="material-icons">delete</span>';
-      btnRem.addEventListener('click', () => {
-        if(confirm(`Deseja remover o utilizador "${u.nome}"?`)) {
-          utilizadores = utilizadores.filter(user => user.id !== u.id);
-          salvarUtilizadores();
-          carregarUsersTabela();
-          showAlert('Utilizador removido');
-        }
-      });
-      tdRem.appendChild(btnRem);
-      tr.appendChild(tdRem);
-
-      tableUsersBody.appendChild(tr);
     });
   }
 
-  btnAddUser.addEventListener('click', () => {
-    const novoUser = {
-      id: novoId(utilizadores),
-      nome: 'Novo Utilizador',
-      email: '',
-      permissao: 'user',
-      password: ''
-    };
-    utilizadores.push(novoUser);
-    carregarUsersTabela();
-  });
-
-  btnSaveUsers.addEventListener('click', () => {
-    salvarUtilizadores();
-    showAlert('Utilizadores guardados com sucesso');
-  });
-
-  // --- Histórico ---
-  const modalHistorico = document.getElementById('modalHistorico');
-  const historicoContent = document.getElementById('historicoContent');
-  const btnCloseHistorico = document.getElementById('btnCloseHistorico');
-
-  function mostrarHistorico(prodId) {
-    historicoContent.innerHTML = '';
-    const hist = historicoAlteracoes[prodId];
-    if(!hist || hist.length === 0) {
-      historicoContent.textContent = 'Sem histórico disponível.';
-    } else {
-      hist.forEach(h => {
-        const p = document.createElement('p');
-        p.textContent = `[${new Date(h.data).toLocaleString()}] ${h.user}: ${h.acao}`;
-        historicoContent.appendChild(p);
-      });
-    }
-    modalHistorico.style.display = 'flex';
+  // Limpar formulário de stock
+  function clearStockForm() {
+    document.getElementById('form-stock').reset();
+    document.getElementById('stock-edit-id').value = '';
   }
 
-  btnCloseHistorico.addEventListener('click', () => {
-    modalHistorico.style.display = 'none';
-  });
+  // Limpar formulário de utilizadores
+  function clearUsersForm() {
+    document.getElementById('form-users').reset();
+    document.getElementById('user-edit-id').value = '';
+  }
 
-  // --- Gráfico ---
-  let chartInstance = null;
-  const ctx = document.getElementById('chartStock').getContext('2d');
+  // Limpar formulário de movimentações
+  function clearMovementsForm() {
+    document.getElementById('form-movements').reset();
+  }
 
-  function montarGrafico() {
-    const labels = stock.map(p => p.nome);
-    const data = stock.map(p => p.quantidade);
-    if(chartInstance) chartInstance.destroy();
-    chartInstance = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Quantidade em Stock',
-          data: data,
-          backgroundColor: 'rgba(54, 162, 235, 0.7)'
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true,
-            precision: 0
-          }
-        }
+  // Editar produto
+  function editProduct(id) {
+    const prod = products.find(p => p.id === id);
+    if(!prod) return;
+    document.getElementById('stock-edit-id').value = prod.id;
+    document.getElementById('product-id').value = prod.id;
+    document.getElementById('product-name').value = prod.name;
+    document.getElementById('product-quantity').value = prod.quantity;
+    document.getElementById('product-price').value = prod.price;
+    document.getElementById('product-category').value = prod.category || '';
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+
+  // Editar utilizador
+  function editUser(id) {
+    const user = users.find(u => u.id === id);
+    if(!user) return;
+    document.getElementById('user-edit-id').value = user.id;
+    document.getElementById('user-id').value = user.id;
+    document.getElementById('user-name').value = user.name;
+    document.getElementById('user-role').value = user.role || '';
+    document.getElementById('user-permission').value = user.permission;
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+
+  // Eliminar produto
+  function deleteProduct(id) {
+    if(!confirm('Tem a certeza que pretende eliminar este produto?')) return;
+    // Verificar se o produto está referenciado em movimentações
+    const usedInMov = movements.find(mov => mov.productId === id);
+    if(usedInMov) {
+      alert('Não é possível eliminar o produto pois está associado a movimentações.');
+      return;
+    }
+    products = products.filter(p => p.id !== id);
+    saveData();
+    renderProducts();
+    populateSelects();
+    showMessage('stock-message', 'Produto eliminado com sucesso.', 'success');
+  }
+
+  // Eliminar utilizador
+  function deleteUser(id) {
+    if(!confirm('Tem a certeza que pretende eliminar este utilizador?')) return;
+    // Verificar se o utilizador está referenciado em movimentações
+    const usedInMov = movements.find(mov => mov.userId === id);
+    if(usedInMov) {
+      alert('Não é possível eliminar o utilizador pois está associado a movimentações.');
+      return;
+    }
+    users = users.filter(u => u.id !== id);
+    saveData();
+    renderUsers();
+    populateSelects();
+    showMessage('users-message', 'Utilizador eliminado com sucesso.', 'success');
+  }
+
+  // Guardar / Atualizar produto
+  document.getElementById('form-stock').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const editId = document.getElementById('stock-edit-id').value.trim();
+    const id = document.getElementById('product-id').value.trim();
+    const name = document.getElementById('product-name').value.trim();
+    const quantityStr = document.getElementById('product-quantity').value.trim();
+    const priceStr = document.getElementById('product-price').value.trim();
+    const category = document.getElementById('product-category').value.trim();
+
+    if(!id || !name || !quantityStr || !priceStr) {
+      showMessage('stock-message', 'Por favor, preencha todos os campos obrigatórios.', 'error');
+      return;
+    }
+
+    const quantity = Number(quantityStr);
+    const price = Number(priceStr);
+    if(isNaN(quantity) || quantity < 0) {
+      showMessage('stock-message', 'Quantidade inválida.', 'error');
+      return;
+    }
+    if(isNaN(price) || price < 0) {
+      showMessage('stock-message', 'Preço inválido.', 'error');
+      return;
+    }
+
+    if(editId) {
+      // Atualizar produto existente
+      const prodIndex = products.findIndex(p => p.id === editId);
+      if(prodIndex === -1) {
+        showMessage('stock-message', 'Produto para editar não encontrado.', 'error');
+        return;
       }
+      // Se o ID for alterado, verificar duplicação
+      if(editId !== id && products.some(p => p.id === id)) {
+        showMessage('stock-message', 'Já existe um produto com este ID.', 'error');
+        return;
+      }
+      products[prodIndex] = { id, name, quantity, price, category };
+      showMessage('stock-message', 'Produto atualizado com sucesso.', 'success');
+    } else {
+      // Verificar duplicação ID novo produto
+      if(products.some(p => p.id === id)) {
+        showMessage('stock-message', 'Já existe um produto com este ID.', 'error');
+        return;
+      }
+      products.push({ id, name, quantity, price, category });
+      showMessage('stock-message', 'Produto adicionado com sucesso.', 'success');
+    }
+
+    saveData();
+    renderProducts();
+    populateSelects();
+    clearStockForm();
+  });
+
+  document.getElementById('btn-stock-clear').addEventListener('click', clearStockForm);
+
+  // Guardar / Atualizar utilizador
+  document.getElementById('form-users').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const editId = document.getElementById('user-edit-id').value.trim();
+    const id = document.getElementById('user-id').value.trim();
+    const name = document.getElementById('user-name').value.trim();
+    const role = document.getElementById('user-role').value.trim();
+    const permission = document.getElementById('user-permission').value;
+
+    if(!id || !name || !permission) {
+      showMessage('users-message', 'Por favor, preencha todos os campos obrigatórios.', 'error');
+      return;
+    }
+
+    if(editId) {
+      const userIndex = users.findIndex(u => u.id === editId);
+      if(userIndex === -1) {
+        showMessage('users-message', 'Utilizador para editar não encontrado.', 'error');
+        return;
+      }
+      if(editId !== id && users.some(u => u.id === id)) {
+        showMessage('users-message', 'Já existe um utilizador com este ID.', 'error');
+        return;
+      }
+      users[userIndex] = { id, name, role, permission };
+      showMessage('users-message', 'Utilizador atualizado com sucesso.', 'success');
+    } else {
+      if(users.some(u => u.id === id)) {
+        showMessage('users-message', 'Já existe um utilizador com este ID.', 'error');
+        return;
+      }
+      users.push({ id, name, role, permission });
+      showMessage('users-message', 'Utilizador adicionado com sucesso.', 'success');
+    }
+
+    saveData();
+    renderUsers();
+    populateSelects();
+    clearUsersForm();
+  });
+
+  document.getElementById('btn-users-clear').addEventListener('click', clearUsersForm);
+
+  // Registar movimentação
+  document.getElementById('form-movements').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const productId = document.getElementById('movement-product').value;
+    const userId = document.getElementById('movement-user').value;
+    const type = document.getElementById('movement-type').value;
+    const quantityStr = document.getElementById('movement-quantity').value.trim();
+    const notes = document.getElementById('movement-notes').value.trim();
+
+    if(!productId || !userId || !type || !quantityStr) {
+      showMessage('movements-message', 'Por favor, preencha todos os campos obrigatórios.', 'error');
+      return;
+    }
+
+    const quantity = Number(quantityStr);
+    if(isNaN(quantity) || quantity <= 0) {
+      showMessage('movements-message', 'Quantidade inválida.', 'error');
+      return;
+    }
+
+    // Encontrar produto e utilizador
+    const product = products.find(p => p.id === productId);
+    const user = users.find(u => u.id === userId);
+    if(!product || !user) {
+      showMessage('movements-message', 'Produto ou utilizador não encontrado.', 'error');
+      return;
+    }
+
+    // Verificar stock para saída
+    if(type === 'saida' && product.quantity < quantity) {
+      showMessage('movements-message', 'Quantidade insuficiente em stock.', 'error');
+      return;
+    }
+
+    // Atualizar stock
+    if(type === 'entrada') {
+      product.quantity += quantity;
+    } else {
+      product.quantity -= quantity;
+    }
+
+    // Registar movimentação
+    movements.push({
+      date: new Date().toISOString(),
+      productId,
+      productName: product.name,
+      type,
+      quantity,
+      userId,
+      userName: user.name,
+      notes
     });
-  }
 
-  // Funções de armazenamento
-  function salvarStock() {
-    localStorage.setItem('stock', JSON.stringify(stock));
-  }
+    saveData();
+    renderTables();
+    clearMovementsForm();
+    showMessage('movements-message', 'Movimentação registada com sucesso.', 'success');
+  });
 
-  function salvarUtilizadores() {
-    localStorage.setItem('utilizadores', JSON.stringify(utilizadores));
-  }
-
-  function salvarHistorico() {
-    localStorage.setItem('historicoAlteracoes', JSON.stringify(historicoAlteracoes));
-  }
-
-  // Função para gerar novo ID
-  function novoId(arr) {
-    if(arr.length === 0) return 1;
-    return Math.max(...arr.map(item => item.id)) + 1;
-  }
-
-  // Mostrar alertas
-  function showAlert(msg) {
-    alert(msg);
-  }
+  document.getElementById('btn-movements-clear').addEventListener('click', clearMovementsForm);
 
   // Inicialização
-  carregarTodasTabelas();
-  montarGrafico();
+  document.addEventListener('DOMContentLoaded', init);
+</script>
 
-})();  
-  
+<style>
+  /* Reset básico */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f7f9fc;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #222;
+  }
+  nav {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px;
+    gap: 15px;
+  }
+  nav button {
+    background: #0078d7;
+    border: none;
+    padding: 10px 20px;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  nav button:hover, nav button.active {
+    background: #005ea2;
+  }
+  section {
+    max-width: 960px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 8px;
+    padding: 25px 30px;
+    box-shadow: 0 2px 10px rgb(0 0 0 / 0.1);
+  }
+  form {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  label {
+    font-weight: 600;
+  }
+  input[type=text], input[type=number], select, textarea {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 15px;
+    border: 1.8px solid #ccc;
+    border-radius: 6px;
+    transition: border-color 0.3s ease;
+  }
+  input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus {
+    border-color: #0078d7;
+    outline: none;
+  }
+  textarea {
+    resize: vertical;
+    min-height: 60px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+  }
+  th, td {
+    border: 1.3px solid #ddd;
+    padding: 10px 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #f0f0f0;
+    font-weight: 700;
+  }
+  .actions-cell button {
+    margin-right: 8px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #fff;
+  }
+  .actions-cell button.edit {
+    background-color: #28a745;
+  }
+  .actions-cell button.delete {
+    background-color: #dc3545;
+  }
+  .actions-cell button.edit:hover {
+    background-color: #218838;
+  }
+  .actions-cell button.delete:hover {
+    background-color: #c82333;
+  }
+  .message {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+  .success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1.5px solid #c3e6cb;
+  }
+  .error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1.5px solid #f5c6cb;
+  }
+</style>
 
-  
-  </script>
-</body>
-</html>
+<!-- Estrutura HTML para a app -->
+<main>
+  <h1>Gestão de Stock</h1>
+
+  <nav role="tablist" aria-label="Navegação da aplicação">
+    <button role="tab" aria-controls="section-stock" aria-selected="true" class="active">Stock</button>
+    <button role="tab" aria-controls="section-users" aria-selected="false">Utilizadores</button>
+    <button role="tab" aria-controls="section-movements" aria-selected="false">Movimentações</button>
+  </nav>
+
+  <section id="section-stock" role="tabpanel">
+    <form id="form-stock" aria-label="Formulário de produtos">
+      <input type="hidden" id="stock-edit-id">
+      <label for="product-id">ID do Produto *</label>
+      <input type="text" id="product-id" maxlength="15" required aria-required="true">
+      <label for="product-name">Nome do Produto *</label>
+      <input type="text" id="product-name" maxlength="50" required aria-required="true">
+      <label for="product-quantity">Quantidade *</label>
+      <input type="number" id="product-quantity" min="0" required aria-required="true">
+      <label for="product-price">Preço (€) *</label>
+      <input type="number" id="product-price" min="0" step="0.01" required aria-required="true">
+      <label for="product-category">Categoria</label>
+      <input type="text" id="product-category" maxlength="30">
+      <div>
+        <button type="submit">Guardar Produto</button>
+        <button type="button" id="btn-stock-clear">Limpar</button>
+      </div>
+    </form>
+    <div id="stock-message" aria-live="polite"></div>
+
+    <table id="table-stock" aria-label="Tabela de produtos">
+      <thead>
+        <tr>
+          <th>ID</th><th>Nome</th><th>Quantidade</th><th>Preço (€)</th><th>Categoria</th><th>Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section id="section-users" role="tabpanel" hidden>
+    <form id="form-users" aria-label="Formulário de utilizadores">
+      <input type="hidden" id="user-edit-id">
+      <label for="user-id">ID do Utilizador *</label>
+      <input type="text" id="user-id" maxlength="15" required aria-required="true">
+      <label for="user-name">Nome do Utilizador *</label>
+      <input type="text" id="user-name" maxlength="50" required aria-required="true">
+      <label for="user-role">Função</label>
+      <input type="text" id="user-role" maxlength="30">
+      <label for="user-permission">Permissão *</label>
+      <select id="user-permission" required aria-required="true">
+        <option value="" disabled selected>Selecione a permissão</option>
+        <option value="admin">Administrador</option>
+        <option value="user">Utilizador</option>
+      </select>
+      <div>
+        <button type="submit">Guardar Utilizador</button>
+        <button type="button" id="btn-users-clear">Limpar</button>
+      </div>
+    </form>
+    <div id="users-message" aria-live="polite"></div>
+
+    <table id="table-users" aria-label="Tabela de utilizadores">
+      <thead>
+        <tr>
+          <th>ID</th><th>Nome</th><th>Função</th><th>Permissão</th><th>Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section id="section-movements" role="tabpanel" hidden>
+    <form id="form-movements" aria-label="Formulário de movimentações">
+      <label for="movement-product">Produto *</label>
+      <select id="movement-product" required aria-required="true"></select>
+      <label for="movement-user">Utilizador *</label>
+      <select id="movement-user" required aria-required="true"></select>
+      <label for="movement-type">Tipo de Movimentação *</label>
+      <select id="movement-type" required aria-required="true">
+        <option value="" disabled selected>Selecione o tipo</option>
+        <option value="entrada">Entrada</option>
+        <option value="saida">Saída</option>
+      </select>
+      <label for="movement-quantity">Quantidade *</label>
+      <input type="number" id="movement-quantity" min="1" required aria-required="true">
+      <label for="movement-notes">Notas</label>
+      <textarea id="movement-notes"></textarea>
+      <div>
+        <button type="submit">Registar Movimentação</button>
+        <button type="button" id="btn-movements-clear">Limpar</button>
+      </div>
+    </form>
+    <div id="movements-message" aria-live="polite"></div>
+
+    <table id="table-movements" aria-label="Tabela de movimentações">
+      <thead>
+        <tr>
+          <th>Data</th><th>ID Produto</th><th>Produto</th><th>Tipo</th><th>Quantidade</th><th>ID Utilizador</th><th>Utilizador</th><th>Notas</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</main>
