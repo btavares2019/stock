@@ -10,9 +10,11 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
       background: #f9f9f9;
-      display: flex; flex-direction: column;
+      display: flex;
+      flex-direction: column;
       min-height: 100vh;
     }
     header {
@@ -82,7 +84,9 @@
     .btn-danger:hover {
       background: #dc2626;
     }
-    .hidden { display: none; }
+    .hidden {
+      display: none;
+    }
     footer {
       background: #eee;
       padding: 1rem;
@@ -93,13 +97,12 @@
 </head>
 <body>
 <header>
-  <strong>Gestão de STOCK's</strong>
+  <strong>Gestão de Produtos</strong>
   <div>
     <span id="loginMsg"></span>
     <button id="logoutBtn" class="hidden btn">Terminar Sessão</button>
   </div>
 </header>
-
 <main>
   <div id="loginSection">
     <h2>Iniciar Sessão</h2>
@@ -143,6 +146,7 @@
       <button class="btn" id="exportPdfBtn">Exportar PDF</button>
       <button class="btn" id="printBtn">Imprimir</button>
       <button class="btn btn-danger" id="resetQuantidadesBtn">Reset Quantidades</button>
+      <button class="btn btn-danger" id="resetTotalBtn">Reset Total (Contadores + Histórico)</button>
     </section>
 
     <section id="historico" class="hidden">
@@ -166,11 +170,9 @@
     </section>
   </div>
 </main>
-
 <footer>
-  Criado por Bruno Tavares 2025 - INOVAR+
+  Criado por Bruno Tavares 2025
 </footer>
-
 <script>
 const users = [
   { username: "admin", password: "1234" },
@@ -185,7 +187,8 @@ function iniciarApp() {
   document.getElementById("loginSection").classList.add("hidden");
   document.getElementById("mainApp").classList.remove("hidden");
   document.getElementById("logoutBtn").classList.remove("hidden");
-  document.getElementById("loginMsg").textContent = `Sessão: ${utilizadorAtual} | Último login: ${localStorage.getItem("ultimoLogin")}`;
+  document.getElementById("loginMsg").textContent =
+    `Sessão: ${utilizadorAtual} | Último login: ${localStorage.getItem("ultimoLogin")}`;
   renderizarProdutos();
   renderizarHistorico();
   renderizarUtilizadores();
@@ -368,7 +371,23 @@ document.getElementById("resetQuantidadesBtn").onclick = () => {
   renderizarProdutos();
   renderizarHistorico();
 };
-</script>
 
+// Reset total de contadores + histórico
+document.getElementById("resetTotalBtn").onclick = () => {
+  if (!confirm("Tem a certeza que deseja resetar todas as quantidades e limpar o histórico? Esta ação não pode ser desfeita.")) return;
+  const dataAtual = new Date().toLocaleString();
+  produtos = produtos.map(p => ({
+    ...p,
+    quantidade: 0,
+    data: dataAtual,
+    usuario: utilizadorAtual || "Desconhecido"
+  }));
+  historico = [];
+  guardarProdutos();
+  guardarHistorico();
+  renderizarProdutos();
+  renderizarHistorico();
+};
+</script>
 </body>
 </html>
