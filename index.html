@@ -164,7 +164,6 @@
       <button class="tabBtn" data-tab="historico">Histórico de Contagens</button>
       <button class="tabBtn" data-tab="utilizadores">Gestão de Utilizadores</button>
     </nav>
-
     <!-- Produtos -->
     <section id="produtos" class="tabContent">
       <h2>Produtos</h2>
@@ -193,6 +192,8 @@
         <button class="btn" id="exportExcelBtn">Exportar para Excel</button>
         <button class="btn" id="exportPdfBtn">Exportar para PDF</button>
         <button class="btn" id="printBtn">Imprimir</button>
+        <button class="btn btn-danger" id="resetQuantidadesBtn">Reset às Quantidades</button>
+        <button class="btn btn-danger" id="resetTotalBtn">Reset Total</button>
       </div>
     </section>
 
@@ -223,101 +224,97 @@
 <footer>
   Criado por Bruno Tavares 2025
 </footer>
-
 <script>
-  // Dados simulados e funções utilitárias
-  const produtoStorageKey = "produtos";
-  const historicoStorageKey = "historico";
-  const userKey = "utilizador";
+  let produtos = JSON.parse(localStorage.getItem("produtos") || "[]");
+  let historico = JSON.parse(localStorage.getItem("historico") || "[]");
+  let utilizadorAtual = localStorage.getItem("utilizadorAtual") || null;
 
-  let produtos = JSON.parse(localStorage.getItem(produtoStorageKey)) || [];
-  let historico = JSON.parse(localStorage.getItem(historicoStorageKey)) || [];
+  const users = [
+    { username: "admin", password: "1234" },
+    { username: "bruno", password: "2025" }
+  ];
 
-  function guardarProdutos() {
-    localStorage.setItem(produtoStorageKey, JSON.stringify(produtos));
-  }
-
-  function guardarHistorico() {
-    localStorage.setItem(historicoStorageKey, JSON.stringify(historico));
-  }
-
-  // Login
-  const loginSection = document.getElementById("loginSection");
-  const mainApp = document.getElementById("mainApp");
-  const loginBtn = document.getElementById("loginBtn");
-  const logoutBtn = document.getElementById("logoutBtn");
-  const loginMsg = document.getElementById("loginMsg");
-
-  function verificarSessao() {
-    const utilizador = localStorage.getItem(userKey);
-    if (utilizador) {
-      loginSection.classList.add("hidden");
-      mainApp.classList.remove("hidden");
-      loginMsg.innerText = `Último login: ${new Date().toLocaleString()}`;
-      logoutBtn.classList.remove("hidden");
+  // Tabs
+  document.querySelectorAll(".tabBtn").forEach(btn =>
+    btn.onclick = () => {
+      document.querySelectorAll(".tabContent").forEach(sec => sec.classList.add("hidden"));
+      document.querySelectorAll(".tabBtn").forEach(b => b.classList.remove("active"));
+      document.getElementById(btn.dataset.tab).classList.remove("hidden");
+      btn.classList.add("active");
     }
-  }
+  );
 
-  loginBtn.onclick = () => {
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value.trim();
-    if (username && password) {
-      localStorage.setItem(userKey, username);
-      verificarSessao();
-    } else {
-      alert("Introduza o nome de utilizador e palavra-passe.");
-    }
+  // Autenticação
+  document.getElementById("loginBtn").onclick = () => {
+    const u = document.getElementById("username").value;
+    const p = document.getElementById("password").value;
+    const valid = users.find(user => user.username === u && user.password === p);
+    if (!valid) return alert("Utilizador ou palavra-passe inválidos.");
+    utilizadorAtual = u;
+    localStorage.setItem("utilizadorAtual", u);
+    localStorage.setItem("ultimoLogin", new Date().toLocaleString());
+    iniciarApp();
   };
 
-  logoutBtn.onclick = () => {
-    localStorage.removeItem(userKey);
+  document.getElementById("logoutBtn").onclick = () => {
+    localStorage.removeItem("utilizadorAtual");
     location.reload();
   };
 
-  verificarSessao();
+  function iniciarApp() {
+    document.getElementById("loginSection").classList.add("hidden");
+    document.getElementById("mainApp").classList.remove("hidden");
+    document.getElementById("logoutBtn").classList.remove("hidden");
+    document.getElementById("loginMsg").textContent =
+      "Sessão: " + utilizadorAtual + " | Último login: " + (localStorage.getItem("ultimoLogin") || "");
+    renderizarProdutos();
+    renderizarHistorico();
+    renderizarUtilizadores();
+  }
 
-  // Tabs
-  const tabs = document.querySelectorAll(".tabBtn");
-  const contents = document.querySelectorAll(".tabContent");
-  tabs.forEach(btn => {
-    btn.onclick = () => {
-      tabs.forEach(b => b.classList.remove("active"));
-      contents.forEach(c => c.classList.add("hidden"));
-      btn.classList.add("active");
-      document.getElementById(btn.dataset.tab).classList.remove("hidden");
-    };
-  });
+  if (utilizadorAtual) iniciarApp();
 
-  // Renderizar produtos
-  const productTable = document.querySelector("#productTable tbody");
-  const historicoTable = document.querySelector("#historicoTable tbody");
+  function guardarProdutos() {
+    localStorage.setItem("produtos", JSON.stringify(produtos));
+  }
+
+  function guardarHistorico() {
+    localStorage.setItem("historico", JSON.stringify(historico));
+  }
 
   function renderizarProdutos(lista = produtos) {
-    productTable.innerHTML = "";
-    lista.forEach((p, index) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
+    const tbody = document.querySelector("#productTable tbody");
+    tbody.innerHTML = "";
+    lista.forEach((p, i) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
         <td>${p.nome}</td>
         <td>${p.quantidade}</td>
         <td>${p.data}</td>
         <td>
-          <button class="btn" onclick="editarProduto(${index})">Editar</button>
-          <button class="btn btn-danger" onclick="removerProduto(${index})">Remover</button>
-        </td>`;
-      productTable.appendChild(row);
+          <button class="btn" onclick="editarProduto(${i})">Editar</button>
+          <button class="btn btn-danger" onclick="removerProduto(${i})">Remover</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
     });
   }
 
   function renderizarHistorico() {
-    historicoTable.innerHTML = "";
-    historico.forEach(item => {
-      const row = document.createElement("tr");
-      row.innerHTML = `<td>${item.nome}</td><td>${item.quantidade}</td><td>${item.data}</td>`;
-      historicoTable.appendChild(row);
+    const tbody = document.querySelector("#historicoTable tbody");
+    tbody.innerHTML = "";
+    historico.forEach(h => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${h.nome}</td><td>${h.quantidade}</td><td>${h.data}</td>`;
+      tbody.appendChild(tr);
     });
   }
 
-  // Adicionar ou atualizar
+  function renderizarUtilizadores() {
+    const ul = document.getElementById("userList");
+    ul.innerHTML = users.map(u => `<li>${u.username}</li>`).join("");
+  }
+
   document.getElementById("addProductBtn").onclick = () => {
     const nome = document.getElementById("productName").value.trim();
     const quantidade = parseInt(document.getElementById("productQty").value);
@@ -334,7 +331,6 @@
     }
 
     historico.push({ nome, quantidade, data: dataAtual });
-
     guardarProdutos();
     guardarHistorico();
     renderizarProdutos();
@@ -342,71 +338,99 @@
     document.getElementById("productName").value = "";
     document.getElementById("productQty").value = "";
   };
+  function editarProduto(i) {
+    const p = produtos[i];
+    document.getElementById("productName").value = p.nome;
+    document.getElementById("productQty").value = p.quantidade;
+  }
 
-  // Editar e Remover
-  window.editarProduto = function (index) {
-    const produto = produtos[index];
-    document.getElementById("productName").value = produto.nome;
-    document.getElementById("productQty").value = produto.quantidade;
-  };
+  function removerProduto(i) {
+    if (!confirm(`Remover o produto "${produtos[i].nome}"?`)) return;
+    produtos.splice(i, 1);
+    guardarProdutos();
+    renderizarProdutos();
+  }
 
-  window.removerProduto = function (index) {
-    if (confirm("Tem a certeza que deseja remover este produto?")) {
-      produtos.splice(index, 1);
-      guardarProdutos();
-      renderizarProdutos();
-    }
-  };
-
-  // Filtros
   document.getElementById("filterBtn").onclick = () => {
-    const nome = document.getElementById("filterName").value.trim().toLowerCase();
-    const quantidade = parseInt(document.getElementById("filterQty").value);
-    const filtrado = produtos.filter(p => {
-      const matchNome = nome ? p.nome.toLowerCase().includes(nome) : true;
-      const matchQtd = !isNaN(quantidade) ? p.quantidade < quantidade : true;
-      return matchNome && matchQtd;
-    });
-    renderizarProdutos(filtrado);
+    const filtroNome = document.getElementById("filterName").value.trim().toLowerCase();
+    const filtroQty = parseInt(document.getElementById("filterQty").value);
+
+    let filtrados = produtos;
+
+    if (filtroNome) {
+      filtrados = filtrados.filter(p => p.nome.toLowerCase().includes(filtroNome));
+    }
+    if (!isNaN(filtroQty)) {
+      filtrados = filtrados.filter(p => p.quantidade < filtroQty);
+    }
+    renderizarProdutos(filtrados);
   };
 
-  // Exportações
+  // Exportar Excel
   document.getElementById("exportExcelBtn").onclick = () => {
-    const rows = produtos.map(p => [p.nome, p.quantidade, p.data]);
     const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.aoa_to_sheet([["Nome", "Quantidade", "Última alteração"], ...rows]);
+    const wsData = [
+      ["Nome", "Quantidade", "Última Alteração"],
+      ...produtos.map(p => [p.nome, p.quantidade, p.data])
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
     XLSX.utils.book_append_sheet(wb, ws, "Produtos");
     XLSX.writeFile(wb, "produtos.xlsx");
   };
 
+  // Exportar PDF
   document.getElementById("exportPdfBtn").onclick = () => {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
+    doc.text("Produtos", 14, 16);
+    const rows = produtos.map(p => [p.nome, p.quantidade, p.data]);
     doc.autoTable({
-      head: [["Nome", "Quantidade", "Última alteração"]],
-      body: produtos.map(p => [p.nome, p.quantidade, p.data]),
+      head: [["Nome", "Quantidade", "Última Alteração"]],
+      body: rows,
+      startY: 20,
     });
     doc.save("produtos.pdf");
   };
 
+  // Imprimir
   document.getElementById("printBtn").onclick = () => {
-    const win = window.open("", "", "width=800,height=600");
-    win.document.write(`<html><head><title>Imprimir Produtos</title>`);
-    win.document.write(`<style>table{width:100%;border-collapse:collapse;}th,td{border:1px solid #ddd;padding:8px;text-align:left;}th{background:#2563eb;color:#fff;}</style>`);
-    win.document.write(`</head><body>`);
-    win.document.write(`<h2>Lista de Produtos</h2>`);
-    win.document.write(document.querySelector("#productTable").outerHTML);
-    win.document.write("</body></html>");
-    win.document.close();
-    win.print();
+    const printWindow = window.open("", "", "width=900,height=650");
+    printWindow.document.write("<html><head><title>Imprimir Produtos</title>");
+    printWindow.document.write("<style>table{width:100%;border-collapse:collapse;}th,td{border:1px solid #ddd;padding:8px;text-align:left;}th{background:#2563eb;color:#fff;}</style>");
+    printWindow.document.write("</head><body>");
+    printWindow.document.write("<h2>Produtos</h2>");
+    printWindow.document.write(document.getElementById("productTable").outerHTML);
+    printWindow.document.write("</body></html>");
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
   };
 
-  // Inicialização
-  renderizarProdutos();
-  renderizarHistorico();
+  // Reset quantidades
+  document.getElementById("resetQuantidadesBtn").onclick = () => {
+    if (!confirm("Tem a certeza que deseja fazer reset a todas as quantidades?")) return;
+    const dataAtual = new Date().toLocaleString();
+    produtos = produtos.map(p => {
+      historico.push({ nome: p.nome, quantidade: 0, data: dataAtual });
+      return { ...p, quantidade: 0, data: dataAtual };
+    });
+    guardarProdutos();
+    guardarHistorico();
+    renderizarProdutos();
+    renderizarHistorico();
+  };
+
+  // Reset total (produtos e histórico)
+  document.getElementById("resetTotalBtn").onclick = () => {
+    if (!confirm("⚠️ Isto irá remover TODOS os produtos e histórico. Continuar?")) return;
+    produtos = [];
+    historico = [];
+    guardarProdutos();
+    guardarHistorico();
+    renderizarProdutos();
+    renderizarHistorico();
+  };
 </script>
-<footer>
-  Criado por Bruno Tavares 2025
-</footer>
 </body>
 </html>
