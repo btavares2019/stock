@@ -3,438 +3,399 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gestão de Produtos e Utilizadores</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <title>Gestão de Produtos - Bruno Tavares 2025</title>
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    header {
+      background: #2563eb;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header button {
+      background: #fbbf24;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    header button:hover {
+      background: #f59e0b;
+    }
+    main {
+      flex-grow: 1;
+      padding: 2rem;
+      max-width: 900px;
+      margin: auto;
+    }
+    nav {
+      margin-bottom: 2rem;
+    }
+    nav button {
+      background: #2563eb;
+      border: none;
+      color: white;
+      padding: 0.5rem 1rem;
+      margin-right: 0.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    nav button.active,
+    nav button:hover {
+      background: #1e40af;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      box-shadow: 0 2px 5px rgb(0 0 0 / 0.1);
+    }
+    th,
+    td {
+      border: 1px solid #ddd;
+      padding: 0.6rem 1rem;
+      text-align: left;
+    }
+    th {
+      background: #2563eb;
+      color: white;
+    }
+    input[type="text"],
+    input[type="number"],
+    input[type="password"] {
+      padding: 0.4rem 0.6rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-right: 1rem;
+      width: 200px;
+    }
+    input[type="number"] {
+      max-width: 120px;
+    }
+    .flex-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .btn {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s ease;
+    }
+    .btn:hover {
+      background: #1e40af;
+    }
+    .btn-danger {
+      background: #f87171;
+    }
+    .btn-danger:hover {
+      background: #ef4444;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.9rem;
+      background: #f0f0f0;
+      margin-top: auto;
+    }
+    .hidden {
+      display: none;
+    }
+    #exportButtons {
+      margin-top: 1rem;
+    }
+    #exportButtons button {
+      margin-right: 0.8rem;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 font-sans min-h-screen flex flex-col">
+<body>
 
-  <!-- LOGIN -->
-  <div id="loginScreen" class="flex flex-col justify-center items-center min-h-screen bg-gray-100 px-4">
-    <div class="bg-white p-8 rounded-lg shadow-md max-w-sm w-full text-center">
-      <h2 class="text-3xl font-bold mb-6 text-blue-700">Iniciar Sessão</h2>
-      <input id="loginUser" type="text" placeholder="Nome de utilizador" class="w-full mb-4 p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
-      <input id="loginPass" type="password" placeholder="Palavra-passe" class="w-full mb-6 p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
-      <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded transition">Entrar</button>
-    </div>
+
+
+<header>
+  <strong>Gestão de Produtos</strong>
+  <div>
+    <span id="loginMsg"></span>
+    <button id="logoutBtn" class="hidden">Terminar Sessão</button>
+  </div>
+</header>
+
+<main>
+  <div id="loginSection">
+    <h2>Iniciar Sessão</h2>
+    <input type="text" id="username" placeholder="Utilizador" />
+    <input type="password" id="password" placeholder="Palavra-passe" />
+    <button id="loginBtn" class="btn">Entrar</button>
   </div>
 
-  <!-- APP -->
-  <div id="appScreen" class="hidden flex flex-col flex-grow max-w-7xl mx-auto w-full px-6 py-8">
-
-    <!-- Cabeçalho com título, info utilizador e logout -->
-    <header class="flex justify-between items-center mb-6">
-      <h1 class="text-4xl font-bold text-blue-700">Gestão de Produtos</h1>
-      <div class="text-right">
-        <p class="text-gray-700">Utilizador: <strong id="userNameDisplay"></strong></p>
-        <p class="text-gray-500 text-sm" id="lastLoginDisplay"></p>
-        <button onclick="logout()" class="mt-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition">Terminar Sessão</button>
-      </div>
-    </header>
-
-    <!-- Navegação por abas -->
-    <nav class="mb-6 border-b border-gray-300">
-      <ul class="flex space-x-4 text-gray-600">
-        <li><button id="tab-produtos" onclick="showTab('produtos')" class="tab-btn border-b-4 border-blue-600 font-semibold pb-2">Produtos</button></li>
-        <li><button id="tab-historico" onclick="showTab('historico')" class="tab-btn pb-2 hover:text-blue-700 transition">Histórico de Contagens</button></li>
-        <li><button id="tab-utilizadores" onclick="showTab('utilizadores')" class="tab-btn pb-2 hover:text-blue-700 transition">Gestão de Utilizadores</button></li>
-      </ul>
+  <div id="mainApp" class="hidden">
+    <nav>
+      <button class="tabBtn active" data-tab="produtos">Produtos</button>
+      <button class="tabBtn" data-tab="historico">Histórico de Contagens</button>
+      <button class="tabBtn" data-tab="utilizadores">Gestão de Utilizadores</button>
     </nav>
 
-    <!-- Conteúdos das abas -->
-    <section id="produtos" class="tab-content">
-
-      <!-- Formulário de produtos -->
-      <div class="bg-white p-4 rounded shadow mb-6">
-        <h2 class="text-xl font-semibold mb-4">Adicionar / Editar Produto</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <input id="productName" type="text" placeholder="Nome do produto" class="p-2 border rounded" />
-          <input id="productQty" type="number" placeholder="Quantidade" class="p-2 border rounded" />
-          <button onclick="addOrUpdateProduct()" class="bg-green-500 hover:bg-green-600 text-white p-2 rounded transition">Guardar</button>
-        </div>
+    <!-- Produtos -->
+    <section id="produtos" class="tabContent">
+      <h2>Produtos</h2>
+      <div class="flex-row">
+        <input type="text" id="productName" placeholder="Nome do Produto" />
+        <input type="number" id="productQty" placeholder="Quantidade" />
+        <button class="btn" id="addProductBtn">Adicionar / Atualizar</button>
       </div>
-
-      <!-- Tabela de produtos -->
-      <div class="bg-white p-4 rounded shadow mb-6 overflow-auto max-h-[400px]">
-        <table class="min-w-full table-auto border-collapse border text-sm text-left">
-          <thead class="bg-gray-200 sticky top-0">
-            <tr>
-              <th class="border px-4 py-2">Produto</th>
-              <th class="border px-4 py-2">Quantidade</th>
-              <th class="border px-4 py-2">Última Alteração</th>
-              <th class="border px-4 py-2">Ações</th>
-            </tr>
-          </thead>
-          <tbody id="productTable"></tbody>
-        </table>
+      <div class="flex-row" style="margin-top: 1rem;">
+        <input type="text" id="filterName" placeholder="Filtrar por nome" />
+        <input type="number" id="filterQty" placeholder="Menor que quantidade" />
+        <button class="btn" id="filterBtn">Filtrar</button>
       </div>
-
-      <!-- Botões de exportação e impressão -->
-      <div class="flex flex-wrap gap-4 mb-6">
-        <button onclick="exportToExcel()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">Exportar Excel</button>
-        <button onclick="exportToPDF()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Exportar PDF</button>
-        <button onclick="window.print()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">Imprimir</button>
+      <table id="productTable">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Quantidade</th>
+            <th>Última Alteração</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div id="exportButtons">
+        <button class="btn" id="exportExcelBtn">Exportar para Excel</button>
+        <button class="btn" id="exportPdfBtn">Exportar para PDF</button>
+        <button class="btn" id="printBtn">Imprimir</button>
       </div>
     </section>
 
-    <section id="historico" class="tab-content hidden">
-      <h2 class="text-2xl font-semibold mb-4 text-blue-700">Histórico de Contagens</h2>
-      <div class="bg-white p-4 rounded shadow overflow-auto max-h-[450px]">
-        <table class="min-w-full table-auto border-collapse border text-sm text-left">
-          <thead class="bg-gray-200 sticky top-0">
-            <tr>
-              <th class="border px-4 py-2">Produto</th>
-              <th class="border px-4 py-2">Quantidade</th>
-              <th class="border px-4 py-2">Data da Contagem</th>
-              <th class="border px-4 py-2">Utilizador</th>
-            </tr>
-          </thead>
-          <tbody id="historyTable"></tbody>
-        </table>
-      </div>
+    <!-- Histórico -->
+    <section id="historico" class="tabContent hidden">
+      <h2>Histórico de Contagens</h2>
+      <table id="historicoTable">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Quantidade</th>
+            <th>Data</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </section>
 
-    <section id="utilizadores" class="tab-content hidden">
-
-      <h2 class="text-2xl font-semibold mb-4 text-blue-700">Gestão de Utilizadores</h2>
-
-      <div class="bg-white p-4 rounded shadow mb-6 max-w-md">
-        <p class="text-gray-600 italic mb-4">A gestão de utilizadores está desativada nesta versão.</p>
-      </div>
-
-      <div class="bg-white p-4 rounded shadow overflow-auto max-h-[400px] max-w-md">
-        <h3 class="text-lg font-semibold mb-4">Lista de Utilizadores</h3>
-        <table class="min-w-full table-auto border-collapse border text-sm text-left">
-          <thead class="bg-gray-200 sticky top-0">
-            <tr>
-              <th class="border px-4 py-2">Nome</th>
-            </tr>
-          </thead>
-          <tbody id="usersTable"></tbody>
-        </table>
-      </div>
-
+    <!-- Utilizadores -->
+    <section id="utilizadores" class="tabContent hidden">
+      <h2>Gestão de Utilizadores</h2>
+      <p>Gestão fictícia. Utilizadores são guardados no localStorage deste navegador.</p>
+      <ul id="userList"></ul>
     </section>
-
   </div>
+</main>
 
-  <!-- Rodapé -->
-  <footer class="mt-auto bg-gray-200 text-center text-gray-600 text-sm py-4 select-none">
-    Criado por Bruno Tavares 2025
-  </footer>
+<footer>
+  Criado por Bruno Tavares 2025
+</footer>
+
 
 <script>
-  // Utilizadores fixos para login
-  const fixedUsers = [
-    { name: 'admin', password: '1234' },
-    { name: 'user2', password: 'abcd' }
-  ];
+  // Dados simulados e funções utilitárias
+  const produtoStorageKey = "produtos";
+  const historicoStorageKey = "historico";
+  const userKey = "utilizador";
 
-  let currentTab = 'produtos';
-  let editingIndex = -1;
+  let produtos = JSON.parse(localStorage.getItem(produtoStorageKey)) || [];
+  let historico = JSON.parse(localStorage.getItem(historicoStorageKey)) || [];
 
-  // -----------------------
-  // Gestão Login e Sessão
-  // -----------------------
+  function guardarProdutos() {
+    localStorage.setItem(produtoStorageKey, JSON.stringify(produtos));
+  }
 
-  function init() {
-    // Verifica se utilizador está logado (usando sessionStorage para sessão temporária)
-    const user = sessionStorage.getItem('loggedUser');
-    const lastLogin = sessionStorage.getItem('lastLogin');
+  function guardarHistorico() {
+    localStorage.setItem(historicoStorageKey, JSON.stringify(historico));
+  }
 
-    if (user) {
-      showApp(user, lastLogin);
+  // Login
+  const loginSection = document.getElementById("loginSection");
+  const mainApp = document.getElementById("mainApp");
+  const loginBtn = document.getElementById("loginBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const loginMsg = document.getElementById("loginMsg");
+
+  function verificarSessao() {
+    const utilizador = localStorage.getItem(userKey);
+    if (utilizador) {
+      loginSection.classList.add("hidden");
+      mainApp.classList.remove("hidden");
+      loginMsg.innerText = `Último login: ${new Date().toLocaleString()}`;
+      logoutBtn.classList.remove("hidden");
+    }
+  }
+
+  loginBtn.onclick = () => {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+    if (username && password) {
+      localStorage.setItem(userKey, username);
+      verificarSessao();
     } else {
-      showLogin();
+      alert("Introduza o nome de utilizador e palavra-passe.");
     }
+  };
+
+  logoutBtn.onclick = () => {
+    localStorage.removeItem(userKey);
+    location.reload();
+  };
+
+  verificarSessao();
+
+  // Tabs
+  const tabs = document.querySelectorAll(".tabBtn");
+  const contents = document.querySelectorAll(".tabContent");
+  tabs.forEach(btn => {
+    btn.onclick = () => {
+      tabs.forEach(b => b.classList.remove("active"));
+      contents.forEach(c => c.classList.add("hidden"));
+      btn.classList.add("active");
+      document.getElementById(btn.dataset.tab).classList.remove("hidden");
+    };
+  });
+
+  // Renderizar produtos
+  const productTable = document.querySelector("#productTable tbody");
+  const historicoTable = document.querySelector("#historicoTable tbody");
+
+  function renderizarProdutos(lista = produtos) {
+    productTable.innerHTML = "";
+    lista.forEach((p, index) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${p.nome}</td>
+        <td>${p.quantidade}</td>
+        <td>${p.data}</td>
+        <td>
+          <button class="btn" onclick="editarProduto(${index})">Editar</button>
+          <button class="btn btn-danger" onclick="removerProduto(${index})">Remover</button>
+        </td>`;
+      productTable.appendChild(row);
+    });
   }
 
-  function showLogin() {
-    document.getElementById('loginScreen').classList.remove('hidden');
-    document.getElementById('appScreen').classList.add('hidden');
+  function renderizarHistorico() {
+    historicoTable.innerHTML = "";
+    historico.forEach(item => {
+      const row = document.createElement("tr");
+      row.innerHTML = `<td>${item.nome}</td><td>${item.quantidade}</td><td>${item.data}</td>`;
+      historicoTable.appendChild(row);
+    });
   }
 
-  function showApp(user, lastLogin) {
-    document.getElementById('loginScreen').classList.add('hidden');
-    document.getElementById('appScreen').classList.remove('hidden');
-    document.getElementById('userNameDisplay').textContent = user;
-    document.getElementById('lastLoginDisplay').textContent = 'Último login: ' + lastLogin;
-    renderProducts();
-    renderHistory();
-    renderUsers();
-    showTab(currentTab);
-  }
+  // Adicionar ou atualizar
+  document.getElementById("addProductBtn").onclick = () => {
+    const nome = document.getElementById("productName").value.trim();
+    const quantidade = parseInt(document.getElementById("productQty").value);
+    if (!nome || isNaN(quantidade)) return alert("Preencha todos os campos.");
 
-  function login() {
-    const username = document.getElementById('loginUser').value.trim();
-    const password = document.getElementById('loginPass').value;
+    const index = produtos.findIndex(p => p.nome.toLowerCase() === nome.toLowerCase());
+    const dataAtual = new Date().toLocaleString();
 
-    if (!username || !password) {
-      alert('Por favor, insira nome de utilizador e palavra-passe.');
-      return;
-    }
-
-    const user = fixedUsers.find(u => u.name === username && u.password === password);
-
-    if (user) {
-      const now = new Date().toLocaleString();
-      sessionStorage.setItem('loggedUser', user.name);
-      sessionStorage.setItem('lastLogin', now);
-      showApp(user.name, now);
-      // Limpar campos login
-      document.getElementById('loginUser').value = '';
-      document.getElementById('loginPass').value = '';
-      editingIndex = -1;
+    if (index >= 0) {
+      produtos[index].quantidade = quantidade;
+      produtos[index].data = dataAtual;
     } else {
-      alert('Nome de utilizador ou palavra-passe inválidos.');
+      produtos.push({ nome, quantidade, data: dataAtual });
     }
-  }
 
-  function logout() {
-    if (confirm('Quer realmente terminar sessão?')) {
-      sessionStorage.removeItem('loggedUser');
-      sessionStorage.removeItem('lastLogin');
-      showLogin();
+    historico.push({ nome, quantidade, data: dataAtual });
+
+    guardarProdutos();
+    guardarHistorico();
+    renderizarProdutos();
+    renderizarHistorico();
+    document.getElementById("productName").value = "";
+    document.getElementById("productQty").value = "";
+  };
+
+  // Editar e Remover
+  window.editarProduto = function (index) {
+    const produto = produtos[index];
+    document.getElementById("productName").value = produto.nome;
+    document.getElementById("productQty").value = produto.quantidade;
+  };
+
+  window.removerProduto = function (index) {
+    if (confirm("Tem a certeza que deseja remover este produto?")) {
+      produtos.splice(index, 1);
+      guardarProdutos();
+      renderizarProdutos();
     }
-  }
+  };
 
-  // -----------------------
-  // Abas
-  // -----------------------
-
-  function showTab(tab) {
-    currentTab = tab;
-
-    document.querySelectorAll('.tab-content').forEach(s => s.classList.add('hidden'));
-    document.getElementById(tab).classList.remove('hidden');
-
-    // Atualizar estilos dos botões
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.classList.remove('border-blue-600', 'font-semibold');
-      btn.classList.add('hover:text-blue-700');
+  // Filtros
+  document.getElementById("filterBtn").onclick = () => {
+    const nome = document.getElementById("filterName").value.trim().toLowerCase();
+    const quantidade = parseInt(document.getElementById("filterQty").value);
+    const filtrado = produtos.filter(p => {
+      const matchNome = nome ? p.nome.toLowerCase().includes(nome) : true;
+      const matchQtd = !isNaN(quantidade) ? p.quantidade < quantidade : true;
+      return matchNome && matchQtd;
     });
-    document.getElementById('tab-' + tab).classList.add('border-blue-600', 'font-semibold');
-    document.getElementById('tab-' + tab).classList.remove('hover:text-blue-700');
-  }
+    renderizarProdutos(filtrado);
+  };
 
-  // -----------------------
-  // Produtos
-  // -----------------------
-
-  function getProducts() {
-    return JSON.parse(localStorage.getItem('products') || '[]');
-  }
-
-  function setProducts(products) {
-    localStorage.setItem('products', JSON.stringify(products));
-  }
-
-  function renderProducts() {
-    const products = getProducts();
-    const tbody = document.getElementById('productTable');
-    tbody.innerHTML = '';
-
-    products.forEach((p, i) => {
-      const tr = document.createElement('tr');
-      tr.className = 'hover:bg-gray-100';
-
-      tr.innerHTML = `
-        <td class="border px-4 py-2">${p.name}</td>
-        <td class="border px-4 py-2">${p.qty}</td>
-        <td class="border px-4 py-2">${p.updated}</td>
-        <td class="border px-4 py-2 space-x-2">
-          <button onclick="editProduct(${i})" class="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded transition">Editar</button>
-          <button onclick="deleteProduct(${i})" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded transition">Apagar</button>
-        </td>
-      `;
-
-      tbody.appendChild(tr);
-    });
-  }
-
-  function addOrUpdateProduct() {
-    const nameInput = document.getElementById('productName');
-    const qtyInput = document.getElementById('productQty');
-
-    const name = nameInput.value.trim();
-    const qty = Number(qtyInput.value);
-
-    if (!name) {
-      alert('Por favor, insira o nome do produto.');
-      return;
-    }
-    if (!qty || qty < 0) {
-      alert('Por favor, insira uma quantidade válida.');
-      return;
-    }
-
-    const products = getProducts();
-    const now = new Date().toLocaleString();
-    const user = sessionStorage.getItem('loggedUser') || 'Desconhecido';
-
-    if (editingIndex >= 0) {
-      // Editar
-      products[editingIndex].name = name;
-      products[editingIndex].qty = qty;
-      products[editingIndex].updated = now;
-
-      salvarHistorico(name, qty, now, user);
-
-      editingIndex = -1;
-    } else {
-      // Adicionar
-      products.push({ name, qty, updated: now });
-      salvarHistorico(name, qty, now, user);
-    }
-
-    setProducts(products);
-    renderProducts();
-
-    nameInput.value = '';
-    qtyInput.value = '';
-  }
-
-  function editProduct(i) {
-    const products = getProducts();
-    const p = products[i];
-    document.getElementById('productName').value = p.name;
-    document.getElementById('productQty').value = p.qty;
-    editingIndex = i;
-    showTab('produtos');
-  }
-
-  function deleteProduct(i) {
-    if (!confirm('Tem a certeza que deseja apagar este produto?')) return;
-
-    const products = getProducts();
-    products.splice(i, 1);
-    setProducts(products);
-    renderProducts();
-  }
-
-  // -----------------------
-  // Histórico
-  // -----------------------
-
-  function getHistory() {
-    return JSON.parse(localStorage.getItem('history') || '[]');
-  }
-
-  function setHistory(history) {
-    localStorage.setItem('history', JSON.stringify(history));
-  }
-
-  function salvarHistorico(nome, qty, data, utilizador) {
-    const history = getHistory();
-    history.push({ name: nome, qty: qty, date: data, user: utilizador });
-    setHistory(history);
-    renderHistory();
-  }
-
-  function renderHistory() {
-    const history = getHistory();
-    const tbody = document.getElementById('historyTable');
-    tbody.innerHTML = '';
-
-    // Mostrar do mais recente para o mais antigo
-    [...history].reverse().forEach(h => {
-      const tr = document.createElement('tr');
-      tr.className = 'hover:bg-gray-100';
-
-      tr.innerHTML = `
-        <td class="border px-4 py-2">${h.name}</td>
-        <td class="border px-4 py-2">${h.qty}</td>
-        <td class="border px-4 py-2">${h.date}</td>
-        <td class="border px-4 py-2">${h.user}</td>
-      `;
-
-      tbody.appendChild(tr);
-    });
-  }
-
-  // -----------------------
-  // Utilizadores (fixos, só leitura)
-  // -----------------------
-
-  function renderUsers() {
-    const tbody = document.getElementById('usersTable');
-    tbody.innerHTML = '';
-
-    fixedUsers.forEach(u => {
-      const tr = document.createElement('tr');
-      tr.className = 'hover:bg-gray-100';
-
-      tr.innerHTML = `
-        <td class="border px-4 py-2">${u.name}</td>
-      `;
-
-      tbody.appendChild(tr);
-    });
-  }
-
-  // -----------------------
-  // Exportação
-  // -----------------------
-
-  function exportToExcel() {
-    const products = getProducts();
-    if (products.length === 0) {
-      alert('Não há produtos para exportar.');
-      return;
-    }
-
+  // Exportações
+  document.getElementById("exportExcelBtn").onclick = () => {
+    const rows = produtos.map(p => [p.nome, p.quantidade, p.data]);
     const wb = XLSX.utils.book_new();
-    const wsData = [
-      ['Produto', 'Quantidade', 'Última Alteração'],
-      ...products.map(p => [p.name, p.qty, p.updated])
-    ];
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-    XLSX.utils.book_append_sheet(wb, ws, 'Produtos');
+    const ws = XLSX.utils.aoa_to_sheet([["Nome", "Quantidade", "Última alteração"], ...rows]);
+    XLSX.utils.book_append_sheet(wb, ws, "Produtos");
+    XLSX.writeFile(wb, "produtos.xlsx");
+  };
 
-    XLSX.writeFile(wb, 'produtos.xlsx');
-  }
-
-  async function exportToPDF() {
+  document.getElementById("exportPdfBtn").onclick = () => {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-
-    const products = getProducts();
-    if (products.length === 0) {
-      alert('Não há produtos para exportar.');
-      return;
-    }
-
-    doc.setFontSize(18);
-    doc.text('Lista de Produtos', 14, 22);
-    doc.setFontSize(12);
-
-    const colWidths = [70, 40, 60];
-    let startY = 30;
-
-    doc.text('Produto', 14, startY);
-    doc.text('Quantidade', 14 + colWidths[0], startY);
-    doc.text('Última Alteração', 14 + colWidths[0] + colWidths[1], startY);
-
-    startY += 8;
-
-    products.forEach(p => {
-      doc.text(p.name, 14, startY);
-      doc.text(p.qty.toString(), 14 + colWidths[0], startY);
-      doc.text(p.updated, 14 + colWidths[0] + colWidths[1], startY);
-      startY += 8;
-      if (startY > 280) {
-        doc.addPage();
-        startY = 20;
-      }
+    doc.autoTable({
+      head: [["Nome", "Quantidade", "Última alteração"]],
+      body: produtos.map(p => [p.nome, p.quantidade, p.data]),
     });
+    doc.save("produtos.pdf");
+  };
 
-    doc.save('produtos.pdf');
-  }
+  document.getElementById("printBtn").onclick = () => {
+    const win = window.open("", "", "width=800,height=600");
+    win.document.write(`<html><head><title>Imprimir Produtos</title></head><body>`);
+    win.document.write(`<h2>Lista de Produtos</h2>`);
+    win.document.write(document.querySelector("#productTable").outerHTML);
+    win.document.write("</body></html>");
+    win.document.close();
+    win.print();
+  };
 
-  // Inicializa
-  init();
+  // Inicialização
+  renderizarProdutos();
+  renderizarHistorico();
 </script>
-
 </body>
 </html>
