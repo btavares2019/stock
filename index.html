@@ -132,6 +132,7 @@
             <th>Nome</th>
             <th>Quantidade</th>
             <th>Última Alteração</th>
+            <th>Utilizador</th>
             <th>Ações</th>
           </tr>
         </thead>
@@ -152,6 +153,7 @@
             <th>Nome</th>
             <th>Quantidade</th>
             <th>Data</th>
+            <th>Utilizador</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -233,6 +235,7 @@ function renderizarProdutos(lista = produtos) {
       <td>${p.nome}</td>
       <td>${p.quantidade}</td>
       <td>${p.data}</td>
+      <td>${p.usuario || "Desconhecido"}</td>
       <td>
         <button class="btn" onclick="editarProduto(${i})">Editar</button>
         <button class="btn btn-danger" onclick="removerProduto(${i})">Remover</button>
@@ -246,7 +249,12 @@ function renderizarHistorico() {
   tbody.innerHTML = "";
   historico.forEach(h => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${h.nome}</td><td>${h.quantidade}</td><td>${h.data}</td>`;
+    tr.innerHTML = `
+      <td>${h.nome}</td>
+      <td>${h.quantidade}</td>
+      <td>${h.data}</td>
+      <td>${h.usuario || "Desconhecido"}</td>
+    `;
     tbody.appendChild(tr);
   });
 }
@@ -261,14 +269,16 @@ document.getElementById("addProductBtn").onclick = () => {
   const quantidade = parseInt(document.getElementById("productQty").value);
   if (!nome || isNaN(quantidade)) return alert("Preencha nome e quantidade.");
   const data = new Date().toLocaleString();
+  const usuario = utilizadorAtual || "Desconhecido";
   const idx = produtos.findIndex(p => p.nome.toLowerCase() === nome.toLowerCase());
   if (idx >= 0) {
     produtos[idx].quantidade = quantidade;
     produtos[idx].data = data;
+    produtos[idx].usuario = usuario;
   } else {
-    produtos.push({ nome, quantidade, data });
+    produtos.push({ nome, quantidade, data, usuario });
   }
-  historico.push({ nome, quantidade, data });
+  historico.push({ nome, quantidade, data, usuario });
   guardarProdutos();
   guardarHistorico();
   renderizarProdutos();
@@ -276,6 +286,7 @@ document.getElementById("addProductBtn").onclick = () => {
   document.getElementById("productName").value = "";
   document.getElementById("productQty").value = "";
 };
+
 function editarProduto(i) {
   const p = produtos[i];
   document.getElementById("productName").value = p.nome;
@@ -307,8 +318,8 @@ document.getElementById("filterBtn").onclick = () => {
 document.getElementById("exportExcelBtn").onclick = () => {
   const wb = XLSX.utils.book_new();
   const wsData = [
-    ["Nome", "Quantidade", "Última Alteração"],
-    ...produtos.map(p => [p.nome, p.quantidade, p.data])
+    ["Nome", "Quantidade", "Última Alteração", "Utilizador"],
+    ...produtos.map(p => [p.nome, p.quantidade, p.data, p.usuario || "Desconhecido"])
   ];
   const ws = XLSX.utils.aoa_to_sheet(wsData);
   XLSX.utils.book_append_sheet(wb, ws, "Produtos");
@@ -320,9 +331,9 @@ document.getElementById("exportPdfBtn").onclick = () => {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   doc.text("Produtos", 14, 16);
-  const rows = produtos.map(p => [p.nome, p.quantidade, p.data]);
+  const rows = produtos.map(p => [p.nome, p.quantidade, p.data, p.usuario || "Desconhecido"]);
   doc.autoTable({
-    head: [["Nome", "Quantidade", "Última Alteração"]],
+    head: [["Nome", "Quantidade", "Última Alteração", "Utilizador"]],
     body: rows,
     startY: 20,
   });
@@ -349,8 +360,8 @@ document.getElementById("resetQuantidadesBtn").onclick = () => {
   if (!confirm("Tem a certeza que deseja fazer reset a todas as quantidades?")) return;
   const dataAtual = new Date().toLocaleString();
   produtos = produtos.map(p => {
-    historico.push({ nome: p.nome, quantidade: 0, data: dataAtual });
-    return { ...p, quantidade: 0, data: dataAtual };
+    historico.push({ nome: p.nome, quantidade: 0, data: dataAtual, usuario: utilizadorAtual || "Desconhecido" });
+    return { ...p, quantidade: 0, data: dataAtual, usuario: utilizadorAtual || "Desconhecido" };
   });
   guardarProdutos();
   guardarHistorico();
@@ -358,6 +369,6 @@ document.getElementById("resetQuantidadesBtn").onclick = () => {
   renderizarHistorico();
 };
 </script>
+
 </body>
 </html>
-
