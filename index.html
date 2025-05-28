@@ -3,346 +3,167 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gestão de Produtos - Criado por Bruno Tavares 2025</title>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <title>Gestão de Produtos e Utilizadores</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f9fafb;
-      margin: 0; padding: 0;
-      color: #333;
-    }
-    header {
-      background: #2563eb;
-      color: white;
-      padding: 1rem 2rem;
-      font-size: 1.4rem;
-      font-weight: 700;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    button {
-      cursor: pointer;
-      transition: background-color 0.25s ease;
-      border: none;
-      border-radius: 5px;
-      font-weight: 600;
-    }
-    button:focus {
-      outline: 3px solid #93c5fd;
-      outline-offset: 2px;
-    }
-    .tab-btn {
-      background: none;
-      border-bottom: 3px solid transparent;
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      font-weight: 600;
-      color: #374151;
-    }
-    .tab-btn.border-blue-600 {
-      border-color: #2563eb;
-      color: #1e40af;
-    }
-    .tab-btn:hover:not(.border-blue-600) {
-      color: #2563eb;
-    }
-    .tab-content {
-      padding: 1rem 2rem;
-      background: white;
-      border-radius: 8px;
-      margin: 1rem 2rem 3rem 2rem;
-      box-shadow: 0 4px 6px rgb(0 0 0 / 0.1);
-    }
-    .hidden {
-      display: none;
-    }
-    input[type="text"], input[type="number"], input[type="password"] {
-      padding: 0.5rem 0.75rem;
-      font-size: 1rem;
-      border: 1px solid #d1d5db;
-      border-radius: 5px;
-      width: 100%;
-      max-width: 350px;
-      box-sizing: border-box;
-      transition: border-color 0.25s ease;
-    }
-    input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:focus {
-      border-color: #2563eb;
-      outline: none;
-      box-shadow: 0 0 5px #93c5fd;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.95rem;
-    }
-    th, td {
-      border: 1px solid #e5e7eb;
-      padding: 0.6rem 0.75rem;
-      text-align: left;
-    }
-    th {
-      background: #2563eb;
-      color: white;
-      user-select: none;
-    }
-    tr:hover {
-      background-color: #e0e7ff;
-    }
-    .btn-primary {
-      background-color: #2563eb;
-      color: white;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      margin-top: 0.5rem;
-      font-weight: 700;
-    }
-    .btn-primary:hover {
-      background-color: #1e40af;
-    }
-    .btn-danger {
-      background-color: #dc2626;
-      color: white;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      margin-top: 0.5rem;
-      font-weight: 700;
-    }
-    .btn-danger:hover {
-      background-color: #991b1b;
-    }
-    .btn-warning {
-      background-color: #f59e0b;
-      color: white;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      margin-top: 0.5rem;
-      font-weight: 700;
-    }
-    .btn-warning:hover {
-      background-color: #b45309;
-    }
-    .filter-inputs {
-      margin-bottom: 1rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      align-items: center;
-    }
-    .filter-inputs input {
-      flex-grow: 1;
-      max-width: 350px;
-    }
-    footer {
-      text-align: center;
-      color: #666;
-      font-size: 0.9rem;
-      padding: 1rem 0;
-      user-select: none;
-    }
-    .login-container {
-      max-width: 400px;
-      margin: 5rem auto;
-      background: white;
-      padding: 2rem 2.5rem;
-      border-radius: 10px;
-      box-shadow: 0 8px 24px rgb(0 0 0 / 0.15);
-    }
-    .login-container h2 {
-      margin-bottom: 1.5rem;
-      text-align: center;
-      color: #2563eb;
-    }
-    .login-container label {
-      font-weight: 600;
-      display: block;
-      margin-bottom: 0.3rem;
-      margin-top: 1rem;
-    }
-    .login-container input {
-      width: 100%;
-      font-size: 1rem;
-      padding: 0.5rem 0.75rem;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-    }
-    .login-container button {
-      width: 100%;
-      margin-top: 1.5rem;
-      padding: 0.75rem;
-      font-size: 1.1rem;
-      background-color: #2563eb;
-      color: white;
-      font-weight: 700;
-      border-radius: 8px;
-    }
-    .login-container button:hover {
-      background-color: #1e40af;
-    }
-    @media (max-width: 600px) {
-      header, .tab-content {
-        padding: 1rem;
-      }
-      .filter-inputs {
-        flex-direction: column;
-      }
-      .filter-inputs input {
-        max-width: 100%;
-      }
-    }
-  </style>
 </head>
-<body>
+<body class="bg-gray-100 font-sans min-h-screen flex flex-col">
 
-<header>
-  <div>Gestão de Produtos</div>
-  <div id="headerUserArea"></div>
-</header>
-
-<!-- Login -->
-<div id="loginScreen" class="login-container">
-  <h2>Entrar</h2>
-  <label for="loginUser">Nome de utilizador</label>
-  <input type="text" id="loginUser" autocomplete="username" />
-  <label for="loginPass">Palavra-passe</label>
-  <input type="password" id="loginPass" autocomplete="current-password" />
-  <button onclick="login()">Entrar</button>
-</div>
-
-<!-- Aplicação -->
-<div id="app" class="hidden">
-
-  <!-- Abas -->
-  <nav style="display:flex; gap:1rem; margin: 1rem 2rem;">
-    <button class="tab-btn" id="tab-produtos" onclick="showTab('produtos')">Produtos</button>
-    <button class="tab-btn" id="tab-historico" onclick="showTab('historico')">Histórico</button>
-    <button class="tab-btn" id="tab-utilizadores" onclick="showTab('utilizadores')">Utilizadores</button>
-  </nav>
-
-  <!-- Conteúdos -->
-  <section id="produtos" class="tab-content">
-    <h2>Produtos</h2>
-
-    <!-- Filtros -->
-    <div class="filter-inputs">
-      <input id="filterName" type="text" placeholder="Pesquisar por nome..." oninput="renderProducts()" />
-      <input id="filterQty" type="number" min="0" placeholder="Quantidade inferior a..." oninput="renderProducts()" />
+  <!-- LOGIN -->
+  <div id="loginScreen" class="flex flex-col justify-center items-center min-h-screen bg-gray-100 px-4">
+    <div class="bg-white p-8 rounded-lg shadow-md max-w-sm w-full text-center">
+      <h2 class="text-3xl font-bold mb-6 text-blue-700">Iniciar Sessão</h2>
+      <input id="loginUser" type="text" placeholder="Nome de utilizador" class="w-full mb-4 p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      <input id="loginPass" type="password" placeholder="Palavra-passe" class="w-full mb-6 p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded transition">Entrar</button>
     </div>
+  </div>
 
-    <div style="margin-bottom:1rem;">
-      <input type="text" id="productName" placeholder="Nome do produto" />
-      <input type="number" id="productQty" min="0" placeholder="Quantidade" style="width: 120px; margin-left: 1rem;" />
-      <button class="btn-primary" onclick="addOrUpdateProduct()">Guardar</button>
-    </div>
+  <!-- APP -->
+  <div id="appScreen" class="hidden flex flex-col flex-grow max-w-7xl mx-auto w-full px-6 py-8">
 
-    <table aria-label="Tabela de produtos">
-      <thead>
-        <tr>
-          <th>Produto</th>
-          <th>Quantidade</th>
-          <th>Última Alteração</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody id="productTable"></tbody>
-    </table>
+    <!-- Cabeçalho com título, info utilizador e logout -->
+    <header class="flex justify-between items-center mb-6">
+      <h1 class="text-4xl font-bold text-blue-700">Gestão de Produtos</h1>
+      <div class="text-right">
+        <p class="text-gray-700">Utilizador: <strong id="userNameDisplay"></strong></p>
+        <p class="text-gray-500 text-sm" id="lastLoginDisplay"></p>
+        <button onclick="logout()" class="mt-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition">Terminar Sessão</button>
+      </div>
+    </header>
 
-    <div style="margin-top: 1rem;">
-      <button class="btn-primary" onclick="exportToExcel()">Exportar para Excel</button>
-      <button class="btn-primary" onclick="exportToPDF()">Exportar para PDF</button>
-      <button class="btn-warning" onclick="window.print()">Imprimir</button>
-    </div>
-  </section>
+    <!-- Navegação por abas -->
+    <nav class="mb-6 border-b border-gray-300">
+      <ul class="flex space-x-4 text-gray-600">
+        <li><button id="tab-produtos" onclick="showTab('produtos')" class="tab-btn border-b-4 border-blue-600 font-semibold pb-2">Produtos</button></li>
+        <li><button id="tab-historico" onclick="showTab('historico')" class="tab-btn pb-2 hover:text-blue-700 transition">Histórico de Contagens</button></li>
+        <li><button id="tab-utilizadores" onclick="showTab('utilizadores')" class="tab-btn pb-2 hover:text-blue-700 transition">Gestão de Utilizadores</button></li>
+      </ul>
+    </nav>
 
-  <section id="historico" class="tab-content hidden">
-    <h2>Histórico de Contagens</h2>
-    <table aria-label="Tabela de histórico">
-      <thead>
-        <tr>
-          <th>Produto</th>
-          <th>Quantidade</th>
-          <th>Data</th>
-          <th>Utilizador</th>
-        </tr>
-      </thead>
-      <tbody id="historyTable"></tbody>
-    </table>
-  </section>
+    <!-- Conteúdos das abas -->
+    <section id="produtos" class="tab-content">
 
-  <section id="utilizadores" class="tab-content hidden">
-    <h2>Utilizadores</h2>
-    <table aria-label="Tabela de utilizadores">
-      <thead>
-        <tr><th>Nome</th></tr>
-      </thead>
-      <tbody id="usersTable"></tbody>
-    </table>
-  </section>
+      <!-- Formulário de produtos -->
+      <div class="bg-white p-4 rounded shadow mb-6">
+        <h2 class="text-xl font-semibold mb-4">Adicionar / Editar Produto</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <input id="productName" type="text" placeholder="Nome do produto" class="p-2 border rounded" />
+          <input id="productQty" type="number" placeholder="Quantidade" class="p-2 border rounded" />
+          <button onclick="addOrUpdateProduct()" class="bg-green-500 hover:bg-green-600 text-white p-2 rounded transition">Guardar</button>
+        </div>
+      </div>
 
-</div>
+      <!-- Tabela de produtos -->
+      <div class="bg-white p-4 rounded shadow mb-6 overflow-auto max-h-[400px]">
+        <table class="min-w-full table-auto border-collapse border text-sm text-left">
+          <thead class="bg-gray-200 sticky top-0">
+            <tr>
+              <th class="border px-4 py-2">Produto</th>
+              <th class="border px-4 py-2">Quantidade</th>
+              <th class="border px-4 py-2">Última Alteração</th>
+              <th class="border px-4 py-2">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="productTable"></tbody>
+        </table>
+      </div>
 
-<footer>
-  Criado por Bruno Tavares 2025
-</footer>
+      <!-- Botões de exportação e impressão -->
+      <div class="flex flex-wrap gap-4 mb-6">
+        <button onclick="exportToExcel()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">Exportar Excel</button>
+        <button onclick="exportToPDF()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Exportar PDF</button>
+        <button onclick="window.print()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">Imprimir</button>
+      </div>
+    </section>
+
+    <section id="historico" class="tab-content hidden">
+      <h2 class="text-2xl font-semibold mb-4 text-blue-700">Histórico de Contagens</h2>
+      <div class="bg-white p-4 rounded shadow overflow-auto max-h-[450px]">
+        <table class="min-w-full table-auto border-collapse border text-sm text-left">
+          <thead class="bg-gray-200 sticky top-0">
+            <tr>
+              <th class="border px-4 py-2">Produto</th>
+              <th class="border px-4 py-2">Quantidade</th>
+              <th class="border px-4 py-2">Data da Contagem</th>
+              <th class="border px-4 py-2">Utilizador</th>
+            </tr>
+          </thead>
+          <tbody id="historyTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="utilizadores" class="tab-content hidden">
+
+      <h2 class="text-2xl font-semibold mb-4 text-blue-700">Gestão de Utilizadores</h2>
+
+      <div class="bg-white p-4 rounded shadow mb-6 max-w-md">
+        <p class="text-gray-600 italic mb-4">A gestão de utilizadores está desativada nesta versão.</p>
+      </div>
+
+      <div class="bg-white p-4 rounded shadow overflow-auto max-h-[400px] max-w-md">
+        <h3 class="text-lg font-semibold mb-4">Lista de Utilizadores</h3>
+        <table class="min-w-full table-auto border-collapse border text-sm text-left">
+          <thead class="bg-gray-200 sticky top-0">
+            <tr>
+              <th class="border px-4 py-2">Nome</th>
+            </tr>
+          </thead>
+          <tbody id="usersTable"></tbody>
+        </table>
+      </div>
+
+    </section>
+
+  </div>
+
+  <!-- Rodapé -->
+  <footer class="mt-auto bg-gray-200 text-center text-gray-600 text-sm py-4 select-none">
+    Criado por Bruno Tavares 2025
+  </footer>
 
 <script>
-  // Utilizadores fixos
+  // Utilizadores fixos para login
   const fixedUsers = [
-    { name: 'btavares', password: 'btavares' },
-    { name: 'ltavares', password: 'ltavares' },
-    { name: 'dsantos', password: 'dsantos' },
-    { name: 'palvarenga', password: 'palvarenga' },
-    { name: 'rsantos', password: 'inovar' }
+    { name: 'admin', password: '1234' },
+    { name: 'user2', password: 'abcd' }
   ];
 
   let currentTab = 'produtos';
   let editingIndex = -1;
 
   // -----------------------
-  // Inicialização
+  // Gestão Login e Sessão
   // -----------------------
+
   function init() {
-    // Verifica se está logado
-    const loggedUser = sessionStorage.getItem('loggedUser');
+    // Verifica se utilizador está logado (usando sessionStorage para sessão temporária)
+    const user = sessionStorage.getItem('loggedUser');
     const lastLogin = sessionStorage.getItem('lastLogin');
 
-    if (loggedUser && lastLogin) {
-      showApp(loggedUser, lastLogin);
+    if (user) {
+      showApp(user, lastLogin);
     } else {
       showLogin();
     }
-    renderUsers();
-    renderHistory();
-    renderProducts();
-    showTab(currentTab);
   }
 
-  // -----------------------
-  // Mostrar / ocultar e login/logout
-  // -----------------------
   function showLogin() {
     document.getElementById('loginScreen').classList.remove('hidden');
-    document.getElementById('app').classList.add('hidden');
-    document.getElementById('headerUserArea').textContent = '';
+    document.getElementById('appScreen').classList.add('hidden');
   }
 
   function showApp(user, lastLogin) {
     document.getElementById('loginScreen').classList.add('hidden');
-    document.getElementById('app').classList.remove('hidden');
-    document.getElementById('headerUserArea').textContent = `${user} - Último login: ${lastLogin} `;
-    const logoutBtn = document.createElement('button');
-    logoutBtn.textContent = 'Logout';
-    logoutBtn.className = 'btn-danger';
-    logoutBtn.style.marginLeft = '1rem';
-    logoutBtn.onclick = logout;
-    // Remove logout se existir para não acumular
-    const headerArea = document.getElementById('headerUserArea');
-    while (headerArea.children.length > 0) headerArea.removeChild(headerArea.children[0]);
-    headerArea.textContent = `${user} - Último login: ${lastLogin} `;
-    headerArea.appendChild(logoutBtn);
+    document.getElementById('appScreen').classList.remove('hidden');
+    document.getElementById('userNameDisplay').textContent = user;
+    document.getElementById('lastLoginDisplay').textContent = 'Último login: ' + lastLogin;
+    renderProducts();
+    renderHistory();
+    renderUsers();
+    showTab(currentTab);
   }
 
   function login() {
@@ -365,10 +186,6 @@
       document.getElementById('loginUser').value = '';
       document.getElementById('loginPass').value = '';
       editingIndex = -1;
-      renderProducts();
-      renderHistory();
-      renderUsers();
-      showTab(currentTab);
     } else {
       alert('Nome de utilizador ou palavra-passe inválidos.');
     }
@@ -385,6 +202,7 @@
   // -----------------------
   // Abas
   // -----------------------
+
   function showTab(tab) {
     currentTab = tab;
 
@@ -403,6 +221,7 @@
   // -----------------------
   // Produtos
   // -----------------------
+
   function getProducts() {
     return JSON.parse(localStorage.getItem('products') || '[]');
   }
@@ -413,22 +232,10 @@
 
   function renderProducts() {
     const products = getProducts();
-
-    const filterName = document.getElementById('filterName').value.trim().toLowerCase();
-    const filterQtyRaw = document.getElementById('filterQty').value;
-    const filterQty = filterQtyRaw === '' ? null : Number(filterQtyRaw);
-
     const tbody = document.getElementById('productTable');
     tbody.innerHTML = '';
 
-    const filtered = products.filter(p => {
-      const nameMatch = p.name.toLowerCase().includes(filterName);
-      const qtyMatch = filterQty === null || p.qty < filterQty;
-      return nameMatch && qtyMatch;
-    });
-
-    filtered.forEach(p => {
-      const i = products.indexOf(p);
+    products.forEach((p, i) => {
       const tr = document.createElement('tr');
       tr.className = 'hover:bg-gray-100';
 
@@ -467,6 +274,7 @@
     const user = sessionStorage.getItem('loggedUser') || 'Desconhecido';
 
     if (editingIndex >= 0) {
+      // Editar
       products[editingIndex].name = name;
       products[editingIndex].qty = qty;
       products[editingIndex].updated = now;
@@ -475,6 +283,7 @@
 
       editingIndex = -1;
     } else {
+      // Adicionar
       products.push({ name, qty, updated: now });
       salvarHistorico(name, qty, now, user);
     }
@@ -493,3 +302,139 @@
     document.getElementById('productQty').value = p.qty;
     editingIndex = i;
     showTab('produtos');
+  }
+
+  function deleteProduct(i) {
+    if (!confirm('Tem a certeza que deseja apagar este produto?')) return;
+
+    const products = getProducts();
+    products.splice(i, 1);
+    setProducts(products);
+    renderProducts();
+  }
+
+  // -----------------------
+  // Histórico
+  // -----------------------
+
+  function getHistory() {
+    return JSON.parse(localStorage.getItem('history') || '[]');
+  }
+
+  function setHistory(history) {
+    localStorage.setItem('history', JSON.stringify(history));
+  }
+
+  function salvarHistorico(nome, qty, data, utilizador) {
+    const history = getHistory();
+    history.push({ name: nome, qty: qty, date: data, user: utilizador });
+    setHistory(history);
+    renderHistory();
+  }
+
+  function renderHistory() {
+    const history = getHistory();
+    const tbody = document.getElementById('historyTable');
+    tbody.innerHTML = '';
+
+    // Mostrar do mais recente para o mais antigo
+    [...history].reverse().forEach(h => {
+      const tr = document.createElement('tr');
+      tr.className = 'hover:bg-gray-100';
+
+      tr.innerHTML = `
+        <td class="border px-4 py-2">${h.name}</td>
+        <td class="border px-4 py-2">${h.qty}</td>
+        <td class="border px-4 py-2">${h.date}</td>
+        <td class="border px-4 py-2">${h.user}</td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  // -----------------------
+  // Utilizadores (fixos, só leitura)
+  // -----------------------
+
+  function renderUsers() {
+    const tbody = document.getElementById('usersTable');
+    tbody.innerHTML = '';
+
+    fixedUsers.forEach(u => {
+      const tr = document.createElement('tr');
+      tr.className = 'hover:bg-gray-100';
+
+      tr.innerHTML = `
+        <td class="border px-4 py-2">${u.name}</td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  // -----------------------
+  // Exportação
+  // -----------------------
+
+  function exportToExcel() {
+    const products = getProducts();
+    if (products.length === 0) {
+      alert('Não há produtos para exportar.');
+      return;
+    }
+
+    const wb = XLSX.utils.book_new();
+    const wsData = [
+      ['Produto', 'Quantidade', 'Última Alteração'],
+      ...products.map(p => [p.name, p.qty, p.updated])
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    XLSX.utils.book_append_sheet(wb, ws, 'Produtos');
+
+    XLSX.writeFile(wb, 'produtos.xlsx');
+  }
+
+  async function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    const products = getProducts();
+    if (products.length === 0) {
+      alert('Não há produtos para exportar.');
+      return;
+    }
+
+    doc.setFontSize(18);
+    doc.text('Lista de Produtos', 14, 22);
+    doc.setFontSize(12);
+
+    const colWidths = [70, 40, 60];
+    let startY = 30;
+
+    doc.text('Produto', 14, startY);
+    doc.text('Quantidade', 14 + colWidths[0], startY);
+    doc.text('Última Alteração', 14 + colWidths[0] + colWidths[1], startY);
+
+    startY += 8;
+
+    products.forEach(p => {
+      doc.text(p.name, 14, startY);
+      doc.text(p.qty.toString(), 14 + colWidths[0], startY);
+      doc.text(p.updated, 14 + colWidths[0] + colWidths[1], startY);
+      startY += 8;
+      if (startY > 280) {
+        doc.addPage();
+        startY = 20;
+      }
+    });
+
+    doc.save('produtos.pdf');
+  }
+
+  // Inicializa
+  init();
+</script>
+
+</body>
+</html>
