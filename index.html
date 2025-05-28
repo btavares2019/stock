@@ -222,7 +222,7 @@
 </main>
 
 <footer>
-  Criado por Bruno Tavares 2025 - Inovar+
+  Criado por Bruno Tavares 2025
 </footer>
 <script>
   let produtos = JSON.parse(localStorage.getItem("produtos") || "[]");
@@ -230,6 +230,7 @@
   let utilizadorAtual = localStorage.getItem("utilizadorAtual") || null;
 
   const users = [
+    { name: 'admin', password: 'admin' },
     { name: 'btavares', password: 'btavares' },
     { name: 'ltavares', password: 'ltavares' },
     { name: 'dsantos', password: 'dsantos' },
