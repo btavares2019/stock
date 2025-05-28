@@ -166,14 +166,14 @@
 </main>
 
 <footer>
-  Criado por Bruno Tavares 2025 - INOVAR+
+  Criado por Bruno Tavares 2025
 </footer>
 
 <script>
 const users = [
-    { name: 'admin', password: 'admin' },
-    { name: 'btavares', password: 'btavares' },
-   ];
+  { username: "admin", password: "1234" },
+  { username: "bruno", password: "2025" }
+];
 
 let produtos = JSON.parse(localStorage.getItem("produtos") || "[]");
 let historico = JSON.parse(localStorage.getItem("historico") || "[]");
@@ -276,7 +276,6 @@ document.getElementById("addProductBtn").onclick = () => {
   document.getElementById("productName").value = "";
   document.getElementById("productQty").value = "";
 };
-
 function editarProduto(i) {
   const p = produtos[i];
   document.getElementById("productName").value = p.nome;
